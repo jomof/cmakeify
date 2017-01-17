@@ -1,0 +1,39 @@
+apply plugin: 'java'
+
+group 'jomofisher'
+if (System.getenv()["TRAVIS_TAG"] != null) {
+    version System.getenv()["TRAVIS_TAG"]
+} else {
+    version ''
+}
+
+repositories {
+  jcenter()
+}
+
+buildscript {
+  repositories {
+      jcenter()
+  }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives sourcesJar
+    archives javadocJar
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'com.google.guava', name: 'guava', version: '20.0'
+    testCompile group: 'com.google.truth', name: 'truth', version: '0.31'
+}

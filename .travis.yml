@@ -1,0 +1,27 @@
+language: java
+sudo: false
+matrix:
+  include:
+  - os: linux
+    dist: trusty
+    jdk: oraclejdk8
+    script:
+    - "./gradlew assemble check"
+  - os: linux
+    jdk: jdk7
+    script:
+    - "./gradlew assemble check"
+  - os: linux
+    jdk: oraclejdk8
+    script:
+    - "./gradlew assemble check"
+  - os: osx
+    script:
+    - "./gradlew assemble check"
+deploy:
+  provider: releases
+  api_key:
+    secure: PV9BS5cWJg0vDgZWAto7AZJBJm+11I0EGgpYgHavfOeCN++9x4SUCID1PFipNOcaTwOps8vhKn0q+aP/kKoan0/WkmAWKYWf2OETcZMKEvqTkjtF2BVSfROoG8rcQi+sJXDKcAm6yay6w9t6guxFFX7gE5ozg6edxwmAt3QBpPSqX+meNBfJ5HP8c4X8VnkXjiv4gTofR73yj4UUVDfEgjB9BMlsSaK+uKbyyzVkAYIHXi0+Wt7d9V7oZDneK0NBOEXjSgUtrTwDMPajLSV+2x4FJ597OnjVOOvI88TDUuoiSop8VjqzKPz81Z6OukUEQslH1TacrqZ11AU3Iqk3y4UCIV7xgByDux+AP+s79J6owNELcgJXzVKqqs69Bu14f6o2hmQHBez0WBVAZDYAvNn9COX9xaLEEPldyghjIgdaRRlfPrCfBE8hR5qJgiGfAQLJBhdfVAtVROBdxTPx772tGPc5vVf6codiSKNyxVLL6zdjIdjDanp2w+qWOnUcrQZaQH9xQ8MDBwnwy1shX4Fj/WffuoJqYKlnQV0qraus9TEOuTSlbVEkTL5aY3WXlBDXoOu5D44ZHBRq2RXxbxLCpXeqMymZortIiOUjAb7tt5HWtpYysiagsxg4I5lBtaMELqoLaeZNP5zl71VVw/FxcW/zHas0AAgOYDw0J9Q=
+  file: build/xx
+  on:
+    repo: jomof/cmakeify
