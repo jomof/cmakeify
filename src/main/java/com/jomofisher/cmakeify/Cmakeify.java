@@ -1,4 +1,4 @@
-package com.jomofisher.cmakeify
+package com.jomofisher.cmakeify;
 
 public class Cmakeify {
 }
