@@ -3,7 +3,7 @@ sudo: false
 matrix:
   include:
   - os: linux
-    jdk: oraclejdk8
+    jdk: oraclejdk7
     script:
     - "./gradlew assemble check"
 deploy:
