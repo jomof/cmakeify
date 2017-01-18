@@ -4,7 +4,7 @@ group 'jomofisher'
 if (System.getenv()["TRAVIS_TAG"] != null) {
     version System.getenv()["TRAVIS_TAG"]
 } else {
-    version ''
+    version 'dev'
 }
 
 repositories {
@@ -16,6 +16,26 @@ buildscript {
       jcenter()
   }
 }
+
+class GenerateBuildInfo extends DefaultTask {
+    @OutputFile
+    public File buildInfoFile = new File("src/main/java/com/jomofisher/cmakeify/BuildInfo.java")
+
+    @TaskAction
+    def generate() {
+        buildInfoFile.parentFile.mkdirs()
+        buildInfoFile.write(
+                """package com.jomofisher.cmakeify;
+public class BuildInfo {
+  static final String PROJECT_VERSION = "$project.version";
+}""")
+    }
+}
+
+task generateBuildInfo(type : GenerateBuildInfo)
+compileJava.dependsOn generateBuildInfo
+//compileJava.source generateBuildInfo.buildInfoFile
+
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'

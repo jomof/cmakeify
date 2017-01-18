@@ -1,14 +1,25 @@
 package com.jomofisher.cmakeify;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.junit.Test;
 
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
+import static com.google.common.truth.Truth.assertThat;
 
 public class TestCmakeify {
-    @Test
-    public void testBob() {
 
+    private static String main(String... args) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PrintStream ps = new PrintStream(baos);
+        new Cmakeify(ps).go(new String[0]);
+        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    @Test
+    public void testVersion() throws IOException {
+        assertThat(main("--version")).contains(BuildInfo.PROJECT_VERSION);
     }
 }
