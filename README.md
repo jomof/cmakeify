@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/jomof/cmakeify.svg?branch=master)](https://travis-ci.org/jomof/cmakeify)
 
 
-# Literate Hash
+# CMakeify
 
 Download from releases or build it yourself:
 
