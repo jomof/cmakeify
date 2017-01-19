@@ -48,10 +48,12 @@ public class TestCmakeify {
         Files.write("target: [windows, linux, android]\n" +
                 "compiler: [gcc, clang]\n" +
                 "gcc:\n" +
-                "  versions: [4.9.0, 6.3.0]\n"
-                , yaml, StandardCharsets.UTF_8);
+                "  versions: [4.9.0, 6.3.0]\n",
+                yaml, StandardCharsets.UTF_8);
         String result = main("-wf", yaml.getParent(), "--dump");
-        assertThat(result).contains("target: windows linux android");
-        assertThat(result).contains("compiler: gcc clang");
+        assertThat(result).contains("target: windows, linux, android");
+        assertThat(result).contains("compiler: gcc, clang");
+        assertThat(result).contains("gcc:");
+        assertThat(result).contains("  versions: '4.9.0', '6.3.0'");
     }
 }

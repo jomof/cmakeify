@@ -24,17 +24,7 @@ public class Cmakeify {
     private boolean handleDump(String[] args) {
         for (int i = 0; i < args.length; ++i) {
             if (args[i].equals("--dump") || args[i].equals("-d")) {
-                out.printf("target: ");
-                for (int j = 0; j < config.target.length; ++j) {
-                    out.print(config.target[j] + " ");
-                }
-                out.printf("\n");
-
-                out.printf("compiler: ");
-                for (int j = 0; j < config.compiler.length; ++j) {
-                    out.print(config.compiler[j] + " ");
-                }
-                out.printf("\n");
+                out.print(config.toString());
                 return true;
             }
         }
