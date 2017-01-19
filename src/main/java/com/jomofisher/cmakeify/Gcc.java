@@ -9,14 +9,14 @@ public class Gcc {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("  versions: ");
+        sb.append("  versions: [");
         for (int j = 0; j < versions.length; ++j) {
             if (j != 0) {
                 sb.append(", ");
             }
             sb.append("'" + versions[j] + "'");
         }
-        sb.append("\n");
+        sb.append("]\n");
         return sb.toString();
     }
 }

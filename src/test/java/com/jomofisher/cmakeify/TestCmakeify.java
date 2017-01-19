@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -17,7 +16,7 @@ public class TestCmakeify {
     private static String main(String... args) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(baos);
-        new Cmakeify(ps).go(args);
+        new CMakeify(ps).go(args);
         return new String(baos.toByteArray(), StandardCharsets.UTF_8);
     }
 
@@ -45,15 +44,28 @@ public class TestCmakeify {
     public void simpleConfiguration() throws IOException {
         File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
         yaml.getParentFile().mkdirs();
-        Files.write("target: [windows, linux, android]\n" +
+        Files.write("target: [linux, android]\n" +
                 "compiler: [gcc, clang]\n" +
                 "gcc:\n" +
                 "  versions: [4.9.0, 6.3.0]\n",
                 yaml, StandardCharsets.UTF_8);
         String result = main("-wf", yaml.getParent(), "--dump");
-        assertThat(result).contains("target: windows, linux, android");
-        assertThat(result).contains("compiler: gcc, clang");
+        assertThat(result).contains("target: [linux, android]");
+        assertThat(result).contains("compiler: [gcc, clang]");
         assertThat(result).contains("gcc:");
-        assertThat(result).contains("  versions: '4.9.0', '6.3.0'");
+        assertThat(result).contains("  versions: ['4.9.0', '6.3.0']");
+    }
+
+    @Test
+    public void dumpIsSelfHost() throws IOException {
+        File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
+        yaml.getParentFile().mkdirs();
+        Files.write("", yaml, StandardCharsets.UTF_8);
+        String result1 = main("-wf", yaml.getParent(), "--dump");
+        yaml.delete();
+        Files.write(result1, yaml, StandardCharsets.UTF_8);
+        System.out.print(result1);
+        String result2 = main("-wf", yaml.getParent(), "--dump");
+        assertThat(result2).isEqualTo(result1);
     }
 }
