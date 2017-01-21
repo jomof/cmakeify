@@ -18,7 +18,6 @@ if [ -f "build/libs/cmakeify-${TRAVIS_TAG}.jar" ]; then
     echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-${TRAVIS_TAG}.jar
     ./cmakeify-downloads/cmakeify-run build/libs/cmakeify-${TRAVIS_TAG}.jar $2 $3 $4 $5
 else 
-    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-dev.jar
-    ls build/libs
-    ./cmakeify-downloads/cmakeify-run build/libs/cmakeify-dev.jar $2 $3 $4 $5
+    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify.jar
+    ./cmakeify-downloads/cmakeify-run build/libs/cmakeify.jar $2 $3 $4 $5
 fi 
