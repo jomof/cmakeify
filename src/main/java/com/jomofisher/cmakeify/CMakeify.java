@@ -14,25 +14,20 @@ public class CMakeify {
         Windows, MacOS, Linux, Other
     }
 
-    private static OSType hostOS;
-
-    static {
-        if (hostOS == null) {
-            String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-            if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
-                hostOS = OSType.MacOS;
-            } else if (OS.indexOf("win") >= 0) {
-                hostOS = OSType.Windows;
-            } else if (OS.indexOf("nux") >= 0) {
-                hostOS = OSType.Linux;
-            } else {
-                hostOS = OSType.Other;
-            }
-        }
-    }
+    private OSType hostOS;
 
     CMakeify(PrintStream out) {
         this.out = out;
+        String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
+        if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
+            hostOS = OSType.MacOS;
+        } else if (OS.indexOf("win") >= 0) {
+            hostOS = OSType.Windows;
+        } else if (OS.indexOf("nux") >= 0) {
+            hostOS = OSType.Linux;
+        } else {
+            hostOS = OSType.Other;
+        }
     }
 
     void go(String [] args) throws IOException {
@@ -40,11 +35,35 @@ public class CMakeify {
         handleWorkingFolder(args);
         if (!handleReadConfig(args)) return;
         if (!handleDump(args)) return;
-        if (!handleSupportedHostOS()) return;
+        if (!handleSupportedHostOS(args)) return;
         handleGenerateScript();
     }
 
-    private boolean handleSupportedHostOS() {
+    private boolean handleSupportedHostOS(String args[]) {
+
+        // Override host OS if requested
+        boolean takeNext = false;
+        for (int i = 0; i < args.length; ++i) {
+            if (takeNext) {
+                switch(args[i]) {
+                    case "Windows":
+                        hostOS = OSType.Windows;
+                        break;
+                    case "MacOS":
+                        hostOS = OSType.MacOS;
+                        break;
+                    case "Linux":
+                        hostOS = OSType.Linux;
+                        break;
+                    default:
+                        out.printf("host os specified by --host or -h %s not supported by cmakeify\n", args[i]);
+                        return false;
+                }
+                takeNext = false;
+            } else if (args[i].equals("--host") || args[i].equals("-h")) {
+                takeNext = true;
+            }
+        }
         if (hostOS != OSType.Linux) {
             out.printf("host OS type %s is not currently supported by cmakeify\n", hostOS);
             return false;
@@ -53,8 +72,23 @@ public class CMakeify {
     }
 
     private void handleGenerateScript() {
-        StringBuilder script = new StringBuilder();
+        ScriptBuilder script =  new LinuxScriptBuilder();
+
+        // Create working folders
+        script.createToolsFolder();
+        script.createDownloadsFolder();
+
+        // For each version of CMake
+        for (CMakeVersion cmakeVersion : config.cmake.versions) {
+            // Download the CMake needed.
+            script.downloadCMake(cmakeVersion);
+        }
+
+        File output = script.writeToShellScript(workingFolder);
+        out.printf("wrote script to %s\n", output);
     }
+
+
 
     private boolean handleDump(String[] args) {
         for (int i = 0; i < args.length; ++i) {

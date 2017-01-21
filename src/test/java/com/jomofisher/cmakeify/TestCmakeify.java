@@ -1,5 +1,7 @@
 package com.jomofisher.cmakeify;
 
+import com.google.common.base.Charsets;
+import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 import org.junit.Test;
 
@@ -7,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -38,6 +41,28 @@ public class TestCmakeify {
     @Test
     public void wfFlag() throws IOException {
         assertThat(main("-wf", "non-existing-blah")).contains("non-existing-blah");
+    }
+
+    @Test
+    public void testScript() throws IOException {
+        File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
+        Files.write("",
+            yaml, StandardCharsets.UTF_8);
+        String stdout = main("-wf", yaml.getParent(), "--host", "Linux");
+        assertThat(stdout).contains("wrote script to");
+        File scriptFile = new File(yaml.getParentFile(), "build.sh");
+        String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
+        assertThat(script).contains("CMAKEIFY_CMAKE_FOLDER=.cmakeify/tools/cmake-3.7.1-Linux-x86_64");
+        assertThat(script).contains("CMAKEIFY_CMAKE_FOLDER=.cmakeify/tools/cmake-3.7.2-Linux-x86_64");
+    }
+
+    @Test
+    public void weirdHost() throws IOException {
+        File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
+        Files.write("",
+            yaml, StandardCharsets.UTF_8);
+        assertThat(main("-wf", yaml.getParent(), "--host", "Joebob"))
+                .contains("Joebob");
     }
 
     @Test

@@ -4,10 +4,26 @@ public class CMake {
     final public CMakeVersion[] versions;
     CMake() {
         versions = new CMakeVersion[] {
-            new CMakeVersion(
-                    "https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.tar.gz",
-                    "https://cmake.org/files/v3.7/cmake-3.7.2-Darwin-x86_64.tar.gz")
+            version(3, 7, 1),
+            version(3, 7, 2)
         };
+    }
+
+    private static String productionPath(int major, int minor, int point, String os) {
+          return String.format("https://cmake.org/files/v%s.%s/cmake-%s.%s.%s-%s.tar.gz",
+                major, minor, major, minor, point, os);
+    }
+
+    private static String linuxPath(int major, int minor,int point) {
+        return productionPath(major, minor, point, "Linux-x86_64");
+    }
+
+    private static String darwinPath(int major, int minor,int point) {
+        return productionPath(major, minor, point, "Darwin-x86_64");
+    }
+
+    private CMakeVersion version(int major, int minor,int point) {
+        return new CMakeVersion(linuxPath(major, minor, point), darwinPath(major, minor, point));
     }
 
     @Override
