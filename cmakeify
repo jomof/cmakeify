@@ -14,4 +14,4 @@ fi
 
 curl -o cmakeify-downloads/cmakeify-run https://raw.githubusercontent.com/jomof/cmakeify-wrapper/master/cmakeify-$CMAKEIFY_CHANNEL &> cmakeify-downloads/download-cmakeify-run
 chmod +x ./cmakeify-downloads/cmakeify-run
-./cmakeify-downloads/cmakeify-run $2 $3 $4 $5
+./cmakeify-downloads/cmakeify-run build/libs/cmakeify-${TRAVIS_TAG}.jar $2 $3 $4 $5
