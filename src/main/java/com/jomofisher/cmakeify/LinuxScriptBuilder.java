@@ -44,7 +44,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     @Override
     File writeToShellScript(File workingFolder) {
         BufferedWriter writer = null;
-        File file = new File(workingFolder, "build.sh");
+        File file = new File(workingFolder, ".cmakeify/build.sh");
+        file.getAbsoluteFile().mkdirs();
+        file.delete();
         try {
             writer = new BufferedWriter(new FileWriter(file));
             writer.write(script.toString());

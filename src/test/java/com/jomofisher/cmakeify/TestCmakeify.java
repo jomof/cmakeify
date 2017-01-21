@@ -46,11 +46,12 @@ public class TestCmakeify {
     @Test
     public void testScript() throws IOException {
         File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
+        yaml.getParentFile().mkdirs();
         Files.write("",
             yaml, StandardCharsets.UTF_8);
         String stdout = main("-wf", yaml.getParent(), "--host", "Linux");
         assertThat(stdout).contains("wrote script to");
-        File scriptFile = new File(yaml.getParentFile(), "build.sh");
+        File scriptFile = new File(yaml.getParentFile(), ".cmakeify/build.sh");
         String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
         assertThat(script).contains("CMAKEIFY_CMAKE_FOLDER=.cmakeify/tools/cmake-3.7.1-Linux-x86_64");
         assertThat(script).contains("CMAKEIFY_CMAKE_FOLDER=.cmakeify/tools/cmake-3.7.2-Linux-x86_64");
