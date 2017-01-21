@@ -10,7 +10,7 @@ public class CMake {
     }
 
     private static String productionPath(int major, int minor, int point, String os) {
-          return String.format("https://cmake.org/files/v%s.%s/cmake-%s.%s.%s-%s.tar.gz",
+          return String.format("http://cmake.org/files/v%s.%s/cmake-%s.%s.%s-%s.tar.gz",
                 major, minor, major, minor, point, os);
     }
 
