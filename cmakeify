@@ -19,5 +19,6 @@ if [ -f "build/libs/cmakeify-${TRAVIS_TAG}.jar" ]; then
     ./cmakeify-downloads/cmakeify-run build/libs/cmakeify-${TRAVIS_TAG}.jar $2 $3 $4 $5
 else 
     echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-dev.jar
+    ls build/libs
     ./cmakeify-downloads/cmakeify-run build/libs/cmakeify-dev.jar $2 $3 $4 $5
 fi 
