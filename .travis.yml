@@ -10,7 +10,7 @@ matrix:
     jdk: oraclejdk7
     script:
     - ./gradlew assemble check
-    - ./cmakeify production build/libs/cmakeify-${TRAVIS_TAG}.jar
+    - ./cmakeify
 deploy:
   provider: releases
   api_key:
