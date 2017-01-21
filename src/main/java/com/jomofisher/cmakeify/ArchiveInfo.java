@@ -20,7 +20,12 @@ public class ArchiveInfo {
     }
 
     public String downloadToFolder(String downloadFolder) {
-        return String.format("wget --no-check-certificate %s -O %s/%s", url, downloadFolder, name);
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("if [ ! -f %s/%s ]; then\n", downloadFolder, name));
+        sb.append(String.format("    wget --no-check-certificate %s -O %s/%s &> %s/%s.log\n",
+                url, downloadFolder, name, downloadFolder, name));
+        sb.append("fi");
+        return sb.toString();
     }
 
     public String uncompressToFolder(String downloadFolder, String toolsFolder) {
