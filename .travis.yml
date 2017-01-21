@@ -1,11 +1,16 @@
 language: java
 sudo: false
+cache: 
+  directories: 
+    - .cmakeify
+    - ~/.gradle
 matrix:
   include:
   - os: linux
     jdk: oraclejdk7
     script:
-    - "./gradlew assemble check"
+    - ./gradlew assemble check
+    - ./cmakeify production build/libs/cmakeify-${TRAVIS_TAG}.jar
 deploy:
   provider: releases
   api_key:
