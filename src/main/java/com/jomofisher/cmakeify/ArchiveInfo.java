@@ -22,7 +22,7 @@ public class ArchiveInfo {
     public String downloadToFolder(String downloadFolder) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("if [ ! -f %s/%s ]; then\n", downloadFolder, name));
-        sb.append(String.format("    wget --no-check-certificate %s -O %s/%s &> %s/%s.download-log\n",
+        sb.append(String.format("    wget --no-check-certificate %s -O %s/%s > %s/%s.download-log 2>&1\n",
                 url, downloadFolder, name, downloadFolder, name));
         sb.append("fi");
         return sb.toString();
@@ -31,7 +31,7 @@ public class ArchiveInfo {
     public String uncompressToFolder(String downloadFolder, String toolsFolder) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("if [ ! -d %s/%s ]; then\n", toolsFolder, baseName));
-        sb.append(String.format("    tar xvfz %s/%s -C %s &> %s/%s.uncompress-log\n",
+        sb.append(String.format("    tar xvfz %s/%s -C %s > %s/%s.uncompress-log 2>&1\n",
                 downloadFolder, name, toolsFolder, toolsFolder, baseName));
         sb.append("fi");
         return sb.toString();

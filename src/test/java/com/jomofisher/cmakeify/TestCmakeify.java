@@ -30,7 +30,8 @@ public class TestCmakeify {
 
     @Test
     public void missingConfigurationFile() throws IOException {
-        assertThat(main()).contains("configuration file");
+        new File("test-files/empty-folder").mkdirs();
+        assertThat(main("-wf", "test-files/empty-folder")).contains("configuration file");
     }
 
     @Test
