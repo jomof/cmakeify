@@ -9,6 +9,7 @@ matrix:
   - os: linux
     jdk: oraclejdk7
     script:
+    - dpkg -l | grep gcc
     - ./gradlew assemble check
     - ./cmakeify
 addons:
