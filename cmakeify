@@ -14,6 +14,10 @@ fi
 
 curl -o cmakeify-downloads/cmakeify-run https://raw.githubusercontent.com/jomof/cmakeify-wrapper/master/cmakeify-$CMAKEIFY_CHANNEL &> cmakeify-downloads/download-cmakeify-run
 chmod +x ./cmakeify-downloads/cmakeify-run
-echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-${TRAVIS_TAG}.jar
-printenv
-./cmakeify-downloads/cmakeify-run build/libs/cmakeify-${TRAVIS_TAG}.jar $2 $3 $4 $5
+if [ -f "build/libs/cmakeify-${TRAVIS_TAG}.jar" ]
+    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-${TRAVIS_TAG}.jar
+    ./cmakeify-downloads/cmakeify-run build/libs/cmakeify-${TRAVIS_TAG}.jar $2 $3 $4 $5
+else 
+    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-dev.jar
+    ./cmakeify-downloads/cmakeify-run build/libs/cmakeify-dev.jar $2 $3 $4 $5
+fi 
