@@ -35,7 +35,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     @Override
     ScriptBuilder downloadCMake(CMakeVersion version) {
         ArchiveInfo archive = new ArchiveInfo(version.linux);
-        return append(archive.downloadToFolder(DOWNLOADS_FOLDER))
+        return append("echo Downloading %s", archive.url)
+              .append(archive.downloadToFolder(DOWNLOADS_FOLDER))
               .append(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER))
               .append("CMAKEIFY_CMAKE_FOLDER=%s/%s", TOOLS_FOLDER, archive.baseName)
               .append("$CMAKEIF_CMAKE_FOLDER/bin/cmake --version");
