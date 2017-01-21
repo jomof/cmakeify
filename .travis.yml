@@ -3,6 +3,7 @@ sudo: false
 cache: 
   directories: 
     - .cmakeify
+    - ~/.gradle
 matrix:
   include:
   - os: linux
