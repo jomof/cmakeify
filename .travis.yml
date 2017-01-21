@@ -1,5 +1,8 @@
 language: java
 sudo: false
+cache: 
+  directories: 
+    - .cmakeify
 matrix:
   include:
   - os: linux
