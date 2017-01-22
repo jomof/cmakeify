@@ -9,10 +9,14 @@ addons:
       - gcc-4.9
       - g++-4.9
       - clang-3.6
+      - mingw32-x-binutils 
+      - mingw32-x-gcc
+      - mingw32-x-runtime
     sources: 
       - ubuntu-toolchain-r-test
       - llvm-toolchain-precise-3.6
       - tobydox/mingw-x-precise 
+     
 cache: 
   directories: 
     - .cmakeify
