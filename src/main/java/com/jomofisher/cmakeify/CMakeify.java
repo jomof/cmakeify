@@ -118,7 +118,7 @@ public class CMakeify {
     private boolean handleReadConfig(String[] args) throws IOException {
         File config = new File(workingFolder, ".cmakeify.yml");
         if (!config.exists()) {
-            out.printf("# Expected a configuration file at %s\n", config.getCanonicalFile());
+            out.printf("Expected a configuration file at %s\n", config.getCanonicalFile());
             return false;
         }
 
@@ -135,12 +135,9 @@ public class CMakeify {
         for (int i = 0; i < args.length; ++i) {
             if (takeNext) {
                 this.workingFolder = new File(args[i]);
-                out.printf("# Setting working folder to %s\n", this.workingFolder.getCanonicalFile());
                 takeNext = false;
             } else if (args[i].equals("--working-folder") || args[i].equals("-wf")) {
                 takeNext = true;
-            } else {
-                out.printf("# Working folder considered and rejected %s\n", args[i]);
             }
         }
     }
