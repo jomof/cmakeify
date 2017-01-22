@@ -60,7 +60,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     ScriptBuilder checkForPackages(Collection<String> packages) {
         for (String p : packages) {
             append("if [[ ! -z \"$(which %s)\" ]]; then", p);
-            append("  echo Missing package %s. Please install. $(which %s).", p);
+            append("  echo Missing package %s. Please install. $(which %s).", p, p);
             append("  exit 100");
             append("fi");
         }
