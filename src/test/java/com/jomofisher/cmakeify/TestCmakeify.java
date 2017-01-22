@@ -51,7 +51,7 @@ public class TestCmakeify {
         Files.write("",
             yaml, StandardCharsets.UTF_8);
         main("-wf", yaml.getParent(), "--host", "Linux");
-        File scriptFile = new File(yaml.getParentFile(), ".cmakeify/build.sh");
+        File scriptFile = new File(".cmakeify/build.sh");
         String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
         assertThat(script).contains("CMAKEIFY_CMAKE_FOLDER=.cmakeify/tools/cmake-3.7.1-Linux-x86_64");
         assertThat(script).contains("CMAKEIFY_CMAKE_FOLDER=.cmakeify/tools/cmake-3.7.2-Linux-x86_64");
