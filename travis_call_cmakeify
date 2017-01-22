@@ -4,5 +4,5 @@ else
     TRAVIS_CMAKEIFY_JAR=build/libs/cmakeify.jar $@
 fi
 
-echo Customized cmakeify is trying to divert callee to local jar $TRAVIS_CMAKEIFY_JAR
+echo Trying to divert cmakeify callee to local jar $TRAVIS_CMAKEIFY_JAR
 ./cmakeify $TRAVIS_CMAKEIFY_JAR $@
