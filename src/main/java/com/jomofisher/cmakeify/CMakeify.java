@@ -141,6 +141,8 @@ public class CMakeify {
                 takeNext = false;
             } else if (args[i].equals("--working-folder") || args[i].equals("-wf")) {
                 takeNext = true;
+            } else {
+                out.printf("# Working folder considered and rejected %s\n", args[i]);
             }
         }
     }
