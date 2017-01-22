@@ -3,5 +3,6 @@ if [ -f "build/libs/cmakeify-${TRAVIS_TAG}.jar" ]; then
     TRAVIS_CMAKEIFY_JAR=build/libs/cmakeify-${TRAVIS_TAG}.jar
 fi
 
-echo --Trying to divert cmakeify callee to local jar '$TRAVIS_CMAKEIFY_JAR'
+echo Trying to divert cmakeify callee to local jar '$TRAVIS_CMAKEIFY_JAR'
+echo ./cmakeify $TRAVIS_CMAKEIFY_JAR $@
 ./cmakeify $TRAVIS_CMAKEIFY_JAR $@
