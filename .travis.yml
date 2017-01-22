@@ -1,11 +1,19 @@
 sudo: required
 addons: 
   apt: 
+      packages: 
+      - gcc-6
+      - g++-6
+      - gcc-5
+      - g++-5
+      - gcc-4.9
+      - g++-4.9
+      - clang-3.6
+      - gcc-mingw-w64-x86-64
     sources: 
       - ubuntu-toolchain-r-test
       - llvm-toolchain-precise-3.6
-      - tobydox/mingw-x-precise 
-     
+      - tobydox/mingw-x-precise  
 cache: 
   directories: 
     - .cmakeify
