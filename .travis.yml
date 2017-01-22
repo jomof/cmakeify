@@ -26,7 +26,7 @@ matrix:
       jdk: oraclejdk7
       os: linux
       script: 
-        - "dpkg -l | grep gcc"
-        - "./gradlew assemble check"
+        - ls /usr/bin | grep g++
+        - ./gradlew assemble check
         - ./cmakeify
 sudo: false
