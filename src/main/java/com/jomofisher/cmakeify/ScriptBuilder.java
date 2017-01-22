@@ -9,5 +9,5 @@ abstract class ScriptBuilder {
     abstract ScriptBuilder createDownloadsFolder();
     abstract ScriptBuilder downloadCMake(CMakeVersion version);
     abstract File writeToShellScript(File workingFolder);
-    abstract ScriptBuilder checkForPackages(Collection<String> packages);
+    abstract ScriptBuilder checkForCompilers(Collection<String> packages);
 }

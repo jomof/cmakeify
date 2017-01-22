@@ -1,7 +1,7 @@
 package com.jomofisher.cmakeify;
 
 public class Configuration {
-    enum OS {windows, linux, android};
+    ;
     enum Compiler {gcc, clang}
     final public OS targets[];
     final public Compiler compilers[];

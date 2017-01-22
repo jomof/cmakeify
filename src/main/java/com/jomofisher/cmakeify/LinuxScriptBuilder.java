@@ -57,7 +57,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder checkForPackages(Collection<String> packages) {
+    ScriptBuilder checkForCompilers(Collection<String> packages) {
         for (String p : packages) {
             append("if [[ -z \"$(which %s)\" ]]; then", p);
             append("  echo Missing package %s. Please install. $(which %s).", p, p);

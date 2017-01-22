@@ -76,13 +76,21 @@ public class CMakeify {
     private void handleGenerateScript() {
         ScriptBuilder script =  new LinuxScriptBuilder();
 
-        // Check that required packages are installed
-        Set<String> packages = new HashSet<>();
-        for (GccVersion gccVersion : config.gcc.versions) {
-            packages.add(gccVersion.c);
-            packages.add(gccVersion.cxx);
+        Set<OS> targetOS = new HashSet<>();
+        for (int i = 0; i < config.targets.length; ++i) {
+            targetOS.add(config.targets[i]);
         }
-        script.checkForPackages(packages);
+
+        // Check that required packages are installed
+        Set<String> compilers = new HashSet<>();
+        for (GccVersion gccVersion : config.gcc.versions) {
+            if (!targetOS.contains(gccVersion.target)) {
+                continue;
+            }
+            compilers.add(gccVersion.c);
+            compilers.add(gccVersion.cxx);
+        }
+        script.checkForCompilers(compilers);
 
         // Create working folders
         script.createToolsFolder();
