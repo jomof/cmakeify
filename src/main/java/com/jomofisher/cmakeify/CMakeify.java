@@ -76,6 +76,14 @@ public class CMakeify {
     private void handleGenerateScript() {
         ScriptBuilder script =  new LinuxScriptBuilder();
 
+        // Check that required packages are installed
+        Set<String> packages = new HashSet<>();
+        for (GccVersion gccVersion : config.gcc.versions) {
+            packages.add(gccVersion.c);
+            packages.add(gccVersion.cxx);
+        }
+        script.checkForPackages(packages);
+
         // Create working folders
         script.createToolsFolder();
         script.createDownloadsFolder();
@@ -86,14 +94,7 @@ public class CMakeify {
             script.downloadCMake(cmakeVersion);
         }
 
-        // Download gcc compilers.
-        Set<String> packages = new HashSet<>();
-        for (GccVersion gccVersion : config.gcc.versions) {
-            packages.add(gccVersion.c);
-            packages.add(gccVersion.cxx);
-        }
 
-        script.installPackages(packages);
 
         File output = script.writeToShellScript(workingFolder);
         out.printf("wrote script to %s\n", output);

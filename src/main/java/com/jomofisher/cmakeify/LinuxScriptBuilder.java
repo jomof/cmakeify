@@ -57,14 +57,13 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder installPackages(Collection<String> packages) {
-//        StringBuilder sb = new StringBuilder();
-//        sb.append("apt-get download --print-uris");
-//        for (String packge : packages) {
-//            sb.append(" ");
-//            sb.append(packge);
-//        }
-//        append(sb.toString());
+    ScriptBuilder checkForPackages(Collection<String> packages) {
+        for (String p : packages) {
+            append("if [[ ! -z \"$(which %s)\" ]]; then", p);
+            append("  echo Missing package %s. Please install.", p);
+            append("  exit 100");
+            append("fi");
+        }
         return this;
     }
 
