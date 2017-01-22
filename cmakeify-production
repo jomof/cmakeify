@@ -18,6 +18,7 @@ fi
 if [ -f "$1" ]; then
     echo Using $1 instead of $CMAKEIFY_JAR
     CMAKEIFY_JAR=$1
+    shift 1
 fi
 
 if [ ! -f $CMAKEIFY_JAR ]; then
@@ -191,7 +192,7 @@ if [ -f "./.cmakeify/build.sh" ]; then
   rm ./.cmakeify/build.sh
 fi
 
-"$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" com.jomofisher.cmakeify.CMakeify $2 $3 $4 $5 $6 $7 $8
+"$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" com.jomofisher.cmakeify.CMakeify $@
 chmod +x ./.cmakeify/build.sh
 .cmakeify/build.sh
 
