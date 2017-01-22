@@ -187,7 +187,7 @@ if [[ "$(uname)" == "Darwin" ]] && [[ "$HOME" == "$PWD" ]]; then
   cd "$(dirname "$0")"
 fi
 
-"$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" com.jomofisher.cmakeify.CMakeify "$@"
+"$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" com.jomofisher.cmakeify.CMakeify "$1 $2 $3 $4 $5 $6 $7 $8"
 chmod +x ./.cmakeify/build.sh
 .cmakeify/build.sh
 
