@@ -1,7 +1,7 @@
 sudo: required
 addons: 
   apt: 
-      packages: 
+    packages: 
       - gcc-6
       - g++-6
       - gcc-5
