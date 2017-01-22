@@ -27,6 +27,6 @@ matrix:
       os: linux
       script: 
         - ./gradlew assemble check
-        - ./travis_call_cmakeify -wf smoke-test
+        - ./travis_cmakeify -wf smoke-test
 
 sudo: false
