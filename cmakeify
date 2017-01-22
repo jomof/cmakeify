@@ -1,23 +1,17 @@
 #!/usr/bin/env bash
 
-CMAKEIFY_CHANNEL=$1
-if [ "$CMAKEIFY_CHANNEL" == "" ]; then
-  CMAKEIFY_CHANNEL=production
-else
-  echo Using $CMAKEIFY_CHANNEL channel
+CMAKEIFY_SCRIPT=https://raw.githubusercontent.com/jomof/cmakeify/master/cmakeify-production
+CMAKEIFY_DOWNLOAD_FOLDER=.cmakeify/downloads
+
+# Read any directives from .cmakeify.yml
+eval $(cat .cmakeify.yml | grep "#directive" | sed -r 's/^.{11}/export /')
+
+# Create the download folder
+if [ ! -d "$CMAKEIFY_DOWNLOAD_FOLDER" ]; then
+  mkdir -p $CMAKEIFY_DOWNLOAD_FOLDER
 fi
 
-if [ ! -d "cmakeify-downloads" ]; then 
-  echo Creating cmakeify-downloads directory
-  mkdir cmakeify-downloads
-fi
-
-curl -o cmakeify-downloads/cmakeify-run https://raw.githubusercontent.com/jomof/cmakeify-wrapper/master/cmakeify-$CMAKEIFY_CHANNEL &> cmakeify-downloads/download-cmakeify-run
-chmod +x ./cmakeify-downloads/cmakeify-run
-if [ -f "build/libs/cmakeify-${TRAVIS_TAG}.jar" ]; then
-    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-${TRAVIS_TAG}.jar
-    ./cmakeify-downloads/cmakeify-run build/libs/cmakeify-${TRAVIS_TAG}.jar $2 $3 $4 $5
-else 
-    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify.jar
-    ./cmakeify-downloads/cmakeify-run build/libs/cmakeify.jar $2 $3 $4 $5
-fi 
+echo Downloading CMAKEIFY_SCRIPT=$CMAKEIFY_SCRIPT to CMAKEIFY_SCRIPT=$CMAKEIFY_SCRIPT
+curl -o $CMAKEIFY_DOWNLOAD_FOLDER/cmakeify-run $CMAKEIFY_SCRIPT &> $CMAKEIFY_DOWNLOAD_FOLDER/download-cmakeify-run.log
+chmod +x $CMAKEIFY_DOWNLOAD_FOLDER/cmakeify-run
+$CMAKEIFY_DOWNLOAD_FOLDER/cmakeify-run $@

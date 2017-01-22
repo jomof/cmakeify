@@ -65,7 +65,7 @@ public class TestCmakeify {
         assertThat(main("-wf", yaml.getParent(), "--host", "Joebob"))
                 .contains("Joebob");
     }
-    
+
     @Test
     public void dumpIsSelfHost() throws IOException {
         File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");

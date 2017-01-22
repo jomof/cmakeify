@@ -27,5 +27,5 @@ matrix:
       os: linux
       script: 
         - ./gradlew assemble check
-        - ./cmakeify
+        - ./travis_call_cmakeify
 sudo: false
