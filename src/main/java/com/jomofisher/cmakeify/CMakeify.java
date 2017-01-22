@@ -81,7 +81,7 @@ public class CMakeify {
             targetOS.add(config.targets[i]);
         }
 
-        // Check that required packages are installed
+        // Check that required compilers are installed
         Set<String> compilers = new HashSet<>();
         for (GccVersion gccVersion : config.gcc.versions) {
             if (!targetOS.contains(gccVersion.target)) {
@@ -102,10 +102,7 @@ public class CMakeify {
             script.downloadCMake(cmakeVersion);
         }
 
-
-
-        File output = script.writeToShellScript(workingFolder);
-        out.printf("wrote script to %s\n", output);
+        script.writeToShellScript(workingFolder);
     }
 
 

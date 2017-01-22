@@ -50,8 +50,7 @@ public class TestCmakeify {
         yaml.getParentFile().mkdirs();
         Files.write("",
             yaml, StandardCharsets.UTF_8);
-        String stdout = main("-wf", yaml.getParent(), "--host", "Linux");
-        assertThat(stdout).contains("wrote script to");
+        main("-wf", yaml.getParent(), "--host", "Linux");
         File scriptFile = new File(yaml.getParentFile(), ".cmakeify/build.sh");
         String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
         assertThat(script).contains("CMAKEIFY_CMAKE_FOLDER=.cmakeify/tools/cmake-3.7.1-Linux-x86_64");
@@ -66,8 +65,7 @@ public class TestCmakeify {
         assertThat(main("-wf", yaml.getParent(), "--host", "Joebob"))
                 .contains("Joebob");
     }
-
-
+    
     @Test
     public void dumpIsSelfHost() throws IOException {
         File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
