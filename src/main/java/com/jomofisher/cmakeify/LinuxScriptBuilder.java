@@ -58,15 +58,15 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
     @Override
     ScriptBuilder installPackages(Collection<String> packages) {
-        append("sudo -E apt-get -yq update &>> .cmakeify/install-packages-update-before.log");
+        append("apt-get -yq update &>> .cmakeify/install-packages-update-before.log");
         StringBuilder sb = new StringBuilder();
-        sb.append("sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install");
+        sb.append("apt-get -yq --no-install-suggests --no-install-recommends --force-yes install");
         for (String packge : packages) {
             sb.append(" ");
             sb.append(packge);
         }
         append(sb.toString());
-        append("sudo -E apt-get -yq update &>> .cmakeify/install-packages-update-after.log");
+        append("apt-get -yq update &>> .cmakeify/install-packages-update-after.log");
         return this;
     }
 
