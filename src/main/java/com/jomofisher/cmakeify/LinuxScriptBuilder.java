@@ -28,8 +28,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     @Override
     ScriptBuilder downloadCMake(CMakeVersion version) {
         ArchiveInfo archive = new ArchiveInfo(version.linux);
-        return append("\necho Downloading %s", archive.url)
-              .append(archive.downloadToFolder(DOWNLOADS_FOLDER))
+        return append(archive.downloadToFolder(DOWNLOADS_FOLDER))
               .append(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER))
               .append("CMAKEIFY_CMAKE_FOLDER=%s/%s", TOOLS_FOLDER, archive.baseName)
               .append("$CMAKEIFY_CMAKE_FOLDER/bin/cmake --version");
@@ -60,7 +59,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     ScriptBuilder checkForCompilers(Collection<String> packages) {
         for (String p : packages) {
             append("if [[ -z \"$(which %s)\" ]]; then", p);
-            append("  echo Missing package %s. Please install. $(which %s).", p, p);
+            append("  echo Missing %s. Please install.", p);
             append("  exit 100");
             append("fi");
         }

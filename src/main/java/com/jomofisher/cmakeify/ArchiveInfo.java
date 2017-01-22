@@ -22,6 +22,7 @@ public class ArchiveInfo {
     public String downloadToFolder(String downloadFolder) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("if [ ! -f %s/%s ]; then\n", downloadFolder, name));
+        sb.append(String.format("    echo Downloading %s\n", url));
         sb.append(String.format("    wget --no-check-certificate %s -O %s/%s > %s/%s.download-log 2>&1\n",
                 url, downloadFolder, name, downloadFolder, name));
         sb.append("fi");
