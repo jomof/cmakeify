@@ -6,7 +6,7 @@ addons:
       - llvm-toolchain-precise-3.6
 cache: 
   directories: 
-    - .cmakeify
+    # - .cmakeify
     - ~/.gradle
 deploy: 
   api_key: 
@@ -29,4 +29,3 @@ matrix:
         - ./gradlew assemble check
         - ./travis_cmakeify -wf smoke-test
 
-sudo: false
