@@ -102,10 +102,8 @@ public class CMakeify {
             script.downloadCMake(cmakeVersion);
         }
 
-        script.writeToShellScript(workingFolder);
+        script.writeToShellScript();
     }
-
-
 
     private boolean handleDump(String[] args) {
         for (int i = 0; i < args.length; ++i) {

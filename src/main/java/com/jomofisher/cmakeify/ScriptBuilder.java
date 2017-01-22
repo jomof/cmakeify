@@ -8,6 +8,6 @@ abstract class ScriptBuilder {
     abstract ScriptBuilder createToolsFolder();
     abstract ScriptBuilder createDownloadsFolder();
     abstract ScriptBuilder downloadCMake(CMakeVersion version);
-    abstract File writeToShellScript(File workingFolder);
+    abstract File writeToShellScript();
     abstract ScriptBuilder checkForCompilers(Collection<String> packages);
 }
