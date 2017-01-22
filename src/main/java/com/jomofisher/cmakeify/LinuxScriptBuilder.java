@@ -3,6 +3,7 @@ package com.jomofisher.cmakeify;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.util.Collection;
 
 public class LinuxScriptBuilder  extends ScriptBuilder {
     final private static String TOOLS_FOLDER = ".cmakeify/tools";
@@ -12,14 +13,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     private LinuxScriptBuilder append(String format, Object... args) {
         script.append(String.format(format + "\n", args));
         return this;
-    }
-
-    private String getUrlBaseName(File url) {
-        String name = url.getName();
-        if (name.endsWith(".tar.gz")) {
-            return name.substring(0, name.length() - 7);
-        }
-        throw new RuntimeException("Did not recognize extension of " + name);
     }
 
     @Override
@@ -61,6 +54,20 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             }
         }
         return file;
+    }
+
+    @Override
+    ScriptBuilder installPackages(Collection<String> packages) {
+        append("sudo -E apt-get -yq update &>> .cmakeify/install-packages-update-before.log");
+        StringBuilder sb = new StringBuilder();
+        sb.append("sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install");
+        for (String packge : packages) {
+            sb.append(" ");
+            sb.append(packge);
+        }
+        append(sb.toString());
+        append("sudo -E apt-get -yq update &>> .cmakeify/install-packages-update-after.log");
+        return this;
     }
 
     @Override

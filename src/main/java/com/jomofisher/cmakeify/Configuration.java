@@ -3,13 +3,13 @@ package com.jomofisher.cmakeify;
 public class Configuration {
     enum OS {windows, linux, android};
     enum Compiler {gcc, clang}
-    final public OS target[];
-    final public Compiler compiler[];
+    final public OS targets[];
+    final public Compiler compilers[];
     final public Gcc gcc;
     final public CMake cmake;
     Configuration() {
-        target = OS.values();
-        compiler = Compiler.values();
+        targets = OS.values();
+        compilers = Compiler.values();
         gcc = new Gcc();
         cmake = new CMake();
     }
@@ -17,21 +17,21 @@ public class Configuration {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("target: [");
-        for (int j = 0; j < target.length; ++j) {
+        sb.append("targets: [");
+        for (int j = 0; j < targets.length; ++j) {
             if (j != 0) {
                 sb.append(", ");
             }
-            sb.append(target[j]);
+            sb.append(targets[j]);
         }
         sb.append("]\n");
 
-        sb.append("compiler: [");
-        for (int j = 0; j < compiler.length; ++j) {
+        sb.append("compilers: [");
+        for (int j = 0; j < compilers.length; ++j) {
             if (j != 0) {
                 sb.append(", ");
             }
-            sb.append(compiler[j]);
+            sb.append(compilers[j]);
         }
         sb.append("]\n");
         sb.append("gcc:\n");

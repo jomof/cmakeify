@@ -4,7 +4,9 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.*;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 public class CMakeify {
     private PrintStream out = System.out;
@@ -78,11 +80,20 @@ public class CMakeify {
         script.createToolsFolder();
         script.createDownloadsFolder();
 
-        // For each version of CMake
+        // Download the CMakes we need.
         for (CMakeVersion cmakeVersion : config.cmake.versions) {
             // Download the CMake needed.
             script.downloadCMake(cmakeVersion);
         }
+
+        // Download gcc compilers.
+        Set<String> packages = new HashSet<>();
+        for (GccVersion gccVersion : config.gcc.versions) {
+            packages.add(gccVersion.c);
+            packages.add(gccVersion.cxx);
+        }
+
+        script.installPackages(packages);
 
         File output = script.writeToShellScript(workingFolder);
         out.printf("wrote script to %s\n", output);
