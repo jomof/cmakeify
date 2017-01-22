@@ -1,7 +1,8 @@
 if [ -f "build/libs/cmakeify-${TRAVIS_TAG}.jar" ]; then
-    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify-${TRAVIS_TAG}.jar
-    ./cmakeify build/libs/cmakeify-${TRAVIS_TAG}.jar $@
+    TRAVIS_CMAKEIFY_JAR=build/libs/cmakeify-${TRAVIS_TAG}.jar $@
 else
-    echo Customized cmakeify is trying to divert callee to local jar build/libs/cmakeify.jar
-    ./cmakeify build/libs/cmakeify.jar $@
+    TRAVIS_CMAKEIFY_JAR=build/libs/cmakeify.jar $@
 fi
+
+echo Customized cmakeify is trying to divert callee to local jar $TRAVIS_CMAKEIFY_JAR
+./cmakeify $TRAVIS_CMAKEIFY_JAR $@
