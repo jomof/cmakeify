@@ -1,7 +1,6 @@
 addons: 
   apt: 
     packages: 
-      - mingw64-x-gcc
       - gcc-6
       - g++-6
       - gcc-5
@@ -9,9 +8,9 @@ addons:
       - gcc-4.9
       - g++-4.9
       - clang-3.6
-      - mingw32-x-binutils 
-      - mingw32-x-gcc
-      - mingw32-x-runtime
+      - gcc-mingw-w64-i686 
+      - gcc-mingw-w64-x86-64 
+      - binutils-mingw-w64
     sources: 
       - ubuntu-toolchain-r-test
       - llvm-toolchain-precise-3.6
