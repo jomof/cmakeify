@@ -120,7 +120,7 @@ public class CMakeify {
     private boolean handleReadConfig(String[] args) throws IOException {
         File config = new File(workingFolder, ".cmakeify.yml");
         if (!config.exists()) {
-            out.printf("Expected a configuration file at %s\n", config.getCanonicalFile());
+            out.printf("# Expected a configuration file at %s\n", config.getCanonicalFile());
             return false;
         }
 
