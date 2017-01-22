@@ -27,6 +27,7 @@ matrix:
       os: linux
       script: 
         - ls /usr/bin | grep g++
+        - ls /usr/bin | grep g++
         - ./gradlew assemble check
         - ./cmakeify
 sudo: false
