@@ -85,6 +85,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_C_COMPILER=gcc \\\n" +
                 "   -DCMAKE_CXX_COMPILER=g++",
                 cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder, outputFolder));
+
+        append(String.format("%s --build %s", cmakeExe, buildFolder));
+
         return this;
     }
 
