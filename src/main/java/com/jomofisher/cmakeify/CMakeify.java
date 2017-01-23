@@ -105,6 +105,9 @@ public class CMakeify {
         // Download the CMakes we need.
         for (CMakeVersion cmakeVersion : config.cmake.versions) {
             for (GccVersion gccVersion : config.gcc.versions) {
+                if (!targetOS.contains(gccVersion.target)) {
+                    continue;
+                }
                 script.cmake(
                         workingFolder,
                         cmakeVersion,
