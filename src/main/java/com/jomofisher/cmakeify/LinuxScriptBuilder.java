@@ -71,16 +71,18 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         ArchiveInfo archive = new ArchiveInfo(version.linux);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, archive.baseName);
         String outputFolder = String.format("%s/%s", workingDirectory, version.tag);
+        File buildFolder = new File(outputFolder, "build-files");
+        append("mkdir --parents %s", buildFolder);
         append(String.format(
                 "echo %s \\\n" +
-                "   -B%s/build-files \\\n" +
+                "   -B%s \\\n" +
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=linux \\\n" +
                 "   -DCMAKE_C_COMPILER=gcc \\\n" +
                 "   -DCMAKE_CXX_COMPILER=g++",
-                cmakeExe, outputFolder, outputFolder, outputFolder, outputFolder));
+                cmakeExe, buildFolder.getAbsolutePath(), outputFolder, outputFolder, outputFolder));
 
         append(String.format(
                 "%s \\\n" +
