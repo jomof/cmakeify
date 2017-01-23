@@ -67,10 +67,17 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder cmake(File workingDirectory, CMakeVersion version) {
-        ArchiveInfo archive = new ArchiveInfo(version.linux);
+    ScriptBuilder cmake(File workingDirectory, CMakeVersion cmake, GccVersion gccVersion,
+        boolean multipleCMake, boolean multipleGcc) {
+        ArchiveInfo archive = new ArchiveInfo(cmake.linux);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, archive.baseName);
-        String outputFolder = String.format("%s/%s", workingDirectory, version.tag);
+        File outputFolder = workingDirectory;
+        if (multipleCMake) {
+            outputFolder = new File(outputFolder, cmake.tag);
+        }
+        if (multipleGcc) {
+            outputFolder = new File(outputFolder, gccVersion.c);
+        }
         File buildFolder = new File(outputFolder, "build-files");
         append("mkdir --parents %s", buildFolder);
 
@@ -81,10 +88,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
-                "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
-                "   -DCMAKE_C_COMPILER=gcc \\\n" +
-                "   -DCMAKE_CXX_COMPILER=g++",
-                cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder, outputFolder));
+                "   -DCMAKE_SYSTEM_NAME=%s \\\n" +
+                "   -DCMAKE_C_COMPILER=%s \\\n" +
+                "   -DCMAKE_CXX_COMPILER=%s",
+                cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder,
+                    gccVersion.target.cmakeSystemName(), gccVersion.c, gccVersion.cxx));
 
         append(String.format("%s --build %s", cmakeExe, buildFolder));
 

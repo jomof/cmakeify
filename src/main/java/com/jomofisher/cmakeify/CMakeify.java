@@ -104,7 +104,14 @@ public class CMakeify {
 
         // Download the CMakes we need.
         for (CMakeVersion cmakeVersion : config.cmake.versions) {
-            script.cmake(workingFolder, cmakeVersion);
+            for (GccVersion gccVersion : config.gcc.versions) {
+                script.cmake(
+                        workingFolder,
+                        cmakeVersion,
+                        gccVersion,
+                        config.cmake.versions.length != 1,
+                        config.gcc.versions.length != 1);
+            }
         }
 
         script.writeToShellScript();
