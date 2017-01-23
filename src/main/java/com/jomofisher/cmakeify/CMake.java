@@ -23,7 +23,10 @@ public class CMake {
     }
 
     private CMakeVersion version(int major, int minor,int point) {
-        return new CMakeVersion(linuxPath(major, minor, point), darwinPath(major, minor, point));
+        return new CMakeVersion(
+                String.format("cmake-%s.%s.%s", major, minor, point),
+                linuxPath(major, minor, point),
+                darwinPath(major, minor, point));
     }
 
     @Override

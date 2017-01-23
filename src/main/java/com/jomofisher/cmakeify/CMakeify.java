@@ -102,6 +102,11 @@ public class CMakeify {
             script.downloadCMake(cmakeVersion);
         }
 
+        // Download the CMakes we need.
+        for (CMakeVersion cmakeVersion : config.cmake.versions) {
+            script.cmake(workingFolder, cmakeVersion);
+        }
+
         script.writeToShellScript();
     }
 

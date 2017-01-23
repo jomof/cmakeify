@@ -29,8 +29,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     ScriptBuilder downloadCMake(CMakeVersion version) {
         ArchiveInfo archive = new ArchiveInfo(version.linux);
         return append(archive.downloadToFolder(DOWNLOADS_FOLDER))
-              .append(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER))
-              .append("CMAKEIFY_CMAKE_FOLDER=%s/%s", TOOLS_FOLDER, archive.baseName);
+              .append(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
+              //.append("CMAKEIFY_CMAKE_FOLDER=%s/%s", TOOLS_FOLDER, archive.baseName);
               //.append("$CMAKEIFY_CMAKE_FOLDER/bin/cmake --version");
     }
 
@@ -56,13 +56,32 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder checkForCompilers(Collection<String> packages) {
-        for (String p : packages) {
-            append("if [[ -z \"$(which %s)\" ]]; then", p);
-            append("  echo Missing %s. Please install.", p);
+    ScriptBuilder checkForCompilers(Collection<String> compilers) {
+        for (String compiler : compilers) {
+            append("if [[ -z \"$(which %s)\" ]]; then", compiler);
+            append("  echo Missing %s. Please install.", compiler);
             append("  exit 100");
             append("fi");
         }
+        return this;
+    }
+
+    @Override
+    ScriptBuilder cmake(File workingDirectory, CMakeVersion version) {
+        ArchiveInfo archive = new ArchiveInfo(version.linux);
+        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, archive.baseName);
+        String outputFolder = String.format("%s/%s", workingDirectory, version.tag);
+        String call = String.format(
+                "%s \\\n" +
+                "   -B%s/build-files \\\n" +
+                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
+                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
+                "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
+                "   -DCMAKE_SYSTEM_NAME=linux \\\n" +
+                "   -DCMAKE_C_COMPILER=gcc \\\n" +
+                "   -DCMAKE_CXX_COMPILER=g++",
+                cmakeExe, outputFolder, outputFolder, outputFolder, outputFolder);
+        append(call);
         return this;
     }
 
