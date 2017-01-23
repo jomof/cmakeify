@@ -81,7 +81,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
-                "   -DCMAKE_SYSTEM_NAME=linux \\\n" +
+                "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
                 "   -DCMAKE_C_COMPILER=gcc \\\n" +
                 "   -DCMAKE_CXX_COMPILER=g++",
                 cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder, outputFolder));
