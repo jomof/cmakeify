@@ -26,8 +26,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder downloadCMake(CMakeVersion version) {
-        ArchiveInfo archive = new ArchiveInfo(version.linux);
+    ScriptBuilder download(Remote remote) {
+        ArchiveInfo archive = new ArchiveInfo(remote.linux);
         return append(archive.downloadToFolder(DOWNLOADS_FOLDER))
               .append(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
     }
@@ -65,19 +65,25 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder cmake(File workingDirectory, CMakeVersion cmake, GccVersion gccVersion,
-        boolean multipleCMake, boolean multipleGcc) {
-        ArchiveInfo archive = new ArchiveInfo(cmake.linux);
+    ScriptBuilder cmake(
+            File workingDirectory,
+            String cmakeVersion,
+            Remote cmakeRemote,
+            GccVersion gccVersion,
+            boolean multipleCMake,
+            boolean multipleGcc) {
+        ArchiveInfo archive = new ArchiveInfo(cmakeRemote.linux);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, archive.baseName);
         File outputFolder = workingDirectory;
         if (multipleCMake) {
-            outputFolder = new File(outputFolder, cmake.tag);
+            outputFolder = new File(outputFolder, cmakeVersion);
         }
         if (multipleGcc) {
             outputFolder = new File(outputFolder, gccVersion.c);
         }
         File buildFolder = new File(outputFolder, "build-files");
         append("mkdir --parents %s", buildFolder);
+        append("echo Building to %s\n", outputFolder);
 
         append(String.format(
                 "%s \\\n" +

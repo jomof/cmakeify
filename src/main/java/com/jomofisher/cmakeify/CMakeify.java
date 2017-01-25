@@ -76,6 +76,9 @@ public class CMakeify {
     private void handleGenerateScript() {
         ScriptBuilder script =  new LinuxScriptBuilder();
 
+
+
+        // Map of compilers.
         Set<OS> targetOS = new HashSet<>();
         for (int i = 0; i < config.targets.length; ++i) {
             targetOS.add(config.targets[i]);
@@ -97,23 +100,43 @@ public class CMakeify {
         script.createDownloadsFolder();
 
         // Download the CMakes we need.
-        for (CMakeVersion cmakeVersion : config.cmake.versions) {
+        for (String cmakeVersion : config.cmake.versions) {
             // Download the CMake needed.
-            script.downloadCMake(cmakeVersion);
+            Remote remote = config.cmake.remotes.get(cmakeVersion);
+            if (remote == null) {
+                throw new RuntimeException(
+                    String.format("CMake version %s is not known. It doesn't have a remote.", cmakeVersion));
+            }
+            script.download(remote);
+        }
+
+        // Download the NDKs that we need
+        if (targetOS.contains(OS.android)) {
+            for (String version : config.android.ndk.versions) {
+                Remote remote = config.android.ndk.remotes.get(version);
+                if ( remote == null) {
+                    throw new RuntimeException(
+                            String.format("NDK version %s is not known. It doesn't have a remote.", version));
+                }
+                script.download(remote);
+            }
         }
 
         // Download the CMakes we need.
-        for (CMakeVersion cmakeVersion : config.cmake.versions) {
-            for (GccVersion gccVersion : config.gcc.versions) {
-                if (!targetOS.contains(gccVersion.target)) {
-                    continue;
+        for (String cmakeVersion : config.cmake.versions) {
+            for (OS target : targetOS) {
+                for (GccVersion gccVersion : config.gcc.versions) {
+                    if (target != gccVersion.target) {
+                        continue;
+                    }
+                    script.cmake(
+                            workingFolder,
+                            cmakeVersion,
+                            config.cmake.remotes.get(cmakeVersion),
+                            gccVersion,
+                            config.cmake.versions.length != 1,
+                            config.gcc.versions.length != 1);
                 }
-                script.cmake(
-                        workingFolder,
-                        cmakeVersion,
-                        gccVersion,
-                        config.cmake.versions.length != 1,
-                        config.gcc.versions.length != 1);
             }
         }
 

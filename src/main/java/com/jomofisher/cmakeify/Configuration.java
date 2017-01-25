@@ -7,11 +7,13 @@ public class Configuration {
     final public Compiler compilers[];
     final public Gcc gcc;
     final public CMake cmake;
+    final public Android android;
     Configuration() {
         targets = OS.values();
         compilers = Compiler.values();
         gcc = new Gcc();
         cmake = new CMake();
+        android = new Android();
     }
 
     @Override
@@ -39,6 +41,10 @@ public class Configuration {
         if (cmake != null) {
             sb.append("cmake:\n");
             sb.append(cmake.toString());
+        }
+        if (android != null) {
+            sb.append("android:\n");
+            sb.append(android.toString());
         }
         return sb.toString();
     }

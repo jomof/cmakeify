@@ -3,35 +3,17 @@ package com.jomofisher.cmakeify;
 import java.util.HashMap;
 import java.util.Map;
 
-public class CMake {
-    final public String[] versions;
+public class Ndk {
+    final public String versions[];
     final public Map<String, Remote> remotes;
-    CMake() {
-        versions = new String[] { "3.7.2" };
+    Ndk() {
+        versions = new String[] { "r13b" };
         remotes = new HashMap<>();
-        remotes.put("3.7.1", remote(3, 7, 1));
-        remotes.put("3.7.2", remote(3, 7, 2));
-    }
-
-    private static String productionPath(int major, int minor, int point, String os) {
-          return String.format("http://cmake.org/files/v%s.%s/cmake-%s.%s.%s-%s.tar.gz",
-                major, minor, major, minor, point, os);
-    }
-
-    private static String linuxPath(int major, int minor,int point) {
-        return productionPath(major, minor, point, "Linux-x86_64");
-    }
-
-    private static String darwinPath(int major, int minor,int point) {
-        return productionPath(major, minor, point, "Darwin-x86_64");
-    }
-
-    private Remote remote(int major, int minor,int point) {
-        return new Remote(
-                linuxPath(major, minor, point),
-                linuxPath(major, minor, point),
-                linuxPath(major, minor, point),
-                darwinPath(major, minor, point));
+        remotes.put("r13b", new Remote(
+                "https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip",
+                "https://dl.google.com/android/repository/android-ndk-r13b-windows-x86.zip",
+                "https://dl.google.com/android/repository/android-ndk-r13b-windows-x86_64.zip",
+                "https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip"));
     }
 
     @Override
@@ -58,4 +40,5 @@ public class CMake {
         }
         return sb.toString();
     }
+
 }

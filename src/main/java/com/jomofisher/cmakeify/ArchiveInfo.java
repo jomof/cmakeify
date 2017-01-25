@@ -13,6 +13,8 @@ public class ArchiveInfo {
         name = new File(url).getName();
         if (url.endsWith(".tar.gz")) {
             extension = ".tar.gz";
+        } else if (url.endsWith(".zip")) {
+            extension = ".zip";
         } else {
           throw new RuntimeException("Could not decode type of " + url);
         }
@@ -32,8 +34,18 @@ public class ArchiveInfo {
     public String uncompressToFolder(String downloadFolder, String toolsFolder) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("if [ ! -d %s/%s ]; then\n", toolsFolder, baseName));
-        sb.append(String.format("    tar xvfz %s/%s -C %s > %s/%s.uncompress-log 2>&1\n",
-                downloadFolder, name, toolsFolder, toolsFolder, baseName));
+        switch(extension) {
+            case ".tar.gz":
+                sb.append(String.format("    tar xvfz %s/%s -C %s > %s/%s.uncompress-log 2>&1\n",
+                        downloadFolder, name, toolsFolder, toolsFolder, baseName));
+                break;
+            case ".zip":
+                sb.append(String.format("    unzip %s/%s -d %s > %s/%s.uncompress-log 2>&1\n",
+                        downloadFolder, name, toolsFolder, toolsFolder, baseName));
+                break;
+            default:
+                throw new RuntimeException("Don't know how to uncompress " + name);
+        }
         sb.append("fi");
         return sb.toString();
     }
