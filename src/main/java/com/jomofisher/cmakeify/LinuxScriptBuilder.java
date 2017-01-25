@@ -73,7 +73,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             boolean multipleCMake,
             boolean multipleGcc) {
         ArchiveInfo archive = new ArchiveInfo(cmakeRemote.linux);
-        String cmakeExe = String.format("%s/%s/bin/cmakeLinux", TOOLS_FOLDER, archive.baseName);
+        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, archive.baseName);
         File outputFolder = workingDirectory;
         if (multipleCMake) {
             outputFolder = new File(outputFolder, cmakeVersion);
