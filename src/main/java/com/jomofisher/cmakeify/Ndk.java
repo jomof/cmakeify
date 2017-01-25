@@ -5,9 +5,11 @@ import java.util.Map;
 
 public class Ndk {
     final public String versions[];
+    final public String abis[];
     final public Map<String, Remote> remotes;
     Ndk() {
         versions = new String[] { "r13b" };
+        abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips", "mips64" };
         remotes = new HashMap<>();
         remotes.put("r13b", new Remote(
                 "https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip",
@@ -25,6 +27,14 @@ public class Ndk {
                 sb.append(", ");
             }
             sb.append(versions[j]);
+        }
+        sb.append("]\n");
+        sb.append("    abis: [");
+        for (int j = 0; j < abis.length; ++j) {
+            if (j != 0) {
+                sb.append(", ");
+            }
+            sb.append(abis[j]);
         }
         sb.append("]\n");
         if (remotes != null) {

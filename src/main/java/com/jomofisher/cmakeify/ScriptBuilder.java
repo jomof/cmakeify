@@ -9,7 +9,7 @@ abstract class ScriptBuilder {
     abstract ScriptBuilder createDownloadsFolder();
     abstract ScriptBuilder download(Remote remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
-    abstract ScriptBuilder cmake(
+    abstract ScriptBuilder cmakeLinux(
             File workingDirectory,
             String cmakeVersion,
             Remote cmakeRemote,

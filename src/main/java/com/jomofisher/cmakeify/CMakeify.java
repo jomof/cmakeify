@@ -125,17 +125,18 @@ public class CMakeify {
         // Download the CMakes we need.
         for (String cmakeVersion : config.cmake.versions) {
             for (OS target : targetOS) {
-                for (GccVersion gccVersion : config.gcc.versions) {
-                    if (target != gccVersion.target) {
-                        continue;
-                    }
-                    script.cmake(
-                            workingFolder,
-                            cmakeVersion,
-                            config.cmake.remotes.get(cmakeVersion),
-                            gccVersion,
-                            config.cmake.versions.length != 1,
-                            config.gcc.versions.length != 1);
+                switch (target) {
+                    case linux:
+                        for (GccVersion gccVersion : config.gcc.versions) {
+                            script.cmakeLinux(
+                                    workingFolder,
+                                    cmakeVersion,
+                                    config.cmake.remotes.get(cmakeVersion),
+                                    gccVersion,
+                                    config.cmake.versions.length != 1,
+                                    config.gcc.versions.length != 1);
+                        }
+                        break;
                 }
             }
         }

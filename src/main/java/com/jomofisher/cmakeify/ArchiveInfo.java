@@ -5,9 +5,9 @@ import java.io.File;
 
 public class ArchiveInfo {
     public final String url; // Like https://cmake.org/files/v3.7/cmake-3.7.1-Linux-x86_64.tar.gz
-    public final String name; // Like cmake-3.7.1-Linux-x86_64.tar.gz
+    public final String name; // Like cmakeLinux-3.7.1-Linux-x86_64.tar.gz
     public final String extension; // Like .tar.gz
-    public final String baseName; // Like cmake-3.7.1-Linux-x86_64
+    public final String baseName; // Like cmakeLinux-3.7.1-Linux-x86_64
     ArchiveInfo(String url) {
         this.url = url;
         name = new File(url).getName();
