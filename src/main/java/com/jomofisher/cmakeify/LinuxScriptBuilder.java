@@ -69,7 +69,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             File workingDirectory,
             String cmakeVersion,
             Remote cmakeRemote,
-            GccVersion gccVersion,
+            Toolset toolset,
             boolean multipleCMake,
             boolean multipleGcc) {
         ArchiveInfo archive = new ArchiveInfo(cmakeRemote.linux);
@@ -79,7 +79,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             outputFolder = new File(outputFolder, cmakeVersion);
         }
         if (multipleGcc) {
-            outputFolder = new File(outputFolder, gccVersion.c);
+            outputFolder = new File(outputFolder, toolset.c);
         }
         File buildFolder = new File(outputFolder, "build-files");
         append("mkdir --parents %s", buildFolder);
@@ -92,11 +92,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
-                "   -DCMAKE_SYSTEM_NAME=%s \\\n" +
+                "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
                 "   -DCMAKE_C_COMPILER=%s \\\n" +
                 "   -DCMAKE_CXX_COMPILER=%s",
                 cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder,
-                    gccVersion.target.cmakeSystemName(), gccVersion.c, gccVersion.cxx));
+                    toolset.c, toolset.cxx));
 
         append(String.format("%s --build %s", cmakeExe, buildFolder));
 

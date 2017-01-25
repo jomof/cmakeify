@@ -85,15 +85,14 @@ public class CMakeify {
         }
 
         // Check that required compilers are installed
-        Set<String> compilers = new HashSet<>();
-        for (GccVersion gccVersion : config.gcc.versions) {
-            if (!targetOS.contains(gccVersion.target)) {
-                continue;
+        if (targetOS.contains(OS.linux)) {
+            Set<String> compilers = new HashSet<>();
+            for (Toolset toolset : config.linux.toolsets.values()) {
+                compilers.add(toolset.c);
+                compilers.add(toolset.cxx);
             }
-            compilers.add(gccVersion.c);
-            compilers.add(gccVersion.cxx);
+            script.checkForCompilers(compilers);
         }
-        script.checkForCompilers(compilers);
 
         // Create working folders
         script.createToolsFolder();
@@ -127,17 +126,21 @@ public class CMakeify {
             for (OS target : targetOS) {
                 switch (target) {
                     case linux:
-                        for (GccVersion gccVersion : config.gcc.versions) {
-                            if (target != gccVersion.target) {
-                                continue;
+                        for (String compiler : config.linux.compilers) {
+                            Toolset toolset = config.linux.toolsets.get(compiler);
+                            if (toolset == null) {
+                                throw new RuntimeException(
+                                        String.format("Compiler %s is not a recognized toolset", compiler));
                             }
+
+
                             script.cmakeLinux(
                                     workingFolder,
                                     cmakeVersion,
                                     config.cmake.remotes.get(cmakeVersion),
-                                    gccVersion,
+                                    toolset,
                                     config.cmake.versions.length != 1,
-                                    config.gcc.versions.length != 1);
+                                    config.linux.compilers.length != 1);
                         }
                         break;
                 }

@@ -13,7 +13,7 @@ abstract class ScriptBuilder {
             File workingDirectory,
             String cmakeVersion,
             Remote cmakeRemote,
-            GccVersion gccVersion,
+            Toolset toolset,
             boolean multipleCMake,
             boolean multipleGcc);
 }

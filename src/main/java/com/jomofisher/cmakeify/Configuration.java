@@ -5,15 +5,15 @@ public class Configuration {
     enum Compiler {gcc, clang}
     final public OS targets[];
     final public Compiler compilers[];
-    final public Gcc gcc;
     final public CMake cmake;
     final public Android android;
+    final public Linux linux;
     Configuration() {
         targets = OS.values();
         compilers = Compiler.values();
-        gcc = new Gcc();
         cmake = new CMake();
         android = new Android();
+        linux = new Linux();
     }
 
     @Override
@@ -36,11 +36,14 @@ public class Configuration {
             sb.append(compilers[j]);
         }
         sb.append("]\n");
-        sb.append("gcc:\n");
-        sb.append(gcc.toString());
+
         if (cmake != null) {
             sb.append("cmake:\n");
             sb.append(cmake.toString());
+        }
+        if (linux != null) {
+            sb.append("linux:\n");
+            sb.append(linux.toString());
         }
         if (android != null) {
             sb.append("android:\n");

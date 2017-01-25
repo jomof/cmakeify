@@ -1,17 +1,14 @@
 package com.jomofisher.cmakeify;
 
-public class GccVersion {
+public class Toolset {
     final public String c;
     final public String cxx;
-    final public OS target;
-    GccVersion() {
+    Toolset() {
         c = null;
         cxx = null;
-        target = null;
     }
-    GccVersion(String c, String cxx, OS target) {
+    Toolset(String c, String cxx) {
         this.c = c;
         this.cxx = cxx;
-        this.target = target;
     }
 }
