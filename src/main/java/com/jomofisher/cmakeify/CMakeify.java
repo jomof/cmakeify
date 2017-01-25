@@ -128,6 +128,9 @@ public class CMakeify {
                 switch (target) {
                     case linux:
                         for (GccVersion gccVersion : config.gcc.versions) {
+                            if (target != gccVersion.target) {
+                                continue;
+                            }
                             script.cmakeLinux(
                                     workingFolder,
                                     cmakeVersion,
