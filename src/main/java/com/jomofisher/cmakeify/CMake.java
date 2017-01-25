@@ -15,7 +15,7 @@ public class CMake {
     }
 
     private static String productionPath(int major, int minor, int point, String os, String extension) {
-          return String.format("http://cmakeLinux.org/files/v%s.%s/cmakeLinux-%s.%s.%s-%s.%s",
+          return String.format("http://cmakeLinux.org/files/v%s.%s/cmake-%s.%s.%s-%s%s",
                 major, minor, major, minor, point, os, extension);
     }
 
