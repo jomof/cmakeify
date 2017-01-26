@@ -100,7 +100,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
-                "   -DCMAKE_SYSTEM_VERSION=21 \\\n" +
+                "   -DCMAKE_SYSTEM_VERSION=android-21 \\\n" +
                 "   -DCMAKE_ANDROID_STL_TYPE=gnustl_static \\\n" +
                 "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                 "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
