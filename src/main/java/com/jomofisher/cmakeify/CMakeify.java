@@ -132,8 +132,6 @@ public class CMakeify {
                                 throw new RuntimeException(
                                         String.format("Compiler %s is not a recognized toolset", compiler));
                             }
-
-
                             script.cmakeLinux(
                                     workingFolder,
                                     cmakeVersion,
