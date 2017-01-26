@@ -65,6 +65,48 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
+    ScriptBuilder cmakeAndroid(
+            File workingDirectory,
+            String cmakeVersion,
+            Remote cmakeRemote,
+            String ndkVersion,
+            Remote ndkRemote,
+            String abi,
+            boolean multipleCMake,
+            boolean multipleNDK) {
+        ArchiveInfo cmakeArchive = new ArchiveInfo(cmakeRemote.linux);
+        ArchiveInfo ndkArchive = new ArchiveInfo(ndkRemote.linux);
+        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, cmakeArchive.baseName);
+        File outputFolder = workingDirectory;
+        if (multipleCMake) {
+            outputFolder = new File(outputFolder, cmakeVersion);
+        }
+        if (multipleNDK) {
+            outputFolder = new File(outputFolder, ndkVersion);
+        }
+        File buildFolder = new File(outputFolder, "build-files");
+        append("mkdir --parents %s", buildFolder);
+        append("echo Building to %s\n", outputFolder);
+
+        append(String.format(
+                "%s \\\n" +
+                "   -H%s \\\n" +
+                "   -B%s \\\n" +
+                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
+                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
+                "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
+                "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
+                "   -DCMAKE_ANDROID_NDK=%s/%s \\\n" +
+                "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
+                cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder,
+                TOOLS_FOLDER, ndkArchive.baseName, abi));
+
+        append(String.format("%s --build %s", cmakeExe, buildFolder));
+
+        return this;
+    }
+
+    @Override
     ScriptBuilder cmakeLinux(
             File workingDirectory,
             String cmakeVersion,

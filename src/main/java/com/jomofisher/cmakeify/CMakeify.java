@@ -125,6 +125,25 @@ public class CMakeify {
         for (String cmakeVersion : config.cmake.versions) {
             for (OS target : targetOS) {
                 switch (target) {
+                    case android:
+                        for (String ndk : config.android.ndk.versions) {
+                            Remote remote = config.android.ndk.remotes.get(ndk);
+                            if (remote == null) {
+                                throw new RuntimeException(String.format("No remote found for NDK %s", ndk));
+                            }
+                            for (String abi : config.android.ndk.abis) {
+                                script.cmakeAndroid(
+                                        workingFolder,
+                                        cmakeVersion,
+                                        config.cmake.remotes.get(cmakeVersion),
+                                        ndk,
+                                        remote,
+                                        abi,
+                                        config.cmake.versions.length != 1,
+                                        config.android.ndk.versions.length != 1);
+                            }
+                        }
+                        break;
                     case linux:
                         for (String compiler : config.linux.compilers) {
                             Toolset toolset = config.linux.toolsets.get(compiler);
