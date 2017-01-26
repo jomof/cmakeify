@@ -40,7 +40,7 @@ public class ArchiveInfo {
                         downloadFolder, name, toolsFolder, toolsFolder, baseName));
                 break;
             case ".zip":
-                sb.append(String.format("    unzip %s/%s -d %s\n",
+                sb.append(String.format("    unzip %s/%s -d %s > %s/%s.uncompress-log 2>&1\n",
                         downloadFolder, name, toolsFolder, toolsFolder, baseName));
                 break;
             default:
