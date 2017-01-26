@@ -91,7 +91,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         append("ls %s", ndkFolder);
 
         append(String.format(
-                "%s \\\n" +
+                "%s --trace \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
