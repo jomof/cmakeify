@@ -88,7 +88,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         append("mkdir --parents %s", buildFolder);
         append("echo Building to %s\n", outputFolder);
         String ndkFolder = String.format("%s/android-ndk-%s", TOOLS_FOLDER, ndkVersion);
-        append("ls %s", ndkFolder);
+        append("ls %s/platforms", ndkFolder);
 
         append(String.format(
                 "%s \\\n" +

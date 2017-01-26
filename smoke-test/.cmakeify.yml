@@ -1,4 +1,4 @@
 targets: [android]
 android:
   ndk:
-    abis: [X86]
+    abis: [x86]
