@@ -77,7 +77,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         ArchiveInfo cmakeArchive = new ArchiveInfo(cmakeRemote.linux);
         ArchiveInfo ndkArchive = new ArchiveInfo(ndkRemote.linux);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, cmakeArchive.baseName);
-        File outputFolder = workingDirectory;
+        File outputFolder = new File(workingDirectory, "Android");
         if (multipleCMake) {
             outputFolder = new File(outputFolder, cmakeVersion);
         }
@@ -96,6 +96,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
+                "   -DCMAKE_SYSTEM_VERSION=21 \\\n" +
+                "   -DCMAKE_ANDROID_STL_TYPE=gnustl_static \\\n" +
                 "   -DCMAKE_ANDROID_NDK=%s/%s \\\n" +
                 "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
                 cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder,
@@ -116,7 +118,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             boolean multipleGcc) {
         ArchiveInfo archive = new ArchiveInfo(cmakeRemote.linux);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, archive.baseName);
-        File outputFolder = workingDirectory;
+        File outputFolder = new File(workingDirectory, "Linux");
         if (multipleCMake) {
             outputFolder = new File(outputFolder, cmakeVersion);
         }
