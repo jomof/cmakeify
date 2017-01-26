@@ -91,7 +91,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         append("ls %s", ndkFolder);
 
         append(String.format(
-                "%s \\\n" +
+                "%s --trace \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
                 "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \\\n" +
