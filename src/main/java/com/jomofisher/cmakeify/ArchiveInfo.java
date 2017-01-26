@@ -40,10 +40,8 @@ public class ArchiveInfo {
                         downloadFolder, name, toolsFolder, toolsFolder, baseName));
                 break;
             case ".zip":
-                sb.append(String.format("    unzip %s/%s -d %s > %s/%s.uncompress-log 2>&1\n",
+                sb.append(String.format("    unzip %s/%s -d %s\n",
                         downloadFolder, name, toolsFolder, toolsFolder, baseName));
-                sb.append(String.format("    ls -d %s\n",
-                        toolsFolder, baseName));
                 break;
             default:
                 throw new RuntimeException("Don't know how to uncompress " + name);
