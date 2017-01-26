@@ -87,6 +87,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         File buildFolder = new File(outputFolder, "build-files");
         append("mkdir --parents %s", buildFolder);
         append("echo Building to %s\n", outputFolder);
+        String ndkFolder = String.format("%s/android-ndk-%s", TOOLS_FOLDER, ndkVersion);
+        append("ls %s", ndkFolder);
 
         append(String.format(
                 "%s \\\n" +
@@ -98,10 +100,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
                 "   -DCMAKE_SYSTEM_VERSION=21 \\\n" +
                 "   -DCMAKE_ANDROID_STL_TYPE=gnustl_static \\\n" +
-                "   -DCMAKE_ANDROID_NDK=%s/android-ndk-%s \\\n" +
+                "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                 "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
                 cmakeExe, workingDirectory, buildFolder, outputFolder, outputFolder, outputFolder,
-                TOOLS_FOLDER, ndkVersion, abi));
+                ndkFolder, abi));
 
         append(String.format("%s --build %s", cmakeExe, buildFolder));
 
