@@ -91,9 +91,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         append("ls %s", ndkFolder);
 
         append(String.format(
-                "%s --trace \\\n" +
+                "%s \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
+                "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \\\n" +
+                "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=%s/bin \\\n" +
