@@ -1,4 +1,7 @@
 targets: [linux, android]
 cmake:
   versions: [3.7.2]
+android:
+  ndk:
+    versions: [r13b, r14-beta1]
 

@@ -11,7 +11,7 @@ public class Ndk {
     final public Map<String, RemoteArchive> remotes;
     Ndk() {
         versions = new String[] { "r13b" };
-        abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips", "mips64" };
+        abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64" };
         remotes = new HashMap<>();
         remotes.put("r13b", archiveUrlOf("r13b"));
         remotes.put("r14-beta1", archiveUrlOf("r14-beta1"));

@@ -7,6 +7,7 @@ abstract class ScriptBuilder {
     abstract File writeToShellScript();
     abstract ScriptBuilder createToolsFolder();
     abstract ScriptBuilder createDownloadsFolder();
+    abstract ScriptBuilder deleteBuildFolder(File workingFolder);
     abstract ScriptBuilder download(RemoteArchive remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
     abstract ScriptBuilder cmakeAndroid(

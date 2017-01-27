@@ -100,6 +100,7 @@ public class CMakeify {
         }
 
         // Create working folders
+        script.deleteBuildFolder(workingFolder);
         script.createToolsFolder();
         script.createDownloadsFolder();
 
