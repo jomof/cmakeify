@@ -1,4 +1,4 @@
-targets: [android]
-android:
-  ndk:
-    abis: [x86]
+targets: [linux, android]
+cmake:
+  versions: [3.7.2]
+

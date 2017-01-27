@@ -87,7 +87,12 @@ public class CMakeify {
         // Check that required compilers are installed
         if (targetOS.contains(OS.linux)) {
             Set<String> compilers = new HashSet<>();
-            for (Toolset toolset : config.linux.toolsets.values()) {
+            for (String compiler : config.linux.compilers) {
+                Toolset toolset = config.linux.toolsets.get(compiler);
+                if (toolset == null) {
+                    throw new RuntimeException(
+                        String.format("Compiler %s was not recognized in toolsets", compiler));
+                }
                 compilers.add(toolset.c);
                 compilers.add(toolset.cxx);
             }
@@ -101,10 +106,11 @@ public class CMakeify {
         // Download the CMakes we need.
         for (String cmakeVersion : config.cmake.versions) {
             // Download the CMake needed.
-            Remote remote = config.cmake.remotes.get(cmakeVersion);
+            RemoteArchive remote = config.cmake.remotes.get(cmakeVersion);
             if (remote == null) {
                 throw new RuntimeException(
-                    String.format("CMake version %s is not known. It doesn't have a remote.", cmakeVersion));
+                    String.format(
+                        "CMake version %s is not known. It doesn't have a remote.", cmakeVersion));
             }
             script.download(remote);
         }
@@ -112,7 +118,7 @@ public class CMakeify {
         // Download the NDKs that we need
         if (targetOS.contains(OS.android)) {
             for (String version : config.android.ndk.versions) {
-                Remote remote = config.android.ndk.remotes.get(version);
+                RemoteArchive remote = config.android.ndk.remotes.get(version);
                 if ( remote == null) {
                     throw new RuntimeException(
                             String.format("NDK version %s is not known. It doesn't have a remote.", version));
@@ -127,7 +133,7 @@ public class CMakeify {
                 switch (target) {
                     case android:
                         for (String ndk : config.android.ndk.versions) {
-                            Remote remote = config.android.ndk.remotes.get(ndk);
+                            RemoteArchive remote = config.android.ndk.remotes.get(ndk);
                             if (remote == null) {
                                 throw new RuntimeException(String.format("No remote found for NDK %s", ndk));
                             }

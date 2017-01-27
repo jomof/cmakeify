@@ -7,21 +7,21 @@ abstract class ScriptBuilder {
     abstract File writeToShellScript();
     abstract ScriptBuilder createToolsFolder();
     abstract ScriptBuilder createDownloadsFolder();
-    abstract ScriptBuilder download(Remote remote);
+    abstract ScriptBuilder download(RemoteArchive remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
     abstract ScriptBuilder cmakeAndroid(
             File workingDirectory,
             String cmakeVersion,
-            Remote cmakeRemote,
+            RemoteArchive cmakeRemote,
             String ndkVersion,
-            Remote ndkRemote,
+            RemoteArchive ndkRemote,
             String abi,
             boolean multipleCMake,
             boolean multipleNDK);
     abstract ScriptBuilder cmakeLinux(
             File workingDirectory,
             String cmakeVersion,
-            Remote cmakeRemote,
+            RemoteArchive cmakeRemote,
             Toolset toolset,
             boolean multipleCMake,
             boolean multipleGcc);

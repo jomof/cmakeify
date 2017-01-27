@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class CMake {
     final public String[] versions;
-    final public Map<String, Remote> remotes;
+    final public Map<String, RemoteArchive> remotes;
 
     CMake() {
         versions = new String[] { "3.7.1", "3.7.2" };
@@ -14,29 +14,31 @@ public class CMake {
         remotes.put("3.7.2", remote(3, 7, 2));
     }
 
-    private static String productionPath(int major, int minor, int point, String os, String extension) {
-          return String.format("http://cmakeLinux.org/files/v%s.%s/cmake-%s.%s.%s-%s%s",
-                major, minor, major, minor, point, os, extension);
+    private static ArchiveUrl productionPath(int major, int minor, int point, String os, String extension) {
+          return new ArchiveUrl(
+              String.format("cmake-%s.%s.%s-%s", major, minor, point, os),
+              String.format("http://cmake.org/files/v%s.%s/cmake-%s.%s.%s-%s%s",
+                major, minor, major, minor, point, os, extension));
     }
 
-    private static String linuxPath(int major, int minor,int point) {
+    private static ArchiveUrl linuxPath(int major, int minor,int point) {
         return productionPath(major, minor, point, "Linux-x86_64", ".tar.gz");
     }
 
-    private static String darwinPath(int major, int minor,int point) {
+    private static ArchiveUrl darwinPath(int major, int minor,int point) {
         return productionPath(major, minor, point, "Darwin-x86_64", ".tar.gz");
     }
 
-    private static String win32Path(int major, int minor,int point) {
+    private static ArchiveUrl win32Path(int major, int minor,int point) {
         return productionPath(major, minor, point, "win32-x86", ".zip");
     }
 
-    private static String win64Path(int major, int minor,int point) {
+    private static ArchiveUrl win64Path(int major, int minor,int point) {
         return productionPath(major, minor, point, "win64-x64", ".zip");
     }
 
-    private Remote remote(int major, int minor,int point) {
-        return new Remote(
+    private RemoteArchive remote(int major, int minor,int point) {
+        return new RemoteArchive(
                 linuxPath(major, minor, point),
                 win32Path(major, minor, point),
                 win64Path(major, minor, point),
@@ -57,12 +59,9 @@ public class CMake {
         if (remotes != null) {
             sb.append("    remotes:\n");
             for (String key : remotes.keySet()) {
-                Remote remote = remotes.get(key);
+                RemoteArchive remote = remotes.get(key);
                 sb.append("      " + key + ":\n");
-                sb.append("        linux: " + remote.linux + "\n");
-                sb.append("        win32: " + remote.win32 + "\n");
-                sb.append("        win64: " + remote.win64 + "\n");
-                sb.append("        darwin: " + remote.darwin + "\n");
+                sb.append(remote.toYaml("        "));
             }
         }
         return sb.toString();

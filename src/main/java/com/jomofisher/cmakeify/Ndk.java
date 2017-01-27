@@ -1,21 +1,33 @@
 package com.jomofisher.cmakeify;
 
+import static com.jomofisher.cmakeify.OS.linux;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Ndk {
     final public String versions[];
     final public String abis[];
-    final public Map<String, Remote> remotes;
+    final public Map<String, RemoteArchive> remotes;
     Ndk() {
         versions = new String[] { "r13b" };
         abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64", "mips", "mips64" };
         remotes = new HashMap<>();
-        remotes.put("r13b", new Remote(
-                "https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip",
-                "https://dl.google.com/android/repository/android-ndk-r13b-windows-x86.zip",
-                "https://dl.google.com/android/repository/android-ndk-r13b-windows-x86_64.zip",
-                "https://dl.google.com/android/repository/android-ndk-r13b-linux-x86_64.zip"));
+        remotes.put("r13b", archiveUrlOf("r13b"));
+        remotes.put("r14-beta1", archiveUrlOf("r14-beta1"));
+    }
+
+    private static RemoteArchive archiveUrlOf(String ndk) {
+        String unpackRoot = "android-ndk-" + ndk;
+        return new RemoteArchive(
+            new ArchiveUrl(unpackRoot,
+                "https://dl.google.com/android/repository/android-ndk-" + ndk + "-linux-x86_64.zip"),
+            new ArchiveUrl(unpackRoot,
+                "https://dl.google.com/android/repository/android-ndk-" + ndk + "-windows-x86.zip"),
+            new ArchiveUrl(unpackRoot,
+                "https://dl.google.com/android/repository/android-ndk-" + ndk + "-windows-x86_64.zip"),
+            new ArchiveUrl(unpackRoot,
+                "https://dl.google.com/android/repository/android-ndk-" + ndk + "-darwin-x86_64.zip"));
     }
 
     @Override
@@ -40,12 +52,9 @@ public class Ndk {
         if (remotes != null) {
             sb.append("    remotes:\n");
             for (String key : remotes.keySet()) {
-                Remote remote = remotes.get(key);
+                RemoteArchive remote = remotes.get(key);
                 sb.append("      " + key + ":\n");
-                sb.append("        linux: " + remote.linux + "\n");
-                sb.append("        win32: " + remote.win32 + "\n");
-                sb.append("        win64: " + remote.win64 + "\n");
-                sb.append("        darwin: " + remote.darwin + "\n");
+                sb.append(remote.toYaml("        "));
             }
         }
         return sb.toString();

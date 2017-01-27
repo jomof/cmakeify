@@ -8,8 +8,9 @@ public class Linux {
     final public Map<String, Toolset> toolsets;
 
     Linux() {
-        compilers = new String[] { "gcc-4.9" };
+        compilers = new String[] { "gcc-4.8" };
         toolsets = new HashMap<>();
+        toolsets.put("gcc-4.8", new Toolset("gcc-4.8", "g++-4.8"));
         toolsets.put("gcc-4.9", new Toolset("gcc-4.9", "g++-4.9"));
         toolsets.put("gcc-5", new Toolset("gcc-5", "g++-5"));
         toolsets.put("gcc-6", new Toolset("gcc-6", "g++-6"));
