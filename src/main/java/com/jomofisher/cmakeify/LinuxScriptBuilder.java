@@ -80,9 +80,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             RemoteArchive cmakeRemote,
             String ndkVersion,
             RemoteArchive ndkRemote,
+            String platform,
             String abi,
             boolean multipleCMake,
-            boolean multipleNDK) {
+            boolean multipleNDK,
+            boolean multiplePlatforms) {
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
             cmakeRemote.linux.unpackroot);
         File outputFolder = new File(getRootBuildFolder(workingDirectory), "Android");
@@ -92,33 +94,40 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         if (multipleNDK) {
             outputFolder = new File(outputFolder, ndkVersion);
         }
+        if (multiplePlatforms) {
+            outputFolder = new File(outputFolder, "android-" + platform);
+        }
+
         outputFolder = new File(outputFolder, abi);
         File buildFolder = new File(outputFolder, "cmake-generated-files");
-        append("echo Building to %s\n", outputFolder);
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
-        append("mkdir --parents %s/redist/bin", outputFolder.getAbsolutePath());
-        append("mkdir --parents %s/redist/include", outputFolder.getAbsolutePath());
+        File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
+            new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
+        append("if [ -d '%s' ]; then", archFolder);
+        append("  echo Building to %s\n", outputFolder);
+        append("  mkdir --parents %s/redist/bin", outputFolder.getAbsolutePath());
+        append("  mkdir --parents %s/redist/include", outputFolder.getAbsolutePath());
 
         append(String.format(
-                "%s \\\n" +
+                "  %s \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
                 "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=4.9 \\\n" +
                 "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
-                "   -DCMAKE_SYSTEM_VERSION=24 \\\n" +
+                "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/redist/include \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/redist/lib \\\n" +
                 "   -DCMAKE_ANDROID_STL_TYPE=gnustl_static \\\n" +
                 "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                 "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
-                cmakeExe, workingDirectory, buildFolder,
+                cmakeExe, workingDirectory, buildFolder, platform,
             outputFolder.getAbsolutePath(),
             outputFolder.getAbsolutePath(),
             new File(ndkFolder).getAbsolutePath(), abi));
 
-        append(String.format("%s --build %s", cmakeExe, buildFolder));
-        append(String.format("%s --install %s", cmakeExe, buildFolder));
+        append(String.format("  %s --build %s", cmakeExe, buildFolder));
+        append("fi");
 
         return this;
     }

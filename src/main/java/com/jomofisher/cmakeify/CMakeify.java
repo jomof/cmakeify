@@ -1,5 +1,7 @@
 package com.jomofisher.cmakeify;
 
+import static com.jomofisher.cmakeify.OS.linux;
+
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -85,7 +87,7 @@ public class CMakeify {
         }
 
         // Check that required compilers are installed
-        if (targetOS.contains(OS.linux)) {
+        if (targetOS.contains(linux)) {
             Set<String> compilers = new HashSet<>();
             for (String compiler : config.linux.compilers) {
                 Toolset toolset = config.linux.toolsets.get(compiler);
@@ -138,16 +140,20 @@ public class CMakeify {
                             if (remote == null) {
                                 throw new RuntimeException(String.format("No remote found for NDK %s", ndk));
                             }
-                            for (String abi : config.android.ndk.abis) {
-                                script.cmakeAndroid(
+                            for (String platform : config.android.ndk.platforms) {
+                                for (String abi : config.android.ndk.abis) {
+                                    script.cmakeAndroid(
                                         workingFolder,
                                         cmakeVersion,
                                         config.cmake.remotes.get(cmakeVersion),
                                         ndk,
                                         remote,
+                                        platform,
                                         abi,
                                         config.cmake.versions.length != 1,
-                                        config.android.ndk.versions.length != 1);
+                                        config.android.ndk.versions.length != 1,
+                                        config.android.ndk.platforms.length != 1);
+                                }
                             }
                         }
                         break;

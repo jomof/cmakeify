@@ -1,16 +1,16 @@
 package com.jomofisher.cmakeify;
 
-import static com.jomofisher.cmakeify.OS.linux;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class Ndk {
     final public String versions[];
+    final public String platforms[];
     final public String abis[];
     final public Map<String, RemoteArchive> remotes;
     Ndk() {
         versions = new String[] { "r13b" };
+        platforms = new String[] { "21" };
         abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64" };
         remotes = new HashMap<>();
         remotes.put("r13b", archiveUrlOf("r13b"));
@@ -47,6 +47,14 @@ public class Ndk {
                 sb.append(", ");
             }
             sb.append(abis[j]);
+        }
+        sb.append("]\n");
+        sb.append("    platforms: [");
+        for (int j = 0; j < platforms.length; ++j) {
+            if (j != 0) {
+                sb.append(", ");
+            }
+            sb.append(platforms[j]);
         }
         sb.append("]\n");
         if (remotes != null) {
