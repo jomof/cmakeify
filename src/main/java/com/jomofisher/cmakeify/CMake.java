@@ -8,7 +8,7 @@ public class CMake {
     final public Map<String, RemoteArchive> remotes;
 
     CMake() {
-        versions = new String[] { "3.7.1", "3.7.2" };
+        versions = new String[] { "3.7.2" };
         remotes = new HashMap<>();
         remotes.put("3.7.1", remote(3, 7, 1));
         remotes.put("3.7.2", remote(3, 7, 2));

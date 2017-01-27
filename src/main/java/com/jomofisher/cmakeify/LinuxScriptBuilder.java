@@ -105,7 +105,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
         append("if [ -d '%s' ]; then", archFolder);
         append("  echo Building to %s\n", outputFolder);
-        append("  mkdir --parents %s/redist/bin", outputFolder.getAbsolutePath());
+        append("  mkdir --parents %s/redist/lib", outputFolder.getAbsolutePath());
         append("  mkdir --parents %s/redist/include", outputFolder.getAbsolutePath());
 
         append(String.format(
