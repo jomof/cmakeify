@@ -94,7 +94,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "%s \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
-                "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=clang \\\n" +
+                "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=4.9 \\\n" +
                 "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/bin \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/bin \\\n" +
