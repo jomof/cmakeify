@@ -98,7 +98,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             outputFolder = new File(outputFolder, "android-" + platform);
         }
 
-        outputFolder = new File(outputFolder, abi);
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
         File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
@@ -117,14 +116,14 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
                 "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/redist/include \\\n" +
-                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/redist/lib \\\n" +
+                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/redist/lib/%s \\\n" +
                 "   -DCMAKE_ANDROID_STL_TYPE=gnustl_static \\\n" +
                 "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                 "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
                 cmakeExe, workingDirectory, buildFolder, platform,
             outputFolder.getAbsolutePath(),
             outputFolder.getAbsolutePath(),
-            new File(ndkFolder).getAbsolutePath(), abi));
+            abi, new File(ndkFolder).getAbsolutePath(), abi));
 
         append("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         append(String.format("  %s --build %s", cmakeExe, buildFolder));
