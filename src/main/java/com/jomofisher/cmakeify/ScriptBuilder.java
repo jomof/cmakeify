@@ -5,9 +5,7 @@ import java.util.Collection;
 
 abstract class ScriptBuilder {
     abstract File writeToShellScript();
-    abstract ScriptBuilder createToolsFolder();
-    abstract ScriptBuilder createDownloadsFolder();
-    abstract ScriptBuilder deleteBuildFolder(File workingFolder);
+    abstract ScriptBuilder createEmptyBuildFolder(File workingFolder);
     abstract ScriptBuilder download(RemoteArchive remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
     abstract ScriptBuilder cmakeAndroid(
@@ -28,4 +26,5 @@ abstract class ScriptBuilder {
             Toolset toolset,
             boolean multipleCMake,
             boolean multipleGcc);
+    abstract ScriptBuilder buildRedistFiles();
 }

@@ -49,7 +49,9 @@ public class TestCmakeify {
     public void testScript() throws IOException {
         File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
         yaml.getParentFile().mkdirs();
-        Files.write("",
+        Files.write("android:\n" +
+                        "  ndk:\n" +
+                        "    platforms: [21, 22]\n",
             yaml, StandardCharsets.UTF_8);
         main("-wf", yaml.getParent(), "--host", "Linux");
         File scriptFile = new File(".cmakeify/build.sh");

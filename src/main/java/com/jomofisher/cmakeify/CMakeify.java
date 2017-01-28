@@ -102,9 +102,7 @@ public class CMakeify {
         }
 
         // Create working folders
-        script.deleteBuildFolder(workingFolder);
-        script.createToolsFolder();
-        script.createDownloadsFolder();
+        script.createEmptyBuildFolder(workingFolder);
 
         // Download the CMakes we need.
         for (String cmakeVersion : config.cmake.versions) {
@@ -176,7 +174,7 @@ public class CMakeify {
                 }
             }
         }
-
+        script.buildRedistFiles();
         script.writeToShellScript();
     }
 
