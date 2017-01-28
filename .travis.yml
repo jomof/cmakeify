@@ -7,7 +7,7 @@ addons:
       - llvm-toolchain-precise-3.6
 cache: 
   directories: 
-    - .cmakeify
+    - .cmakeify/downloads
     - ~/.gradle
 deploy: 
   api_key: 
