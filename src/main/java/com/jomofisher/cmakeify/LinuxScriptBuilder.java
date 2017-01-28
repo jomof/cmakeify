@@ -140,37 +140,41 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             RemoteArchive cmakeRemote,
             Toolset toolset,
             boolean multipleCMake,
-            boolean multipleGcc) {
+            boolean multipleCompiler) {
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
             cmakeRemote.linux.unpackroot);
         File outputFolder = new File(getRootBuildFolder(workingDirectory), "Linux");
+        String zipName = workingDirectory.getAbsoluteFile().getParentFile().getName() + "-linux";
         if (multipleCMake) {
             outputFolder = new File(outputFolder,  "cmake-" + cmakeVersion);
+            zipName += "-cmake-" + cmakeVersion;
         }
-        if (multipleGcc) {
+        if (multipleCompiler) {
             outputFolder = new File(outputFolder, toolset.c);
+            zipName += "-" + toolset.c;
         }
+        zipName += ".zip";
+        File zip = new File(getOutputZipsFolder(workingDirectory), zipName).getAbsoluteFile();
         File buildFolder = new File(outputFolder, "cmake-generated-files");
+        File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         body("echo Building to %s\n", outputFolder);
-        body("mkdir --parents %s/redist/bin", outputFolder.getAbsolutePath());
-        body("mkdir --parents %s/redist/include", outputFolder.getAbsolutePath());
+        body("mkdir --parents %s/include", redistFolder);
 
         body(String.format(
                 "%s \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
-                "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/redist/include \\\n" +
-                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/redist/lib \\\n" +
+                "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
                 "   -DCMAKE_C_COMPILER=%s \\\n" +
                 "   -DCMAKE_CXX_COMPILER=%s",
                 cmakeExe, workingDirectory, buildFolder,
-            outputFolder.getAbsolutePath(),
-            outputFolder.getAbsolutePath(),
-            toolset.c, toolset.cxx));
+            redistFolder, redistFolder, toolset.c, toolset.cxx));
 
-        body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         body(String.format("%s --build %s", cmakeExe, buildFolder));
+        body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        redistFolderToZip.put(redistFolder.getAbsolutePath(), zip.getAbsolutePath());
 
         return this;
     }
@@ -180,6 +184,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         for(String redistFolder : redistFolderToZip.keySet()) {
             String zip = redistFolderToZip.get(redistFolder);
             body("zip %s %s -r", zip, redistFolder);
+            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        }
+        for(String redistFolder : redistFolderToZip.keySet()) {
+            String zip = redistFolderToZip.get(redistFolder);
             body("echo - %s", zip);
         }
         return this;
