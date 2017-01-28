@@ -126,6 +126,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             outputFolder.getAbsolutePath(),
             new File(ndkFolder).getAbsolutePath(), abi));
 
+        append("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         append(String.format("  %s --build %s", cmakeExe, buildFolder));
         append("fi");
 
@@ -168,6 +169,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             outputFolder.getAbsolutePath(),
             toolset.c, toolset.cxx));
 
+        append("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         append(String.format("%s --build %s", cmakeExe, buildFolder));
 
         return this;
