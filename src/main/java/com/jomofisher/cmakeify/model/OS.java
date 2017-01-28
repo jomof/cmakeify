@@ -1,6 +1,6 @@
-package com.jomofisher.cmakeify;
+package com.jomofisher.cmakeify.model;
 
-enum OS {
+public enum OS {
     windows,
     linux,
     android;

@@ -1,14 +1,14 @@
-package com.jomofisher.cmakeify;
+package com.jomofisher.cmakeify.model;
 
 public class Configuration {
-    ;
+
     enum Compiler {gcc, clang}
     final public OS targets[];
     final public Compiler compilers[];
     final public CMake cmake;
     final public Android android;
     final public Linux linux;
-    Configuration() {
+    public Configuration() {
         targets = OS.values();
         compilers = Compiler.values();
         cmake = new CMake();

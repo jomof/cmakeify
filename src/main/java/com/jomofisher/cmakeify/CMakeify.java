@@ -1,7 +1,9 @@
 package com.jomofisher.cmakeify;
 
-import static com.jomofisher.cmakeify.OS.linux;
-
+import com.jomofisher.cmakeify.model.Configuration;
+import com.jomofisher.cmakeify.model.OS;
+import com.jomofisher.cmakeify.model.RemoteArchive;
+import com.jomofisher.cmakeify.model.Toolset;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -87,7 +89,7 @@ public class CMakeify {
         }
 
         // Check that required compilers are installed
-        if (targetOS.contains(linux)) {
+        if (targetOS.contains(OS.linux)) {
             Set<String> compilers = new HashSet<>();
             for (String compiler : config.linux.compilers) {
                 Toolset toolset = config.linux.toolsets.get(compiler);

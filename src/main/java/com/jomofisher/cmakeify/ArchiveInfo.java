@@ -1,6 +1,8 @@
 package com.jomofisher.cmakeify;
 
 
+import com.jomofisher.cmakeify.model.ArchiveUrl;
+
 import java.io.File;
 
 public class ArchiveInfo {

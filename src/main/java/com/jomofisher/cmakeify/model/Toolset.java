@@ -1,4 +1,4 @@
-package com.jomofisher.cmakeify;
+package com.jomofisher.cmakeify.model;
 
 public class Toolset {
     final public String c;

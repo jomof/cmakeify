@@ -1,4 +1,4 @@
-package com.jomofisher.cmakeify;
+package com.jomofisher.cmakeify.model;
 
 public class RemoteArchive {
     final public ArchiveUrl linux;

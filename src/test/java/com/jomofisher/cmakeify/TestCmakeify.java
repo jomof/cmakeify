@@ -3,6 +3,7 @@ package com.jomofisher.cmakeify;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
+import com.jomofisher.cmakeify.model.Configuration;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
@@ -10,7 +11,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import static com.google.common.truth.Truth.assertThat;

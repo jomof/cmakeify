@@ -1,5 +1,8 @@
 package com.jomofisher.cmakeify;
 
+import com.jomofisher.cmakeify.model.RemoteArchive;
+import com.jomofisher.cmakeify.model.Toolset;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;

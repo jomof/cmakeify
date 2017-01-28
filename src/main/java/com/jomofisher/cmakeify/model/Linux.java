@@ -1,4 +1,4 @@
-package com.jomofisher.cmakeify;
+package com.jomofisher.cmakeify.model;
 
 import java.util.HashMap;
 import java.util.Map;

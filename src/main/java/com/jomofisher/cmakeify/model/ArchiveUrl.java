@@ -1,4 +1,4 @@
-package com.jomofisher.cmakeify;
+package com.jomofisher.cmakeify.model;
 
 public class ArchiveUrl {
   public String unpackroot;
@@ -9,7 +9,7 @@ public class ArchiveUrl {
     url = null;
   }
 
-  ArchiveUrl(String unpackroot, String url) {
+  public ArchiveUrl(String unpackroot, String url) {
     this.unpackroot = unpackroot;
     this.url = url;
   }
