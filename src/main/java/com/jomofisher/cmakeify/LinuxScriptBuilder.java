@@ -77,10 +77,12 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             RemoteArchive cmakeRemote,
             String ndkVersion,
             RemoteArchive ndkRemote,
+            String compiler,
             String platform,
             String abi,
             boolean multipleCMake,
             boolean multipleNDK,
+            boolean multipleCompiler,
             boolean multiplePlatforms) {
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
             cmakeRemote.linux.unpackroot);
@@ -93,6 +95,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         if (multipleNDK) {
             outputFolder = new File(outputFolder, ndkVersion);
             zipName += "-" + ndkVersion;
+        }
+        if (multipleCompiler) {
+            outputFolder = new File(outputFolder, "-" + compiler);
+            zipName += "-" + compiler;
         }
         if (multiplePlatforms) {
             outputFolder = new File(outputFolder, "android-" + platform);
@@ -115,7 +121,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "  %s \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
-                "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=4.9 \\\n" +
+                "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
                 "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
                 "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
@@ -124,7 +130,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_ANDROID_STL_TYPE=gnustl_static \\\n" +
                 "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                 "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
-                cmakeExe, workingDirectory, buildFolder, platform,
+                cmakeExe, workingDirectory, buildFolder, compiler, platform,
             redistFolder, redistFolder, abi, new File(ndkFolder).getAbsolutePath(), abi));
         body(String.format("  %s --build %s", cmakeExe, buildFolder));
         body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");

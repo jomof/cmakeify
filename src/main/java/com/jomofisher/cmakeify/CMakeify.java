@@ -139,18 +139,22 @@ public class CMakeify {
                                 throw new RuntimeException(String.format("No remote found for NDK %s", ndk));
                             }
                             for (String platform : config.android.ndk.platforms) {
-                                for (String abi : config.android.ndk.abis) {
-                                    script.cmakeAndroid(
-                                        workingFolder,
-                                        cmakeVersion,
-                                        config.cmake.remotes.get(cmakeVersion),
-                                        ndk,
-                                        remote,
-                                        platform,
-                                        abi,
-                                        config.cmake.versions.length != 1,
-                                        config.android.ndk.versions.length != 1,
-                                        config.android.ndk.platforms.length != 1);
+                                for (String compiler : config.android.ndk.compilers) {
+                                    for (String abi : config.android.ndk.abis) {
+                                        script.cmakeAndroid(
+                                                workingFolder,
+                                                cmakeVersion,
+                                                config.cmake.remotes.get(cmakeVersion),
+                                                ndk,
+                                                remote,
+                                                compiler,
+                                                platform,
+                                                abi,
+                                                config.cmake.versions.length != 1,
+                                                config.android.ndk.versions.length != 1,
+                                                config.android.ndk.compilers.length != 1,
+                                                config.android.ndk.platforms.length != 1);
+                                    }
                                 }
                             }
                         }

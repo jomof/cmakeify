@@ -14,10 +14,12 @@ abstract class ScriptBuilder {
             RemoteArchive cmakeRemote,
             String ndkVersion,
             RemoteArchive ndkRemote,
+            String compiler,
             String platform,
             String abi,
             boolean multipleCMake,
             boolean multipleNDK,
+            boolean multipleCompiler,
             boolean multiplePlatforms);
     abstract ScriptBuilder cmakeLinux(
             File workingDirectory,

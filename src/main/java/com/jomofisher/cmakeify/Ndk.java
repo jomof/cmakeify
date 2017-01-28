@@ -4,11 +4,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Ndk {
+    final public String compilers[];
     final public String versions[];
     final public String platforms[];
     final public String abis[];
     final public Map<String, RemoteArchive> remotes;
     Ndk() {
+        compilers = new String[] { "clang" };
         versions = new String[] { "r13b" };
         platforms = new String[] { "21" };
         abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64" };
@@ -33,6 +35,14 @@ public class Ndk {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("    compilers: [");
+        for (int j = 0; j < compilers.length; ++j) {
+            if (j != 0) {
+                sb.append(", ");
+            }
+            sb.append(compilers[j]);
+        }
+        sb.append("]\n");
         sb.append("    versions: [");
         for (int j = 0; j < versions.length; ++j) {
             if (j != 0) {
