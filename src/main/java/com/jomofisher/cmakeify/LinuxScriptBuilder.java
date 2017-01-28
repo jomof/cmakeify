@@ -184,11 +184,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         for(String redistFolder : redistFolderToZip.keySet()) {
             String zip = redistFolderToZip.get(redistFolder);
             body("zip %s %s -r", zip, redistFolder);
-            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         }
         for(String redistFolder : redistFolderToZip.keySet()) {
             String zip = redistFolderToZip.get(redistFolder);
-            body("echo - %s", zip);
+            body("echo - %s", new File(".").toURI().relativize(new File(zip).toURI()).getPath());
         }
         return this;
     }
