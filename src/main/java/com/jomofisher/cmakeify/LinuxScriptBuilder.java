@@ -7,7 +7,9 @@ import com.jomofisher.cmakeify.model.Toolset;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LinuxScriptBuilder  extends ScriptBuilder {
     final private static String TOOLS_FOLDER = ".cmakeify/tools";
@@ -134,7 +136,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  if [[ \"$ABIS\" == \"\" ]]; then");
             body("    ABIS=%s", abi);
             body("  else");
-           // body("    ABIS=${ABIS}, %s", abi);
+            body("    ABIS=\"${ABIS}, %s\"", abi);
             body("  fi");
 
             body(String.format(
