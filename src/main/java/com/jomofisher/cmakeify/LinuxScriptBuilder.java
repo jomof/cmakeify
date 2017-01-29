@@ -159,7 +159,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
             body("fi");
         }
-        //body("echo \"  abis: [ ${ABIS} ]\" >> %s", cdepFile);
+        body("echo \"  abis: [ ${ABIS} ]\" >> %s", cdepFile);
         return this;
     }
 
