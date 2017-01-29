@@ -121,10 +121,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         File redistFolder = new File(outputFolder, "redistFolder").getAbsoluteFile();
         body("ct='  '");
         body("echo - file: %s >> %s", zip, cdepFile);
-        body("echo ${ct}ndk: %s >> %s", ndkVersion, cdepFile);
-        body("echo ${ct}compiler: %s >> %s", compiler, cdepFile);
-        body("echo ${ct}platform: %s >> %s", platform, cdepFile);
-        body("echo ${ct}builder: cmake-%s >> %s", cmakeVersion, cdepFile);
+        body("echo '  ndk: %s' >> %s", ndkVersion, cdepFile);
+        body("echo '  compiler: %s' >> %s", compiler, cdepFile);
+        body("echo '  platform: %s' >> %s", platform, cdepFile);
+        body("echo '  builder: cmake-%s' >> %s", cmakeVersion, cdepFile);
 
         body("ABIS=");
         for (String abi : abis) {
@@ -133,14 +133,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("if [ -d '%s' ]; then", archFolder);
             body("  echo Building to %s", outputFolder);
             body("  if [[ \"$ABIS\" == \"\" ]]; then");
-            body("    echo Setting ABI to %s", abi);
             body("    ABIS=%s", abi);
             body("  else");
-            body("    echo Add %s to ABI", abi);
-            body("    ABIS='${ABIS}, %s'", abi);
+            body("    ABIS=${ABIS}, %s", abi);
             body("  fi");
-//            body("  mkdir --parents %s/redistFolder/lib", outputFolder.getAbsolutePath());
-//            body("  mkdir --parents %s/redistFolder/include", outputFolder.getAbsolutePath());
 
             body(String.format(
                     "  %s \\\n" +
@@ -162,7 +158,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
             body("fi");
         }
-        body("echo ${ct}abis: [ ${ABIS} ] >> %s", cdepFile);
+        body("echo \"  abis: [ ${ABIS} ]\" >> %s", cdepFile);
         return this;
     }
 
