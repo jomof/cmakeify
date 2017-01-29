@@ -150,7 +150,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
                     cmakeExe, workingFolder, buildFolder, compiler, platform,
-                redistFolder, redistFolder, abi, new File(ndkFolder).getAbsolutePath(), abi));
+                    redistFolder, redistFolder, abi, redistFolder, abi, new File(ndkFolder).getAbsolutePath(), abi));
             body(String.format("  %s --build %s", cmakeExe, buildFolder));
             body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
@@ -230,8 +230,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
     @Override
     ScriptBuilder buildRedistFiles(File workingFolder) {
-        body("find . -name \"libHello.a\"");
-
         for(String zip : zips.keySet()) {
             String redistFolder = zips.get(zip);
             body("if [ -d '%s' ]; then", redistFolder);
