@@ -1,4 +1,4 @@
-targets: [linux]
+targets: [android]
 cmake:
   versions: [3.7.1]
 android:
