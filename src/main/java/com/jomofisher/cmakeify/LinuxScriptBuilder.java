@@ -37,7 +37,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
     private LinuxScriptBuilder cdep(String format, Object... args) {
         String embed = String.format(format, args);
-        body.append(String.format("printf '%%s\\n' '%s' >> %s \n", embed, cdepFile));
+        body.append(String.format("printf '%%s\\r\\n' '%s' >> %s \n", embed, cdepFile));
         return this;
     }
 
