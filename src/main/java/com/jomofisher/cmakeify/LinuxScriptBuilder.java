@@ -156,7 +156,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("fi");
         }
         body("if [ -d '%s' ]; then", redistFolder);
-        body("  echo - file: %s >> %s", zip, cdepFile);
+        body("  echo - file: %s >> %s", new File(".").toURI().relativize(zip.toURI()).getPath(), cdepFile);
         body("  echo '  ndk: %s' >> %s", ndkVersion, cdepFile);
         body("  echo '  compiler: %s' >> %s", compiler, cdepFile);
         body("  echo '  platform: %s' >> %s", platform, cdepFile);
