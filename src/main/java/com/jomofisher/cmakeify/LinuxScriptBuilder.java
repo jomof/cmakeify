@@ -230,7 +230,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         for(String zip : zips.keySet()) {
             String redistFolder = zips.get(zip);
             body("pushd %s", redistFolder);
+            body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             body("zip %s . -r", zip);
+            body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             body("popd");
             body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         }
