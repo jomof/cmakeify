@@ -250,7 +250,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  echo - %s", new File(".").toURI().relativize(new File(zip).toURI()).getPath());
             body("fi");
         }
-        body("cp %s %s.txt", cdepFile, cdepFile);
+        body("cp %s %s.html", cdepFile, cdepFile);
         return this;
     }
 

@@ -12,7 +12,7 @@ deploy:
     - build/libs/cmakeify-${TRAVIS_TAG}-sources.jar
     - build/libs/cmakeify-${TRAVIS_TAG}-javadoc.jar
     - smoke-test/build/build/cdep.yml
-    - smoke-test/build/build/cdep.yml.txt
+    - smoke-test/build/build/cdep.yml.html
     - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-clang-platform-13.zip
     - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-4.9-platform-21.zip
     - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-clang-platform-15.zip
