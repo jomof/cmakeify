@@ -125,17 +125,17 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("echo '  platform: %s' >> %s", platform, cdepFile);
         body("echo '  builder: cmake-%s' >> %s", cmakeVersion, cdepFile);
 //
-//        body("ABIS=");
+        body("ABIS=");
         for (String abi : abis) {
             File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
                     new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
             body("if [ -d '%s' ]; then", archFolder);
             body("  echo Building to %s", outputFolder);
-//            body("  if [[ \"$ABIS\" == \"\" ]]; then");
-//            body("    ABIS=%s", abi);
-//            body("  else");
-//            body("    ABIS=${ABIS}, %s", abi);
-//            body("  fi");
+            body("  if [[ \"$ABIS\" == \"\" ]]; then");
+            body("    ABIS=%s", abi);
+            body("  else");
+           // body("    ABIS=${ABIS}, %s", abi);
+            body("  fi");
 
             body(String.format(
                     "  %s \\\n" +
