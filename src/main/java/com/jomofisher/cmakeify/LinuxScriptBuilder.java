@@ -145,6 +145,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
                     "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                     "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib/%s \\\n" +
+                            "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib/%s \\\n" +
                     "   -DCMAKE_ANDROID_STL_TYPE=gnustl_static \\\n" +
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
