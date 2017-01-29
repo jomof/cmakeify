@@ -129,8 +129,9 @@ public class CMakeify {
         }
 
         // Download the CMakes we need.
-        for (String cmakeVersion : config.cmake.versions) {
-            for (OS target : targetOS) {
+        for (OS target : targetOS) {
+            script.startBuilding(target);
+            for (String cmakeVersion : config.cmake.versions) {
                 switch (target) {
                     case android:
                         for (String ndk : config.android.ndk.versions) {
@@ -140,20 +141,18 @@ public class CMakeify {
                             }
                             for (String platform : config.android.ndk.platforms) {
                                 for (String compiler : config.android.ndk.compilers) {
-                                    for (String abi : config.android.ndk.abis) {
-                                        script.cmakeAndroid(
-                                                cmakeVersion,
-                                                config.cmake.remotes.get(cmakeVersion),
-                                                ndk,
-                                                remote,
-                                                compiler,
-                                                platform,
-                                                abi,
-                                                config.cmake.versions.length != 1,
-                                                config.android.ndk.versions.length != 1,
-                                                config.android.ndk.compilers.length != 1,
-                                                config.android.ndk.platforms.length != 1);
-                                    }
+                                    script.cmakeAndroid(
+                                        cmakeVersion,
+                                        config.cmake.remotes.get(cmakeVersion),
+                                        ndk,
+                                        remote,
+                                        compiler,
+                                        platform,
+                                        config.android.ndk.abis,
+                                        config.cmake.versions.length != 1,
+                                        config.android.ndk.versions.length != 1,
+                                        config.android.ndk.compilers.length != 1,
+                                        config.android.ndk.platforms.length != 1);
                                 }
                             }
                         }

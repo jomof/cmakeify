@@ -11,6 +11,8 @@ deploy:
     - build/libs/cmakeify-${TRAVIS_TAG}.jar
     - build/libs/cmakeify-${TRAVIS_TAG}-sources.jar
     - build/libs/cmakeify-${TRAVIS_TAG}-javadoc.jar
+    - smoke-test/build/zip/cdep.yml
+    - smoke-test/build/zip/cmakeify-linux.zip
     - smoke-test/build/zip/cmakeify-android.zip
     - smoke-test/build/zip/cmakeify-linux.zip
   provider: releases
