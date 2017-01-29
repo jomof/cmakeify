@@ -134,10 +134,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  echo Building to %s", outputFolder);
             body("  if [[ \"$ABIS\" == \"\" ]]; then");
             body("    echo Setting ABI to %s", abi);
-            body("    ABI=%s", abi);
+            body("    ABIS=%s", abi);
             body("  else");
             body("    echo Add %s to ABI", abi);
-            body("    ABI='${ABI}, %s'", abi);
+            body("    ABIS='${ABIS}, %s'", abi);
             body("  fi");
 //            body("  mkdir --parents %s/redistFolder/lib", outputFolder.getAbsolutePath());
 //            body("  mkdir --parents %s/redistFolder/include", outputFolder.getAbsolutePath());
