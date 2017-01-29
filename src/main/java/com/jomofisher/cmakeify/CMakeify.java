@@ -78,9 +78,7 @@ public class CMakeify {
     }
 
     private void handleGenerateScript() {
-        ScriptBuilder script =  new LinuxScriptBuilder();
-
-
+        ScriptBuilder script =  new LinuxScriptBuilder(workingFolder);
 
         // Map of compilers.
         Set<OS> targetOS = new HashSet<>();
@@ -104,7 +102,7 @@ public class CMakeify {
         }
 
         // Create working folders
-        script.createEmptyBuildFolder(workingFolder);
+        script.createEmptyBuildFolder();
 
         // Download the CMakes we need.
         for (String cmakeVersion : config.cmake.versions) {
@@ -144,7 +142,6 @@ public class CMakeify {
                                 for (String compiler : config.android.ndk.compilers) {
                                     for (String abi : config.android.ndk.abis) {
                                         script.cmakeAndroid(
-                                                workingFolder,
                                                 cmakeVersion,
                                                 config.cmake.remotes.get(cmakeVersion),
                                                 ndk,
@@ -169,7 +166,6 @@ public class CMakeify {
                                         String.format("Compiler %s is not a recognized toolset", compiler));
                             }
                             script.cmakeLinux(
-                                    workingFolder,
                                     cmakeVersion,
                                     config.cmake.remotes.get(cmakeVersion),
                                     toolset,
@@ -180,7 +176,7 @@ public class CMakeify {
                 }
             }
         }
-        script.buildRedistFiles();
+        script.buildRedistFiles(workingFolder);
         script.writeToShellScript();
     }
 

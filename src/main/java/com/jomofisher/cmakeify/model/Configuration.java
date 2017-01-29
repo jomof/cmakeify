@@ -1,16 +1,12 @@
 package com.jomofisher.cmakeify.model;
 
 public class Configuration {
-
-    enum Compiler {gcc, clang}
     final public OS targets[];
-    final public Compiler compilers[];
     final public CMake cmake;
     final public Android android;
     final public Linux linux;
     public Configuration() {
         targets = OS.values();
-        compilers = Compiler.values();
         cmake = new CMake();
         android = new Android();
         linux = new Linux();
@@ -25,15 +21,6 @@ public class Configuration {
                 sb.append(", ");
             }
             sb.append(targets[j]);
-        }
-        sb.append("]\n");
-
-        sb.append("compilers: [");
-        for (int j = 0; j < compilers.length; ++j) {
-            if (j != 0) {
-                sb.append(", ");
-            }
-            sb.append(compilers[j]);
         }
         sb.append("]\n");
 

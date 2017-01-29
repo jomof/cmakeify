@@ -8,11 +8,10 @@ import java.util.Collection;
 
 abstract class ScriptBuilder {
     abstract File writeToShellScript();
-    abstract ScriptBuilder createEmptyBuildFolder(File workingFolder);
+    abstract ScriptBuilder createEmptyBuildFolder();
     abstract ScriptBuilder download(RemoteArchive remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
     abstract ScriptBuilder cmakeAndroid(
-            File workingDirectory,
             String cmakeVersion,
             RemoteArchive cmakeRemote,
             String ndkVersion,
@@ -25,11 +24,10 @@ abstract class ScriptBuilder {
             boolean multipleCompiler,
             boolean multiplePlatforms);
     abstract ScriptBuilder cmakeLinux(
-            File workingDirectory,
             String cmakeVersion,
             RemoteArchive cmakeRemote,
             Toolset toolset,
             boolean multipleCMake,
             boolean multipleGcc);
-    abstract ScriptBuilder buildRedistFiles();
+    abstract ScriptBuilder buildRedistFiles(File workingFolder);
 }
