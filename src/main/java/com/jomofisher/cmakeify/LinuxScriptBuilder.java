@@ -119,11 +119,13 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
         File redistFolder = new File(outputFolder, "redistFolder").getAbsoluteFile();
+        body("ct='  '");
         body("echo - file: %s >> %s", zip, cdepFile);
-        body("echo   ndk: %s >> %s", ndkVersion, cdepFile);
-        body("echo   compiler: %s >> %s", compiler, cdepFile);
-        body("echo   platform: %s >> %s", platform, cdepFile);
-        body("echo   builder: cmake-%s >> %s", cmakeVersion, cdepFile);
+        body("echo ${ct}ndk: %s >> %s", ndkVersion, cdepFile);
+        body("echo ${ct}compiler: %s >> %s", compiler, cdepFile);
+        body("echo ${ct}platform: %s >> %s", platform, cdepFile);
+        body("echo ${ct}builder: cmake-%s >> %s", cmakeVersion, cdepFile);
+
         body("ABIS=");
         for (String abi : abis) {
             File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
@@ -131,9 +133,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("if [ -d '%s' ]; then", archFolder);
             body("  echo Building to %s", outputFolder);
             body("  if [[ \"$ABIS\" == \"\" ]]; then");
+            body("    echo Setting ABI to %s", abi);
             body("    ABI=%s", abi);
             body("  else");
-            body("    ABI=$ABI, %s", abi);
+            body("    echo Add %s to ABI", abi);
+            body("    ABI='${ABI}, %s'", abi);
             body("  fi");
 //            body("  mkdir --parents %s/redistFolder/lib", outputFolder.getAbsolutePath());
 //            body("  mkdir --parents %s/redistFolder/include", outputFolder.getAbsolutePath());
@@ -158,7 +162,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
             body("fi");
         }
-        body("echo   abis: [ $ABIS ] >> %s", cdepFile);
+        body("echo ${ct}abis: [ ${ABIS} ] >> %s", cdepFile);
         return this;
     }
 
