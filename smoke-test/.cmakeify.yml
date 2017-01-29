@@ -5,6 +5,6 @@ android:
   ndk:
     versions: [r13b]
     #compilers: [4.9, clang]
-    platforms: [19]
+    platforms: [19, 20]
 
 

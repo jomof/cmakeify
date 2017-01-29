@@ -230,17 +230,22 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
         for(String zip : zips.keySet()) {
             String redistFolder = zips.get(zip);
-            body("pushd %s", redistFolder);
-            body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
-            body("zip %s . -r", zip);
-            body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
-            body("popd");
-            body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("if [ -d '%s' ]; then", redistFolder);
+            body("  pushd %s", redistFolder);
+            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("  zip %s . -r", zip);
+            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("  popd");
+            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("fi");
         }
         body("cat %s", cdepFile);
         body("echo - %s", cdepFile);
         for(String zip : zips.keySet()) {
-            body("echo - %s", new File(".").toURI().relativize(new File(zip).toURI()).getPath());
+            String redistFolder = zips.get(zip);
+            body("if [ -d '%s' ]; then", redistFolder);
+            body("  echo - %s", new File(".").toURI().relativize(new File(zip).toURI()).getPath());
+            body("fi");
         }
         return this;
     }
