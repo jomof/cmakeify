@@ -226,6 +226,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
     @Override
     ScriptBuilder buildRedistFiles(File workingFolder) {
+        body("find . -name \"libHello.a\"");
 
         for(String zip : zips.keySet()) {
             String redistFolder = zips.get(zip);
