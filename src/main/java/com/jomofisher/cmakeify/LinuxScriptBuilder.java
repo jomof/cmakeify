@@ -37,7 +37,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
     private LinuxScriptBuilder cdep(String format, Object... args) {
         String embed = String.format(format, args);
-        body.append(String.format("printf '%%s\\r\\n' '%s' >> %s \n", embed, cdepFile));
+        body.append(String.format("printf \"%%s\\r\\n\" \"%s\" >> %s \n", embed, cdepFile));
         return this;
     }
 
@@ -127,8 +127,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
-
-//
         body("ABIS=");
         for (String abi : abis) {
             File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
