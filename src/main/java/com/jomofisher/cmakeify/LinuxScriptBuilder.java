@@ -120,7 +120,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
-        File redistFolder = new File(outputFolder, "redistFolder").getAbsoluteFile();
+        File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         body("echo - file: %s >> %s", zip, cdepFile);
         body("echo '  ndk: %s' >> %s", ndkVersion, cdepFile);
         body("echo '  compiler: %s' >> %s", compiler, cdepFile);
@@ -185,7 +185,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
         File buildFolder = new File(outputFolder, "cmake-generated-files");
-        File redistFolder = new File(outputFolder, "redistFolder").getAbsoluteFile();
+        File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         body("echo Building to %s", outputFolder);
         body("mkdir --parents %s/include", redistFolder);
 
