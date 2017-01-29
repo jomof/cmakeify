@@ -199,11 +199,12 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -B%s \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
+                        "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
                 "   -DCMAKE_C_COMPILER=%s \\\n" +
                 "   -DCMAKE_CXX_COMPILER=%s",
                 cmakeExe, workingFolder, buildFolder,
-            redistFolder, redistFolder, toolset.c, toolset.cxx));
+                redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
 
         body(String.format("%s --build %s", cmakeExe, buildFolder));
         body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
