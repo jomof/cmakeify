@@ -119,23 +119,23 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
         File redistFolder = new File(outputFolder, "redistFolder").getAbsoluteFile();
-        body("echo - file: %s >> %s", zip, cdepFile);
-        body("echo '  ndk: %s' >> %s", ndkVersion, cdepFile);
-        body("echo '  compiler: %s' >> %s", compiler, cdepFile);
-        body("echo '  platform: %s' >> %s", platform, cdepFile);
-        body("echo '  builder: cmake-%s' >> %s", cmakeVersion, cdepFile);
-
-        body("ABIS=");
+//        body("echo - file: %s >> %s", zip, cdepFile);
+//        body("echo '  ndk: %s' >> %s", ndkVersion, cdepFile);
+//        body("echo '  compiler: %s' >> %s", compiler, cdepFile);
+//        body("echo '  platform: %s' >> %s", platform, cdepFile);
+//        body("echo '  builder: cmake-%s' >> %s", cmakeVersion, cdepFile);
+//
+//        body("ABIS=");
         for (String abi : abis) {
             File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
                     new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
             body("if [ -d '%s' ]; then", archFolder);
             body("  echo Building to %s", outputFolder);
-            body("  if [[ \"$ABIS\" == \"\" ]]; then");
-            body("    ABIS=%s", abi);
-            body("  else");
-            body("    ABIS=${ABIS}, %s", abi);
-            body("  fi");
+//            body("  if [[ \"$ABIS\" == \"\" ]]; then");
+//            body("    ABIS=%s", abi);
+//            body("  else");
+//            body("    ABIS=${ABIS}, %s", abi);
+//            body("  fi");
 
             body(String.format(
                     "  %s \\\n" +
