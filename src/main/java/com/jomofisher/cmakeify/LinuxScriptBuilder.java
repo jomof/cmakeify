@@ -120,10 +120,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
         File redistFolder = new File(outputFolder, "redistFolder").getAbsoluteFile();
         body("echo - file: %s >> %s", zip, cdepFile);
-//        body("echo '  ndk: %s' >> %s", ndkVersion, cdepFile);
-//        body("echo '  compiler: %s' >> %s", compiler, cdepFile);
-//        body("echo '  platform: %s' >> %s", platform, cdepFile);
-//        body("echo '  builder: cmake-%s' >> %s", cmakeVersion, cdepFile);
+        body("echo '  ndk: %s' >> %s", ndkVersion, cdepFile);
+        body("echo '  compiler: %s' >> %s", compiler, cdepFile);
+        body("echo '  platform: %s' >> %s", platform, cdepFile);
+        body("echo '  builder: cmake-%s' >> %s", cmakeVersion, cdepFile);
 //
 //        body("ABIS=");
         for (String abi : abis) {
