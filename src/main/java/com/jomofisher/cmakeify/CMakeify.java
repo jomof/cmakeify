@@ -1,5 +1,7 @@
 package com.jomofisher.cmakeify;
 
+import static com.jomofisher.cmakeify.model.OS.linux;
+
 import com.jomofisher.cmakeify.model.Configuration;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
@@ -94,7 +96,7 @@ public class CMakeify {
         }
 
         // Check that required compilers are installed
-        if (targetOS.contains(OS.linux)) {
+        if (targetOS.contains(linux)) {
             Set<String> compilers = new HashSet<>();
             for (String compiler : config.linux.compilers) {
                 Toolset toolset = config.linux.toolsets.get(compiler);
@@ -152,18 +154,21 @@ public class CMakeify {
                             }
                             for (String platform : config.android.ndk.platforms) {
                                 for (String compiler : config.android.ndk.compilers) {
-                                    script.cmakeAndroid(
-                                        cmakeVersion,
-                                        config.cmake.remotes.get(cmakeVersion),
-                                        ndk,
-                                        remote,
-                                        compiler,
-                                        platform,
-                                        config.android.ndk.abis,
-                                        config.cmake.versions.length != 1,
-                                        config.android.ndk.versions.length != 1,
-                                        config.android.ndk.compilers.length != 1,
-                                        config.android.ndk.platforms.length != 1);
+                                    for (String runtime : config.android.ndk.runtimes) {
+                                        script.cmakeAndroid(
+                                            cmakeVersion,
+                                            config.cmake.remotes.get(cmakeVersion),
+                                            ndk,
+                                            remote,
+                                            compiler,
+                                            runtime,
+                                            platform,
+                                            config.android.ndk.abis,
+                                            config.cmake.versions.length != 1,
+                                            config.android.ndk.versions.length != 1,
+                                            config.android.ndk.compilers.length != 1,
+                                            config.android.ndk.platforms.length != 1);
+                                    }
                                 }
                             }
                         }

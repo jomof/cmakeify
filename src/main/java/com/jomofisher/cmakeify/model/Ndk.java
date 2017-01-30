@@ -5,12 +5,14 @@ import java.util.Map;
 
 public class Ndk {
     final public String compilers[];
+    final public String runtimes[];
     final public String versions[];
     final public String platforms[];
     final public String abis[];
     final public Map<String, RemoteArchive> remotes;
     Ndk() {
         compilers = new String[] { "clang" };
+        runtimes = new String[] { "c++_shared", "c++_static" };
         versions = new String[] { "r13b" };
         platforms = new String[] { "21" };
         abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64" };

@@ -20,6 +20,7 @@ abstract class ScriptBuilder {
         String ndkVersion,
         RemoteArchive ndkRemote,
         String compiler,
+        String runtime,
         String platform,
         String abi[],
         boolean multipleCMake,
