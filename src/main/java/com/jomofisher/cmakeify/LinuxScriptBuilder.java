@@ -172,7 +172,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         cdep("- file: %s", zip.getName());
         cdep("  ndk: %s", ndkVersion);
         cdep("  compiler: %s", compiler);
-        cdep("  runtime: %s", compiler);
+        cdep("  runtime: %s", runtime);
         cdep("  platform: %s", platform);
         cdep("  builder: cmake-%s", cmakeVersion);
         cdep("  abis: [ ${ABIS} ]");
