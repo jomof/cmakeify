@@ -16,6 +16,10 @@ public class CMakeify {
     private PrintStream out = System.out;
     private File workingFolder = new File(".");
     private Configuration config = null;
+    private String targetGroupId = "";
+    private String targetArtifactId = "";
+    private String targetVersion = "";
+
     enum OSType {
         Windows, MacOS, Linux, Other
     }
@@ -39,6 +43,9 @@ public class CMakeify {
     void go(String [] args) throws IOException {
         if (!handleVersion(args)) return;
         handleWorkingFolder(args);
+        handleGroupId(args);
+        handleArtifactId(args);
+        handleTargetVersion(args);
         if (!handleReadConfig(args)) return;
         if (!handleDump(args)) return;
         if (!handleSupportedHostOS(args)) return;
@@ -102,7 +109,11 @@ public class CMakeify {
         }
 
         // Create working folders
-        script.createEmptyBuildFolder();
+        script.createEmptyBuildFolder(
+            targetGroupId,
+            targetArtifactId,
+            targetVersion
+        );
 
         // Download the CMakes we need.
         for (String cmakeVersion : config.cmake.versions) {
@@ -211,6 +222,42 @@ public class CMakeify {
                 this.workingFolder = new File(args[i]);
                 takeNext = false;
             } else if (args[i].equals("--working-folder") || args[i].equals("-wf")) {
+                takeNext = true;
+            }
+        }
+    }
+
+    private void handleGroupId(String[] args) throws IOException {
+        boolean takeNext = false;
+        for (int i = 0; i < args.length; ++i) {
+            if (takeNext) {
+                this.targetGroupId = args[i];
+                takeNext = false;
+            } else if (args[i].equals("--group-id") || args[i].equals("-gid")) {
+                takeNext = true;
+            }
+        }
+    }
+
+    private void handleArtifactId(String[] args) throws IOException {
+        boolean takeNext = false;
+        for (int i = 0; i < args.length; ++i) {
+            if (takeNext) {
+                this.targetArtifactId = args[i];
+                takeNext = false;
+            } else if (args[i].equals("--artifact-id") || args[i].equals("-aid")) {
+                takeNext = true;
+            }
+        }
+    }
+
+    private void handleTargetVersion(String[] args) throws IOException {
+        boolean takeNext = false;
+        for (int i = 0; i < args.length; ++i) {
+            if (takeNext) {
+                this.targetVersion = args[i];
+                takeNext = false;
+            } else if (args[i].equals("--target-version") || args[i].equals("-tv")) {
                 takeNext = true;
             }
         }

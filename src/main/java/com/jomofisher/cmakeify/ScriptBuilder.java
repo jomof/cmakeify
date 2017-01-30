@@ -10,7 +10,8 @@ import java.util.Collection;
 abstract class ScriptBuilder {
     abstract File writeToShellScript();
     abstract ScriptBuilder startBuilding(OS target);
-    abstract ScriptBuilder createEmptyBuildFolder();
+    abstract ScriptBuilder createEmptyBuildFolder(String targetGroupId, String targetArtifactId,
+        String targetVersion);
     abstract ScriptBuilder download(RemoteArchive remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
     abstract ScriptBuilder cmakeAndroid(
