@@ -128,7 +128,8 @@ matrix:
     - 
       jdk: oraclejdk7
       os: linux
-      script: 
+      script:
+        - printenv
         - ./gradlew assemble check
         - ./travis_cmakeify -wf smoke-test
 
