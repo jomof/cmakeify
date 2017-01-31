@@ -12,8 +12,52 @@ deploy:
     - build/libs/cmakeify-${TRAVIS_TAG}-sources.jar
     - build/libs/cmakeify-${TRAVIS_TAG}-javadoc.jar
     - smoke-test/build/build/cdep-manifest.yml
-    - smoke-test/build/build/cmakeify-android.zip
-    - smoke-test/build/build/cmakeify-linux.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-clang-platform-13.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-4.9-platform-21.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-clang-platform-15.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-4.9-platform-22.zip
+    - smoke-test/build/build/cmakeify-androindroid-cmake-3.7.1-r13b-4.9-platform-24.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-4.9-platform-14.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-clang-platform-21.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-clang-platform-16.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-4.9-platform-14.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-4.9-platform-16.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-4.9-platform-19.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-clang-platform-14.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-clang-platform-16.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-4.9-platform-13.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-clang-platform-19.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-clang-platform-16.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-4.9-platform-9.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-clang-platform-12.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-clang-platform-16.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-clang-platform-17.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-4.9-platform-23.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-clang-platform-19.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-4.9-platform-19.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-clang-platform-21.zip
+    - smoke-test/build/buit/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-clang-platform-24.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-4.9-platform-13.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-clang-platform-14.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-clang-platform-14.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-4.9-platform-17.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-clang-platform-15.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-clang-platform-12.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-4.9-platform-14.zip
+    - smoke-test/build/build/cmakeify-linux-cmake-3.7.2.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-clang-platform-17.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-4.9-platform-15.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-4.9-platform-24.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-clang-platform-9.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-clang-platform-18.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-clang-platform-12.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-4.9-platform-17.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-clang-platform-22.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r14-beta1-4.9-platform-22.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-4.9-platform-16.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r13b-clang-platform-19.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.2-r13b-4.9-platform-16.zip
+    - smoke-test/build/build/cmakeify-android-cmake-3.7.1-r14-beta1-clang-platform-17.zip
   provider: releases
   skip_cleanup: true
   true: 
