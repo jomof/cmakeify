@@ -259,8 +259,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("echo - %s", cdepFile);
         for(String zip : zips.keySet()) {
             String redistFolder = zips.get(zip);
-            body("if [ -d '%s' ]; then", redistFolder);
-            body("  echo - %s", new File(".").toURI().relativize(new File(zip).toURI()).getPath());
+            String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
+            body("if [ -f '%s' ]; then", relativeZip);
+            body("  echo - %s", relativeZip);
             body("fi");
         }
         return this;
