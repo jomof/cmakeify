@@ -107,6 +107,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                                boolean multipleCMake,
                                boolean multipleNDK,
                                boolean multipleCompiler,
+                               boolean multipleRuntime,
                                boolean multiplePlatforms) {
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
             cmakeRemote.linux.unpackroot);
@@ -123,6 +124,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         if (multipleCompiler) {
             outputFolder = new File(outputFolder, "-" + compiler);
             zipName += "-" + compiler;
+        }
+        if (multipleRuntime) {
+            outputFolder = new File(outputFolder, "-" + runtime);
+            zipName += "-" + runtime;
         }
         if (multiplePlatforms) {
             outputFolder = new File(outputFolder, "android-" + platform);
@@ -170,12 +175,18 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         }
         body("if [ -d '%s' ]; then", redistFolder);
         cdep("- file: %s", zip.getName());
-        cdep("  ndk: %s", ndkVersion);
-        cdep("  compiler: %s", compiler);
         cdep("  runtime: %s", runtime);
         cdep("  platform: %s", platform);
-        cdep("  builder: cmake-%s", cmakeVersion);
         cdep("  abis: [ ${ABIS} ]");
+        if (multipleCompiler) {
+            cdep("  compiler: %s", compiler);
+        }
+        if (multipleCMake) {
+            cdep("  builder: cmake-%s", cmakeVersion);
+        }
+        if (multipleNDK) {
+            cdep("  ndk: %s", ndkVersion);
+        }
         body("fi");
         return this;
     }
@@ -212,7 +223,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -B%s \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
-                        "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
+                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
                 "   -DCMAKE_C_COMPILER=%s \\\n" +
                 "   -DCMAKE_CXX_COMPILER=%s",
@@ -258,7 +269,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("cat %s", cdepFile);
         body("echo - %s", cdepFile);
         for(String zip : zips.keySet()) {
-            String redistFolder = zips.get(zip);
             String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
             body("if [ -f '%s' ]; then", relativeZip);
             body("  echo - %s", relativeZip);

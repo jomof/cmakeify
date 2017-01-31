@@ -167,6 +167,7 @@ public class CMakeify {
                                             config.cmake.versions.length != 1,
                                             config.android.ndk.versions.length != 1,
                                             config.android.ndk.compilers.length != 1,
+                                            config.android.ndk.runtimes.length != 1,
                                             config.android.ndk.platforms.length != 1);
                                     }
                                 }

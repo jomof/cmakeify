@@ -26,6 +26,7 @@ abstract class ScriptBuilder {
         boolean multipleCMake,
         boolean multipleNDK,
         boolean multipleCompiler,
+        boolean multipleRuntime,
         boolean multiplePlatforms);
     abstract ScriptBuilder cmakeLinux(
             String cmakeVersion,
