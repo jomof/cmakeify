@@ -126,8 +126,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             zipName += "-" + compiler;
         }
         if (multipleRuntime) {
-            outputFolder = new File(outputFolder, "-" + runtime);
-            zipName += "-" + runtime;
+            String fixedRuntime = runtime.replace('+', 'x');
+            outputFolder = new File(outputFolder, "-" + fixedRuntime);
+            zipName += "-" + fixedRuntime;
         }
         if (multiplePlatforms) {
             outputFolder = new File(outputFolder, "android-" + platform);
@@ -177,15 +178,13 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         cdep("- file: %s", zip.getName());
         cdep("  runtime: %s", runtime);
         cdep("  platform: %s", platform);
+        cdep("  ndk: %s", ndkVersion);
         cdep("  abis: [ ${ABIS} ]");
         if (multipleCompiler) {
             cdep("  compiler: %s", compiler);
         }
         if (multipleCMake) {
             cdep("  builder: cmake-%s", cmakeVersion);
-        }
-        if (multipleNDK) {
-            cdep("  ndk: %s", ndkVersion);
         }
         body("fi");
         return this;
