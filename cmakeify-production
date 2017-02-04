@@ -193,6 +193,10 @@ if [ -f "./.cmakeify/build.sh" ]; then
 fi
 
 "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" com.jomofisher.cmakeify.CMakeify $@
-chmod +x ./.cmakeify/build.sh
-.cmakeify/build.sh
+
+if [ -f "./.cmakeify/build.sh" ]; then
+  chmod +x ./.cmakeify/build.sh
+  .cmakeify/build.sh
+fi
+
 
