@@ -25,7 +25,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     LinuxScriptBuilder(File workingFolder) {
         this.workingFolder = workingFolder;
         this.rootBuildFolder = new File(workingFolder, "build");
-        this.zipsFolder = new File(rootBuildFolder, "build");
+        this.zipsFolder = new File(rootBuildFolder, "zips");
         this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
         this.androidFolder = new File(rootBuildFolder, "Android");
     }
