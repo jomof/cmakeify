@@ -1,7 +1,5 @@
 package com.jomofisher.cmakeify;
 
-import static com.jomofisher.cmakeify.model.OS.linux;
-
 import com.jomofisher.cmakeify.model.Configuration;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
@@ -9,10 +7,15 @@ import com.jomofisher.cmakeify.model.Toolset;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+
+import static com.jomofisher.cmakeify.model.OS.linux;
 
 public class CMakeify {
     private PrintStream out = System.out;
@@ -21,11 +24,6 @@ public class CMakeify {
     private String targetGroupId = "";
     private String targetArtifactId = "";
     private String targetVersion = "";
-
-    enum OSType {
-        Windows, MacOS, Linux, Other
-    }
-
     private OSType hostOS;
 
     CMakeify(PrintStream out) {
@@ -40,6 +38,10 @@ public class CMakeify {
         } else {
             hostOS = OSType.Other;
         }
+    }
+
+    public static void main(String[] args) throws IOException {
+        new CMakeify(System.out).go(args);
     }
 
     void go(String [] args) throws IOException {
@@ -207,7 +209,7 @@ public class CMakeify {
     }
 
     private boolean handleReadConfig(String[] args) throws IOException {
-        File config = new File(workingFolder, ".cmakeify.yml");
+        File config = new File(workingFolder, "cmakeify.yml");
         if (!config.exists()) {
             out.printf("Expected a configuration file at %s\n", config.getCanonicalFile());
             return false;
@@ -278,7 +280,7 @@ public class CMakeify {
         return false;
     }
 
-    public static void main(String [] args) throws IOException {
-        new CMakeify(System.out).go(args);
+    enum OSType {
+        Windows, MacOS, Linux, Other
     }
 }

@@ -47,7 +47,7 @@ public class TestCmakeify {
 
     @Test
     public void testScript() throws IOException {
-        File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
+        File yaml = new File("test-files/simpleConfiguration/cmakeify.yml");
         yaml.getParentFile().mkdirs();
         Files.write("android:\n" +
                         "  ndk:\n" +
@@ -68,7 +68,7 @@ public class TestCmakeify {
 
     @Test
     public void weirdHost() throws IOException {
-        File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
+        File yaml = new File("test-files/simpleConfiguration/cmakeify.yml");
         Files.write("",
             yaml, StandardCharsets.UTF_8);
         assertThat(main("-wf", yaml.getParent(), "--host", "Joebob"))
@@ -79,7 +79,7 @@ public class TestCmakeify {
     public void dumpIsSelfHost() throws IOException {
         Configuration config = new Configuration();
         System.out.printf(new Yaml().dump(config));
-        File yaml = new File("test-files/simpleConfiguration/.cmakeify.yml");
+        File yaml = new File("test-files/simpleConfiguration/cmakeify.yml");
         yaml.getParentFile().mkdirs();
         Files.write("", yaml, StandardCharsets.UTF_8);
         String result1 = main("-wf", yaml.getParent(), "--dump");
