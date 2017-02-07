@@ -153,7 +153,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  fi");
 
             body(String.format(
-                    "  %s --trace \\\n" +
+                    "  %s \\\n" +
                     "   -H%s \\\n" +
                     "   -B%s \\\n" +
                     "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
