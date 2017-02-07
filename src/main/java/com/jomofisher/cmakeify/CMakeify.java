@@ -25,6 +25,7 @@ public class CMakeify {
     private String targetArtifactId = "";
     private String targetVersion = "";
     private OSType hostOS;
+    private String cmakeFlags = "";
 
     CMakeify(PrintStream out) {
         this.out = out;
@@ -47,6 +48,7 @@ public class CMakeify {
     void go(String [] args) throws IOException {
         if (!handleVersion(args)) return;
         handleWorkingFolder(args);
+        handleCMakeFlags(args);
         handleGroupId(args);
         handleArtifactId(args);
         handleTargetVersion(args);
@@ -230,6 +232,18 @@ public class CMakeify {
                 this.workingFolder = new File(args[i]);
                 takeNext = false;
             } else if (args[i].equals("--working-folder") || args[i].equals("-wf")) {
+                takeNext = true;
+            }
+        }
+    }
+
+    private void handleCMakeFlags(String[] args) throws IOException {
+        boolean takeNext = false;
+        for (int i = 0; i < args.length; ++i) {
+            if (takeNext) {
+                this.cmakeFlags = args[i];
+                takeNext = false;
+            } else if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
                 takeNext = true;
             }
         }

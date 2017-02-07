@@ -21,13 +21,15 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     final private File zipsFolder;
     final private File cdepFile;
     final private File androidFolder;
+    final private String cmakeFlags;
 
-    LinuxScriptBuilder(File workingFolder) {
+    LinuxScriptBuilder(File workingFolder, String cmakeFlags) {
         this.workingFolder = workingFolder;
         this.rootBuildFolder = new File(workingFolder, "build");
         this.zipsFolder = new File(rootBuildFolder, "zips");
         this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
         this.androidFolder = new File(rootBuildFolder, "Android");
+        this.cmakeFlags = cmakeFlags;
     }
 
     private LinuxScriptBuilder body(String format, Object... args) {
@@ -109,8 +111,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                                boolean multipleCompiler,
                                boolean multipleRuntime,
                                boolean multiplePlatforms) {
-        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-            cmakeRemote.linux.unpackroot);
+        String cmakeExe = String.format("%s/%s/bin/cmake %s", TOOLS_FOLDER,
+                cmakeRemote.linux.unpackroot, cmakeFlags);
         File outputFolder = androidFolder;
         String zipName = workingFolder.getAbsoluteFile().getParentFile().getName() + "-android";
         if (multipleCMake) {
@@ -153,7 +155,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  fi");
 
             body(String.format(
-                    "  %s --trace \\\n" +
+                    "  %s \\\n" +
                     "   -H%s \\\n" +
                     "   -B%s \\\n" +
                     "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
