@@ -91,7 +91,7 @@ public class CMakeify {
     }
 
     private void handleGenerateScript() {
-        ScriptBuilder script =  new LinuxScriptBuilder(workingFolder);
+        ScriptBuilder script = new LinuxScriptBuilder(workingFolder, cmakeFlags);
 
         // Map of compilers.
         Set<OS> targetOS = new HashSet<>();
