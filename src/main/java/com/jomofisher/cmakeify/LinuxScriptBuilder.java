@@ -124,12 +124,12 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             zipName += "-" + ndkVersion;
         }
         if (multipleCompiler) {
-            outputFolder = new File(outputFolder, "-" + compiler);
+            outputFolder = new File(outputFolder, compiler);
             zipName += "-" + compiler;
         }
         if (multipleRuntime) {
             String fixedRuntime = runtime.replace('+', 'x');
-            outputFolder = new File(outputFolder, "-" + fixedRuntime);
+            outputFolder = new File(outputFolder, fixedRuntime);
             zipName += "-" + fixedRuntime;
         }
         if (multiplePlatforms) {
@@ -144,6 +144,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         body("ABIS=");
         for (String abi : abis) {
+            File abiBuildFolder = new File(buildFolder, abi);
             File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
                     new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
             body("if [ -d '%s' ]; then", archFolder);
@@ -168,10 +169,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKE_ANDROID_STL_TYPE=%s \\\n" +
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
-                    cmakeExe, workingFolder, buildFolder, compiler, platform,
+                    cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
                     redistFolder, redistFolder, abi, redistFolder, abi, runtime,
                 new File(ndkFolder).getAbsolutePath(), abi));
-            body(String.format("  %s --build %s", cmakeExe, buildFolder));
+            body(String.format("  %s --build %s", cmakeExe, abiBuildFolder));
             body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
             body("fi");
