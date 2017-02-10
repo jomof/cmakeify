@@ -309,8 +309,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("    git clone https://github.com/jomof/cdep-badges.git");
         body("    pushd cdep-badges");
         body("    mkdir -p %s/latest", badgeFolder);
-        body("    echo wget %s -O %s/latest/latest.svg", badgeUrl, badgeFolder);
-        body("    wget %s -O %s/latest/latest.svg", badgeUrl, badgeFolder);
+        body("    echo wget %s -O %s/latest/latest.svg --no-check-certificate", badgeUrl, badgeFolder);
+        body("    wget %s -O %s/latest/latest.svg --no-check-certificate", badgeUrl, badgeFolder);
         body("    git add %s/latest/latest.svg", badgeFolder);
         body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
         body("    git push -f -q https://jomof:$CDEP_BADGES_API_KEY@github.com/jomof/cdep-badges &2>/dev/null");
