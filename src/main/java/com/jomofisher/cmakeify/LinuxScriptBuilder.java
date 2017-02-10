@@ -44,7 +44,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder createEmptyBuildFolder(String targetGroupId, String targetArtifactId,
+    ScriptBuilder createEmptyBuildFolder(
+        String targetGroupId,
+        String targetArtifactId,
         String targetVersion) {
         body("rm -rf %s", rootBuildFolder);
         body("mkdir --parents %s", zipsFolder);
@@ -286,6 +288,34 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  echo - %s", relativeZip);
             body("fi");
         }
+        return this;
+    }
+
+    @Override
+    ScriptBuilder uploadBadges(
+        String targetGroupId,
+        String targetArtifactId,
+        String targetVersion) {
+        // Record build information
+        String badgeUrl = String.format("https://img.shields.io/badge/cdep-%s%3A%s%3A%s--rev8-brightgreen.svg",
+            targetGroupId,
+            targetArtifactId,
+            targetVersion);
+        String badgeFolder = String.format("%s/%s/%s",
+            targetGroupId,
+            targetArtifactId);
+        body("if [ -n \"$TRAVIS_TAG\" ]; then");
+        body("  if [ -n \"$CDEP_BADGES_API_KEY\" ]; then");
+        body("    git clone https://github.com/jomof/cdep-badges.git");
+        body("    pushd cdep-badges");
+        body("    mkdir -p %s/latest", badgeFolder);
+        body("    wget %s -O %s/latest/latest.svg", badgeFolder);
+        body("    git add %s/latest/latest.svg", badgeFolder);
+        body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
+        body("    git push -f -q https://jomof:$CDEP_BADGES_API_KEY@github.com/jomof/cdep-badges &2>/dev/null");
+        body("    popd");
+        body("  fi");
+        body("fi");
         return this;
     }
 
