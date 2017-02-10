@@ -196,7 +196,7 @@ public class CMakeify {
                 }
             }
         }
-        script.buildRedistFiles(workingFolder);
+        script.buildRedistFiles(workingFolder, config.includes);
         script.writeToShellScript();
     }
 

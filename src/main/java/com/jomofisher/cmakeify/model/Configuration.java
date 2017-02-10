@@ -2,11 +2,13 @@ package com.jomofisher.cmakeify.model;
 
 public class Configuration {
     final public OS targets[];
+    final public String includes[];
     final public CMake cmake;
     final public Android android;
     final public Linux linux;
     public Configuration() {
         targets = OS.values();
+        includes = new String[0];
         cmake = new CMake();
         android = new Android();
         linux = new Linux();
@@ -23,7 +25,16 @@ public class Configuration {
             sb.append(targets[j]);
         }
         sb.append("]\n");
-
+        if (includes != null && includes.length > 0) {
+            sb.append("includes: [");
+            for (int j = 0; j < includes.length; ++j) {
+                if (j != 0) {
+                    sb.append(", ");
+                }
+                sb.append(includes[j]);
+            }
+            sb.append("]\n");
+        }
         if (cmake != null) {
             sb.append("cmake:\n");
             sb.append(cmake.toString());

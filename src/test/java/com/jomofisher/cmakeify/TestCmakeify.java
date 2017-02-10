@@ -49,7 +49,8 @@ public class TestCmakeify {
     public void testScript() throws IOException {
         File yaml = new File("test-files/simpleConfiguration/cmakeify.yml");
         yaml.getParentFile().mkdirs();
-        Files.write("android:\n" +
+        Files.write("includes: [extra-includes]\n" +
+                        "android:\n" +
                         "  ndk:\n" +
                         "    platforms: [21, 22]\n",
             yaml, StandardCharsets.UTF_8);

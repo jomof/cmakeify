@@ -34,5 +34,6 @@ abstract class ScriptBuilder {
             Toolset toolset,
             boolean multipleCMake,
             boolean multipleGcc);
-    abstract ScriptBuilder buildRedistFiles(File workingFolder);
+
+    abstract ScriptBuilder buildRedistFiles(File workingFolder, String[] includes);
 }

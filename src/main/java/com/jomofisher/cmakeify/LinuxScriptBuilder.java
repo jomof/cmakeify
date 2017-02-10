@@ -258,10 +258,17 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder buildRedistFiles(File workingFolder) {
+    ScriptBuilder buildRedistFiles(File workingFolder, String[] includes) {
+
         for(String zip : zips.keySet()) {
             String redistFolder = zips.get(zip);
             body("if [ -d '%s' ]; then", redistFolder);
+            if (includes != null) {
+                for (String include : includes) {
+                    body("  cp -r %s %s/includes", include, redistFolder);
+                    body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+                }
+            }
             body("  pushd %s", redistFolder);
             body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             body("  zip %s . -r", zip);
