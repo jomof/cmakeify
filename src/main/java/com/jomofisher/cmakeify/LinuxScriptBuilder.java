@@ -265,6 +265,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("if [ -d '%s' ]; then", redistFolder);
             if (includes != null) {
                 for (String include : includes) {
+                    body(" echo DOING PWD");
+                    body(" pwd");
                     body("  cp -r %s %s/includes", include, redistFolder);
                     body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
                 }
