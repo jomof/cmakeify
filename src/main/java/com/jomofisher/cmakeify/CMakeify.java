@@ -197,6 +197,11 @@ public class CMakeify {
             }
         }
         script.buildRedistFiles(workingFolder, config.includes);
+        script.uploadBadges(
+            targetGroupId,
+            targetArtifactId,
+            targetVersion
+        );
         script.writeToShellScript();
     }
 
