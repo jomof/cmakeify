@@ -58,13 +58,15 @@ public class TestCmakeify {
             "--host", "Linux",
             "--group-id", "my-group-id",
             "--artifact-id", "my-artifact-id",
-            "--target-version", "my-target-version");
+            "--target-version", "my-target-version",
+            "--cmake-flags", "-DBOOST_ROOT=boost/");
         File scriptFile = new File(".cmakeify/build.sh");
         String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
         assertThat(script).contains("cmake-3.7.2-Linux-x86_64.tar.gz");
         assertThat(script).contains("groupId: my-group-id");
         assertThat(script).contains("artifactId: my-artifact-id");
         assertThat(script).contains("version: my-target-version");
+        assertThat(script).contains("BOOST_ROOT=");
     }
 
     @Test

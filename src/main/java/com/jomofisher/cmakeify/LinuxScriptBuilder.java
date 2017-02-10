@@ -111,8 +111,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                                boolean multipleCompiler,
                                boolean multipleRuntime,
                                boolean multiplePlatforms) {
-        String cmakeExe = String.format("%s/%s/bin/cmake %s", TOOLS_FOLDER,
-                cmakeRemote.linux.unpackroot, cmakeFlags);
+        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
+                cmakeRemote.linux.unpackroot);
         File outputFolder = androidFolder;
         String zipName = workingFolder.getAbsoluteFile().getParentFile().getName() + "-android";
         if (multipleCMake) {
@@ -156,7 +156,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  fi");
 
             String command = String.format(
-                    "  %s \\\n" +
+                    "%s \\\n" +
                     "   -H%s \\\n" +
                     "   -B%s \\\n" +
                     "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
@@ -168,12 +168,13 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib/%s \\\n" +
                     "   -DCMAKE_ANDROID_STL_TYPE=%s \\\n" +
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
-                    "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
+                    "   -DCMAKE_ANDROID_ARCH_ABI=%s %s\n",
                     cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
                     redistFolder, redistFolder, abi, redistFolder, abi, runtime,
-                    new File(ndkFolder).getAbsolutePath(), abi);
-            body("echo Executing %s", command);
-            body(command);
+                    new File(ndkFolder).getAbsolutePath(), abi, cmakeFlags);
+            body("  echo Executing %s", command);
+            body("  " + command);
+            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             body(String.format("  %s --build %s", cmakeExe, abiBuildFolder));
             body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
@@ -230,9 +231,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
                 "   -DCMAKE_C_COMPILER=%s \\\n" +
-                "   -DCMAKE_CXX_COMPILER=%s",
+                "   -DCMAKE_CXX_COMPILER=%s %s",
                 cmakeExe, workingFolder, buildFolder,
-                redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
+                redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx, cmakeFlags));
 
         body(String.format("%s --build %s", cmakeExe, buildFolder));
         body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
