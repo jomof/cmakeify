@@ -314,7 +314,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         body("    git add %s/latest/latest.svg", badgeFolder);
         body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
-        body("    git push -f -q https://jomof:$CDEP_BADGES_API_KEY@github.com/jomof/cdep-badges &2>/dev/null");
+        body("    git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io &2>/dev/null");
         body("    popd");
         body("  else");
         body("    echo Add CDEP_BADGES_API_KEY to Travis settings to get badges!");
