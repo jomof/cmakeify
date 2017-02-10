@@ -155,7 +155,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("    ABIS=\"${ABIS}, %s\"", abi);
             body("  fi");
 
-            body(String.format(
+            String command = String.format(
                     "  %s \\\n" +
                     "   -H%s \\\n" +
                     "   -B%s \\\n" +
@@ -171,7 +171,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s \n",
                     cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
                     redistFolder, redistFolder, abi, redistFolder, abi, runtime,
-                new File(ndkFolder).getAbsolutePath(), abi));
+                    new File(ndkFolder).getAbsolutePath(), abi);
+            body("echo Executing %s", command);
+            body(command);
             body(String.format("  %s --build %s", cmakeExe, abiBuildFolder));
             body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
