@@ -307,7 +307,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("if [ -n \"$TRAVIS_TAG\" ]; then");
         body("  if [ -n \"$CDEP_BADGES_API_KEY\" ]; then");
         body("    git clone https://github.com/cdep-io/cdep-io.github.io.git");
-        body("    pushd cdep-badges");
+        body("    pushd cdep-io.github.io");
         body("    mkdir -p %s/latest", badgeFolder);
         body("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
         body("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
