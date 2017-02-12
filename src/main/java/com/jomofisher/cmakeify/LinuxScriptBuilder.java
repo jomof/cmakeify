@@ -154,7 +154,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
                     new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
             body("if [ -d '%s' ]; then", archFolder);
-            body("  echo Building to %s", outputFolder);
+            body("  echo Creating make project in %s", abiBuildFolder);
             body("  if [[ \"$ABIS\" == \"\" ]]; then");
             body("    ABIS=%s", abi);
             body("  else");
@@ -214,6 +214,12 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("  " + ABORT_LAST_FAILED);
         body("  zip %s . -r", zip);
         body("  " + ABORT_LAST_FAILED);
+        body("  if [ -f '%s' ]; then", zip);
+        body("    echo Zip %s was created", zip);
+        body("  else");
+        body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
+        body("    exit 402");
+        body("  fi");
         body("  popd");
         body("  " + ABORT_LAST_FAILED);
         body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
@@ -291,6 +297,12 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("  " + ABORT_LAST_FAILED);
         body("  zip %s . -r", zip);
         body("  " + ABORT_LAST_FAILED);
+        body("  if [ -f '%s' ]; then", zip);
+        body("    echo Zip %s was created", zip);
+        body("  else");
+        body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
+        body("    exit 402");
+        body("  fi");
         body("  popd");
         body("  " + ABORT_LAST_FAILED);
         body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
