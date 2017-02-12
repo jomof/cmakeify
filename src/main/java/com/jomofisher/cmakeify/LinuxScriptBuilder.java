@@ -116,7 +116,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                                boolean multipleCompiler,
                                boolean multipleRuntime,
                                boolean multiplePlatforms) {
-        body("Executing script for %s %s %s %s", ndkVersion, platform, compiler, runtime);
+        body("echo Executing script for %s %s %s %s", ndkVersion, platform, compiler, runtime);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
                 cmakeRemote.linux.unpackroot);
         File outputFolder = androidFolder;
