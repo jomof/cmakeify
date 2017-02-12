@@ -46,6 +46,22 @@ public class TestCmakeify {
     }
 
     @Test
+    public void probeSmokeTest() throws IOException {
+        File yaml = new File("smoke-test/cmakeify.yml");
+        yaml.getParentFile().mkdirs();
+        main("-wf", yaml.getParent(),
+                "--host", "Linux",
+                "--group-id", "my-group-id",
+                "--artifact-id", "my-artifact-id",
+                "--target-version", "my-target-version",
+                "--cmake-flags", "-DBOOST_ROOT=boost/");
+        File scriptFile = new File(".cmakeify/build.sh");
+        String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
+        assertThat(script).contains("cxx_shared");
+        assertThat(script).contains("cxx_static");
+    }
+
+    @Test
     public void testScript() throws IOException {
         File yaml = new File("test-files/testScript/cmakeify.yml");
         yaml.getParentFile().mkdirs();
