@@ -105,6 +105,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                                String ndkVersion,
                                RemoteArchive ndkRemote,
                                String includes[],
+                               String lib,
                                String compiler,
                                String runtime,
                                String platform,
@@ -145,6 +146,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+        File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
         body("ABIS=");
         for (String abi : abis) {
             File abiBuildFolder = new File(buildFolder, abi);
@@ -158,6 +160,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("    ABIS=\"${ABIS}, %s\"", abi);
             body("  fi");
 
+            String stagingAbiFolder = String.format("%s/lib/%s", stagingFolder, abi);
+
             String command = String.format(
                     "%s \\\n" +
                     "   -H%s \\\n" +
@@ -167,23 +171,34 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
                     "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
                     "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-                    "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib/%s \\\n" +
-                    "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib/%s \\\n" +
+                            "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
+                            "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
                     "   -DCMAKE_ANDROID_STL_TYPE=%s \\\n" +
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s %s\n",
                     cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
-                    redistFolder, redistFolder, abi, redistFolder, abi, runtime,
+                    redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
                     new File(ndkFolder).getAbsolutePath(), abi, cmakeFlags);
             body("  echo Executing %s", command);
             body("  " + command);
             body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
             body(String.format("  %s --build %s", cmakeExe, abiBuildFolder));
             body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
-            zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+            String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
+            String redistAbiFolder = String.format("%s/lib/%s", redistFolder, abi);
+            body("  if [ -f '%s' ]; then", stagingLib);
+            body("    mkdir -p %s", redistAbiFolder);
+            body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
+            body("    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("  else");
+            body("    echo CMake build did not produce %s", lib);
+            body("    exit 100");
+            body("  fi");
             body("fi");
+
+            zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         }
-        body("if [ -d '%s' ]; then", redistFolder);
+        body("if [ -d '%s' ]; then", stagingFolder);
         if (includes != null) {
             for (String include : includes) {
                 body("  cp -r %s/%s %s/includes", workingFolder, include, redistFolder);
@@ -201,6 +216,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
 
         cdep("- file: %s", zip.getName());
         cdep("  sha256: $SHASUM256");
+        cdep("  lib: %s", lib);
         cdep("  runtime: %s", runtime);
         cdep("  platform: %s", platform);
         cdep("  ndk: %s", ndkVersion);

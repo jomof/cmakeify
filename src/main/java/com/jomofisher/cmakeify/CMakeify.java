@@ -165,6 +165,7 @@ public class CMakeify {
                                             ndk,
                                             remote,
                                                 config.includes,
+                                                config.android.lib,
                                             compiler,
                                             runtime,
                                             platform,

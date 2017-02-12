@@ -51,6 +51,7 @@ public class TestCmakeify {
         yaml.getParentFile().mkdirs();
         Files.write("includes: [extra-includes]\n" +
                         "android:\n" +
+                        "  lib: libbob.a\n" +
                         "  ndk:\n" +
                         "    platforms: [21, 22]\n",
             yaml, StandardCharsets.UTF_8);

@@ -22,6 +22,7 @@ abstract class ScriptBuilder {
             String ndkVersion,
             RemoteArchive ndkRemote,
             String includes[],
+            String lib,
             String compiler,
             String runtime,
             String platform,
