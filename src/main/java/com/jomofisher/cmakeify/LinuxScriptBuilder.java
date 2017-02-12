@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LinuxScriptBuilder  extends ScriptBuilder {
+    final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi";
     final private static String TOOLS_FOLDER = ".cmakeify/tools";
     final private static String DOWNLOADS_FOLDER = ".cmakeify/downloads";
     final private StringBuilder body = new StringBuilder();
@@ -92,7 +93,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     ScriptBuilder checkForCompilers(Collection<String> compilers) {
         for (String compiler : compilers) {
             body("if [[ -z \"$(which %s)\" ]]; then", compiler);
-            body("  echo Missing %s. Please install.", compiler);
+            body("  echo CMAKEIFY ERROR: Missing %s. Please install.", compiler);
             body("  exit 100");
             body("fi");
         }
@@ -181,17 +182,17 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     new File(ndkFolder).getAbsolutePath(), abi, cmakeFlags);
             body("  echo Executing %s", command);
             body("  " + command);
-            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("  " + ABORT_LAST_FAILED);
             body(String.format("  %s --build %s", cmakeExe, abiBuildFolder));
-            body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("  " + ABORT_LAST_FAILED);
             String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
             String redistAbiFolder = String.format("%s/lib/%s", redistFolder, abi);
             body("  if [ -f '%s' ]; then", stagingLib);
             body("    mkdir -p %s", redistAbiFolder);
             body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
-            body("    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            body("    " + ABORT_LAST_FAILED);
             body("  else");
-            body("    echo CMake build did not produce %s", lib);
+            body("    echo CMAKEIFY ERROR: CMake build did not produce %s", lib);
             body("    exit 100");
             body("  fi");
             body("fi");
@@ -202,17 +203,17 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         if (includes != null) {
             for (String include : includes) {
                 body("  cp -r %s/%s %s/includes", workingFolder, include, redistFolder);
-                body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+                body("  " + ABORT_LAST_FAILED);
             }
         }
         body("  pushd %s", redistFolder);
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
         body("  zip %s . -r", zip);
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
         body("  popd");
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
         body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
 
         cdep("- file: %s", zip.getName());
         cdep("  sha256: $SHASUM256");
@@ -228,7 +229,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             cdep("  builder: cmake-%s", cmakeVersion);
         }
         body("else");
-        body("  echo Build didn't produce an output");
+        body("  echo CMAKEIFY ERROR: Build didn't produce an output in %s", stagingFolder);
         body("  exit 200");
         body("fi");
         return this;
@@ -274,17 +275,18 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx, cmakeFlags));
 
         body(String.format("%s --build %s", cmakeExe, buildFolder));
-        body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body(ABORT_LAST_FAILED);
         zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+        body("# Zip Linux redist if folder was created in %s", redistFolder);
         body("if [ -d '%s' ]; then", redistFolder);
         body("  pushd %s", redistFolder);
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
         body("  zip %s . -r", zip);
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
         body("  popd");
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
         body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
-        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  " + ABORT_LAST_FAILED);
         body("fi");
         return this;
     }
@@ -338,7 +340,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("    mkdir -p %s/latest", badgeFolder);
         body("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
         body("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
-        body("    rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("    " + ABORT_LAST_FAILED);
         body("    git add %s/latest/latest.svg", badgeFolder);
         body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
         body("    git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io &2>/dev/null");
