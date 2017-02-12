@@ -159,7 +159,7 @@ public class CMakeify {
                             for (String platform : config.android.ndk.platforms) {
                                 for (String compiler : config.android.ndk.compilers) {
                                     for (String runtime : config.android.ndk.runtimes) {
-                                        System.out.printf("Building script fo %s %s %s %s\n",
+                                        System.out.printf("Building script for %s %s %s %s\n",
                                                 ndk, platform, compiler, runtime);
                                         script.cmakeAndroid(
                                             cmakeVersion,
