@@ -200,7 +200,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
 
         cdep("- file: %s", zip.getName());
-        cdep("  shasum256: $(SHASUM256)");
+        cdep("  sha256: $SHASUM256");
         cdep("  runtime: %s", runtime);
         cdep("  platform: %s", platform);
         cdep("  ndk: %s", ndkVersion);
