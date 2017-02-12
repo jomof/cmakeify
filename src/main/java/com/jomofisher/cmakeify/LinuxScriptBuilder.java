@@ -273,7 +273,16 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body(String.format("%s --build %s", cmakeExe, buildFolder));
         body("rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
         zips.put(zip.getAbsolutePath(), redistFolder.getPath());
-
+        body("if [ -d '%s' ]; then", redistFolder);
+        body("  pushd %s", redistFolder);
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  zip %s . -r", zip);
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  popd");
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("fi");
         return this;
     }
 
