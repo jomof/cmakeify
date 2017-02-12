@@ -240,7 +240,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             cdep("  builder: cmake-%s", cmakeVersion);
         }
         body("else");
-        body("  echo CMAKEIFY ERROR: Build didn't produce an output in %s", stagingFolder);
+        body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
         body("  exit 200");
         body("fi");
         return this;
