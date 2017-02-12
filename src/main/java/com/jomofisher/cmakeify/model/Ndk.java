@@ -45,6 +45,14 @@ public class Ndk {
             sb.append(compilers[j]);
         }
         sb.append("]\n");
+        sb.append("    runtimes: [");
+        for (int j = 0; j < runtimes.length; ++j) {
+            if (j != 0) {
+                sb.append(", ");
+            }
+            sb.append(runtimes[j]);
+        }
+        sb.append("]\n");
         sb.append("    versions: [");
         for (int j = 0; j < versions.length; ++j) {
             if (j != 0) {

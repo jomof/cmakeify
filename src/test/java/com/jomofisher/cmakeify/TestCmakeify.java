@@ -68,7 +68,9 @@ public class TestCmakeify {
         assertThat(script).contains("artifactId: my-artifact-id");
         assertThat(script).contains("version: my-target-version");
         assertThat(script).contains("BOOST_ROOT=");
-        main("-wf", yaml.getParent(), "--dump");
+        String dump = main("-wf", yaml.getParent(), "--dump");
+        assertThat(dump).contains("  lib:");
+        assertThat(dump).contains("runtimes:");
     }
 
     @Test
