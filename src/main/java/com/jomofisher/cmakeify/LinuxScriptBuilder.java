@@ -199,7 +199,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 body("  fi");
                 body("fi");
             }
-
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         }
         body("if [ -d '%s' ]; then", stagingFolder);
