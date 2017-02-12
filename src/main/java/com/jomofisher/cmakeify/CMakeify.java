@@ -164,6 +164,7 @@ public class CMakeify {
                                             config.cmake.remotes.get(cmakeVersion),
                                             ndk,
                                             remote,
+                                                config.includes,
                                             compiler,
                                             runtime,
                                             platform,

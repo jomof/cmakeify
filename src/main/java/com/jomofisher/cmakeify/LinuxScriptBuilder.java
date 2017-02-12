@@ -104,6 +104,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                                RemoteArchive cmakeRemote,
                                String ndkVersion,
                                RemoteArchive ndkRemote,
+                               String includes[],
                                String compiler,
                                String runtime,
                                String platform,
@@ -183,7 +184,23 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("fi");
         }
         body("if [ -d '%s' ]; then", redistFolder);
+        if (includes != null) {
+            for (String include : includes) {
+                body("  cp -r %s/%s %s/includes", workingFolder, include, redistFolder);
+                body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+            }
+        }
+        body("  pushd %s", redistFolder);
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  zip %s . -r", zip);
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  popd");
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
+        body("  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi");
+
         cdep("- file: %s", zip.getName());
+        cdep("  shasum256: $(SHASUM256)");
         cdep("  runtime: %s", runtime);
         cdep("  platform: %s", platform);
         cdep("  ndk: %s", ndkVersion);

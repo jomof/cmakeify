@@ -17,19 +17,20 @@ abstract class ScriptBuilder {
     abstract ScriptBuilder download(RemoteArchive remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
     abstract ScriptBuilder cmakeAndroid(
-        String cmakeVersion,
-        RemoteArchive cmakeRemote,
-        String ndkVersion,
-        RemoteArchive ndkRemote,
-        String compiler,
-        String runtime,
-        String platform,
-        String abi[],
-        boolean multipleCMake,
-        boolean multipleNDK,
-        boolean multipleCompiler,
-        boolean multipleRuntime,
-        boolean multiplePlatforms);
+            String cmakeVersion,
+            RemoteArchive cmakeRemote,
+            String ndkVersion,
+            RemoteArchive ndkRemote,
+            String includes[],
+            String compiler,
+            String runtime,
+            String platform,
+            String abi[],
+            boolean multipleCMake,
+            boolean multipleNDK,
+            boolean multipleCompiler,
+            boolean multipleRuntime,
+            boolean multiplePlatforms);
     abstract ScriptBuilder cmakeLinux(
             String cmakeVersion,
             RemoteArchive cmakeRemote,
