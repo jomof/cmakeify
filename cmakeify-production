@@ -197,6 +197,7 @@ fi
 if [ -f "./.cmakeify/build.sh" ]; then
   chmod +x ./.cmakeify/build.sh
   .cmakeify/build.sh
+  rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi
 fi
 
 
