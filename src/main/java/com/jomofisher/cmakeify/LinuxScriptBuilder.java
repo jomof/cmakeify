@@ -240,9 +240,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         if (multipleCMake) {
             cdep("  builder: cmake-%s", cmakeVersion);
         }
-        body("else");
-        body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
-        body("  exit 200");
+        if (lib == null || lib.length() > 0) {
+            body("else");
+            body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
+            body("  exit 200");
+        }
         body("fi");
         return this;
     }
