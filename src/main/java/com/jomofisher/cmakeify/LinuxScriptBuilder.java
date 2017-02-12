@@ -197,8 +197,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 body("    echo CMAKEIFY ERROR: CMake build did not produce %s", lib);
                 body("    exit 100");
                 body("  fi");
-                body("fi");
             }
+            body("fi");
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         }
         body("if [ -d '%s' ]; then", stagingFolder);
