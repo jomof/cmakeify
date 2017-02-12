@@ -188,15 +188,17 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  " + ABORT_LAST_FAILED);
             String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
             String redistAbiFolder = String.format("%s/lib/%s", redistFolder, abi);
-            body("  if [ -f '%s' ]; then", stagingLib);
-            body("    mkdir -p %s", redistAbiFolder);
-            body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
-            body("    " + ABORT_LAST_FAILED);
-            body("  else");
-            body("    echo CMAKEIFY ERROR: CMake build did not produce %s", lib);
-            body("    exit 100");
-            body("  fi");
-            body("fi");
+            if (lib != null && lib.length() > 0) {
+                body("  if [ -f '%s' ]; then", stagingLib);
+                body("    mkdir -p %s", redistAbiFolder);
+                body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
+                body("    " + ABORT_LAST_FAILED);
+                body("  else");
+                body("    echo CMAKEIFY ERROR: CMake build did not produce %s", lib);
+                body("    exit 100");
+                body("  fi");
+                body("fi");
+            }
 
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         }
