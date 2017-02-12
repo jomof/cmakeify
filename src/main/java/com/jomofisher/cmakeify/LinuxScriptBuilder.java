@@ -206,6 +206,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 body("  " + ABORT_LAST_FAILED);
             }
         }
+        body("  if [ -f '%s' ]; then", zip);
+        body("    echo CMAKEIFY ERROR: Android zip %s would be overwritten", zip);
+        body("    exit 400");
+        body("  fi");
         body("  pushd %s", redistFolder);
         body("  " + ABORT_LAST_FAILED);
         body("  zip %s . -r", zip);
@@ -279,6 +283,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         body("# Zip Linux redist if folder was created in %s", redistFolder);
         body("if [ -d '%s' ]; then", redistFolder);
+        body("  if [ -f '%s' ]; then", zip);
+        body("    echo CMAKEIFY ERROR: Linux zip %s would be overwritten", zip);
+        body("    exit 500");
+        body("  fi");
         body("  pushd %s", redistFolder);
         body("  " + ABORT_LAST_FAILED);
         body("  zip %s . -r", zip);
