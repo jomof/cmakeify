@@ -47,7 +47,7 @@ public class TestCmakeify {
 
     @Test
     public void testScript() throws IOException {
-        File yaml = new File("test-files/simpleConfiguration/cmakeify.yml");
+        File yaml = new File("test-files/testScript/cmakeify.yml");
         yaml.getParentFile().mkdirs();
         Files.write("includes: [extra-includes]\n" +
                         "android:\n" +

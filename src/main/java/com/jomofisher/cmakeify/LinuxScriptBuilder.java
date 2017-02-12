@@ -227,6 +227,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         if (multipleCMake) {
             cdep("  builder: cmake-%s", cmakeVersion);
         }
+        body("else");
+        body("  echo Build didn't produce an output");
+        body("  exit 200");
         body("fi");
         return this;
     }
