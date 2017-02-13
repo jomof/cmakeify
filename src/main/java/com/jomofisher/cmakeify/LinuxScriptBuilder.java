@@ -23,14 +23,25 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     final private File cdepFile;
     final private File androidFolder;
     final private String cmakeFlags;
+    final private String targetGroupId;
+    final private String targetArtifactId;
+    final private String targetVersion;
 
-    LinuxScriptBuilder(File workingFolder, String cmakeFlags) {
+    LinuxScriptBuilder(
+        File workingFolder,
+        String cmakeFlags,
+        String targetGroupId,
+        String targetArtifactId,
+        String targetVersion) {
         this.workingFolder = workingFolder;
         this.rootBuildFolder = new File(workingFolder, "build");
         this.zipsFolder = new File(rootBuildFolder, "zips");
         this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
         this.androidFolder = new File(rootBuildFolder, "Android");
         this.cmakeFlags = cmakeFlags;
+        this.targetGroupId = targetGroupId;
+        this.targetArtifactId = targetArtifactId;
+        this.targetVersion = targetVersion;
     }
 
     private LinuxScriptBuilder body(String format, Object... args) {
@@ -45,10 +56,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder createEmptyBuildFolder(
-        String targetGroupId,
-        String targetArtifactId,
-        String targetVersion) {
+    ScriptBuilder createEmptyBuildFolder() {
         body("rm -rf %s", rootBuildFolder);
         body("mkdir --parents %s", zipsFolder);
         body("mkdir --parents %s/", TOOLS_FOLDER);
@@ -120,7 +128,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
                 cmakeRemote.linux.unpackroot);
         File outputFolder = androidFolder;
-        String zipName = workingFolder.getAbsoluteFile().getParentFile().getName() + "-android";
+        String zipName = targetArtifactId + "-android";
         if (multipleCMake) {
             outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
             zipName += "-cmake-" + cmakeVersion;
@@ -259,7 +267,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
             cmakeRemote.linux.unpackroot);
         File outputFolder = new File(rootBuildFolder, "Linux");
-        String zipName = workingFolder.getAbsoluteFile().getParentFile().getName() + "-linux";
+        String zipName = targetArtifactId + "-linux";
         if (multipleCMake) {
             outputFolder = new File(outputFolder,  "cmake-" + cmakeVersion);
             zipName += "-cmake-" + cmakeVersion;
@@ -345,10 +353,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder uploadBadges(
-        String targetGroupId,
-        String targetArtifactId,
-        String targetVersion) {
+    ScriptBuilder uploadBadges() {
         // Record build information
         String badgeUrl = String.format("%s:%s:%s", targetGroupId, targetArtifactId, targetVersion);
         badgeUrl = badgeUrl.replace(":", "%3A");

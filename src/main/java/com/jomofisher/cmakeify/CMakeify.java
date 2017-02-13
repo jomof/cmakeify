@@ -91,7 +91,13 @@ public class CMakeify {
     }
 
     private void handleGenerateScript() {
-        ScriptBuilder script = new LinuxScriptBuilder(workingFolder, cmakeFlags);
+        ScriptBuilder script = new LinuxScriptBuilder(
+            workingFolder,
+            cmakeFlags,
+            targetGroupId,
+            targetArtifactId,
+            targetVersion
+        );
 
         // Map of compilers.
         Set<OS> targetOS = new HashSet<>();
@@ -115,11 +121,7 @@ public class CMakeify {
         }
 
         // Create working folders
-        script.createEmptyBuildFolder(
-            targetGroupId,
-            targetArtifactId,
-            targetVersion
-        );
+        script.createEmptyBuildFolder();
 
         // Download the CMakes we need.
         for (String cmakeVersion : config.cmake.versions) {
@@ -201,11 +203,7 @@ public class CMakeify {
             }
         }
         script.buildRedistFiles(workingFolder, config.includes);
-        script.uploadBadges(
-            targetGroupId,
-            targetArtifactId,
-            targetVersion
-        );
+        script.uploadBadges();
         script.writeToShellScript();
     }
 
