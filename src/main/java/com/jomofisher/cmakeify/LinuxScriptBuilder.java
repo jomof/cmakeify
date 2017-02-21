@@ -108,9 +108,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     @Override
     ScriptBuilder cmakeAndroid(String cmakeVersion,
                                RemoteArchive cmakeRemote,
-                               String ndkVersion,
                                String flavor,
                                String flavorFlags,
+                               String ndkVersion,
                                RemoteArchive ndkRemote,
                                String includes[],
                                String lib,
