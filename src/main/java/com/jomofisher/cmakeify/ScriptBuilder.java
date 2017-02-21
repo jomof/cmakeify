@@ -17,6 +17,8 @@ abstract class ScriptBuilder {
     abstract ScriptBuilder cmakeAndroid(
             String cmakeVersion,
             RemoteArchive cmakeRemote,
+            String flavor,
+            String flavorFlags,
             String ndkVersion,
             RemoteArchive ndkRemote,
             String includes[],
@@ -25,6 +27,7 @@ abstract class ScriptBuilder {
             String runtime,
             String platform,
             String abi[],
+            boolean multipleFlavors,
             boolean multipleCMake,
             boolean multipleNDK,
             boolean multipleCompiler,

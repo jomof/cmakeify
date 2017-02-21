@@ -22,14 +22,12 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     final private File zipsFolder;
     final private File cdepFile;
     final private File androidFolder;
-    final private String cmakeFlags;
     final private String targetGroupId;
     final private String targetArtifactId;
     final private String targetVersion;
 
     LinuxScriptBuilder(
         File workingFolder,
-        String cmakeFlags,
         String targetGroupId,
         String targetArtifactId,
         String targetVersion) {
@@ -38,7 +36,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         this.zipsFolder = new File(rootBuildFolder, "zips");
         this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
         this.androidFolder = new File(rootBuildFolder, "Android");
-        this.cmakeFlags = cmakeFlags;
         this.targetGroupId = targetGroupId;
         this.targetArtifactId = targetArtifactId;
         this.targetVersion = targetVersion;
@@ -112,6 +109,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     ScriptBuilder cmakeAndroid(String cmakeVersion,
                                RemoteArchive cmakeRemote,
                                String ndkVersion,
+                               String flavor,
+                               String flavorFlags,
                                RemoteArchive ndkRemote,
                                String includes[],
                                String lib,
@@ -119,12 +118,13 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                                String runtime,
                                String platform,
                                String abis[],
+                               boolean multipleFlavors,
                                boolean multipleCMake,
                                boolean multipleNDK,
                                boolean multipleCompiler,
                                boolean multipleRuntime,
                                boolean multiplePlatforms) {
-        body("echo Executing script for %s %s %s %s", ndkVersion, platform, compiler, runtime);
+        body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
                 cmakeRemote.linux.unpackroot);
         File outputFolder = androidFolder;
@@ -149,6 +149,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         if (multiplePlatforms) {
             outputFolder = new File(outputFolder, "android-" + platform);
             zipName += "-platform-" + platform;
+        }
+        if (multipleFlavors) {
+            outputFolder = new File(outputFolder, "flavor-" + flavor);
+            zipName += "-" + flavor;
         }
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
@@ -188,7 +192,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s %s\n",
                     cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
                     redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
-                    new File(ndkFolder).getAbsolutePath(), abi, cmakeFlags);
+                    new File(ndkFolder).getAbsolutePath(), abi, flavorFlags);
             body("  echo Executing %s", command);
             body("  " + command);
             body("  " + ABORT_LAST_FAILED);
@@ -294,9 +298,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
                 "   -DCMAKE_C_COMPILER=%s \\\n" +
-                "   -DCMAKE_CXX_COMPILER=%s %s",
+                        "   -DCMAKE_CXX_COMPILER=%s",
                 cmakeExe, workingFolder, buildFolder,
-                redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx, cmakeFlags));
+                redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
 
         body(String.format("%s --build %s", cmakeExe, buildFolder));
         body(ABORT_LAST_FAILED);

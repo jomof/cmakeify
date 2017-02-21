@@ -53,12 +53,34 @@ public class TestCmakeify {
                 "--host", "Linux",
                 "--group-id", "my-group-id",
                 "--artifact-id", "my-artifact-id",
-                "--target-version", "my-target-version",
-                "--cmake-flags", "-DBOOST_ROOT=boost/");
+                "--target-version", "my-target-version");
         File scriptFile = new File(".cmakeify/build.sh");
         String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
         assertThat(script).contains("cxx_shared");
         assertThat(script).contains("cxx_static");
+    }
+
+    @Test
+    public void complicatedSelfHost() throws IOException {
+        File yaml = new File("test-files/complicatedSelfHost/cmakeify.yml");
+        yaml.getParentFile().mkdirs();
+        Files.write("includes: [extra-includes]\n" +
+                        "android:\n" +
+                        "  flavors:\n" +
+                        "    myflags:\n" +
+                        "      - -DANDROID\n" +
+                        "  lib: libbob.a\n" +
+                        "  ndk:\n" +
+                        "    platforms: [21, 22]\n",
+                yaml, StandardCharsets.UTF_8);
+        String result1 = main("-wf", yaml.getParent(), "--dump");
+        yaml.delete();
+        Files.write(result1, yaml, StandardCharsets.UTF_8);
+        System.out.print(result1);
+        String result2 = main("-wf", yaml.getParent(), "--dump");
+        assertThat(result2).isEqualTo(result1);
+        assertThat(result2).contains("-DANDROID");
+        assertThat(result2).doesNotContain("default-flavor");
     }
 
     @Test
@@ -67,6 +89,8 @@ public class TestCmakeify {
         yaml.getParentFile().mkdirs();
         Files.write("includes: [extra-includes]\n" +
                         "android:\n" +
+                        "  flavors:\n" +
+                        "    myflags: -DANDROID -DBOOST_ROOT=bob\n" +
                         "  lib: libbob.a\n" +
                         "  ndk:\n" +
                         "    platforms: [21, 22]\n",
@@ -75,8 +99,7 @@ public class TestCmakeify {
             "--host", "Linux",
             "--group-id", "my-group-id",
             "--artifact-id", "my-artifact-id",
-            "--target-version", "my-target-version",
-            "--cmake-flags", "-DBOOST_ROOT=boost/");
+                "--target-version", "my-target-version");
         File scriptFile = new File(".cmakeify/build.sh");
         String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
         assertThat(script).contains("cmake-3.7.2-Linux-x86_64.tar.gz");
@@ -84,6 +107,7 @@ public class TestCmakeify {
         assertThat(script).contains("artifactId: my-artifact-id");
         assertThat(script).contains("version: my-target-version");
         assertThat(script).contains("BOOST_ROOT=");
+        assertThat(script).contains("-DANDROID");
         String dump = main("-wf", yaml.getParent(), "--dump");
         assertThat(dump).contains("  lib:");
         assertThat(dump).contains("runtimes:");

@@ -11,9 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import static com.jomofisher.cmakeify.model.OS.linux;
 
@@ -25,7 +23,6 @@ public class CMakeify {
     private String targetArtifactId = "";
     private String targetVersion = "";
     private OSType hostOS;
-    private String cmakeFlags = "";
 
     CMakeify(PrintStream out) {
         this.out = out;
@@ -93,7 +90,6 @@ public class CMakeify {
     private void handleGenerateScript() {
         ScriptBuilder script = new LinuxScriptBuilder(
             workingFolder,
-            cmakeFlags,
             targetGroupId,
             targetArtifactId,
             targetVersion
@@ -161,24 +157,36 @@ public class CMakeify {
                             for (String platform : config.android.ndk.platforms) {
                                 for (String compiler : config.android.ndk.compilers) {
                                     for (String runtime : config.android.ndk.runtimes) {
-                                        System.out.printf("Building script for %s %s %s %s\n",
-                                                ndk, platform, compiler, runtime);
-                                        script.cmakeAndroid(
-                                            cmakeVersion,
-                                            config.cmake.remotes.get(cmakeVersion),
-                                            ndk,
-                                            remote,
-                                                config.includes,
-                                                config.android.lib,
-                                            compiler,
-                                            runtime,
-                                            platform,
-                                            config.android.ndk.abis,
-                                            config.cmake.versions.length != 1,
-                                            config.android.ndk.versions.length != 1,
-                                            config.android.ndk.compilers.length != 1,
-                                            config.android.ndk.runtimes.length != 1,
-                                            config.android.ndk.platforms.length != 1);
+                                        Map<String, String> flavors = config.android.flavors;
+                                        if (flavors == null) {
+                                            flavors = new HashMap<>();
+                                        }
+                                        if (flavors.size() == 0) {
+                                            flavors.put("default-flavor", "");
+                                        }
+                                        for (String flavor : flavors.keySet()) {
+                                            out.printf("Building script for %s %s %s %s %s\n",
+                                                    flavor, ndk, platform, compiler, runtime);
+                                            script.cmakeAndroid(
+                                                    cmakeVersion,
+                                                    config.cmake.remotes.get(cmakeVersion),
+                                                    flavor,
+                                                    flavors.get(flavor),
+                                                    ndk,
+                                                    remote,
+                                                    config.includes,
+                                                    config.android.lib,
+                                                    compiler,
+                                                    runtime,
+                                                    platform,
+                                                    config.android.ndk.abis,
+                                                    flavors.size() != 1,
+                                                    config.cmake.versions.length != 1,
+                                                    config.android.ndk.versions.length != 1,
+                                                    config.android.ndk.compilers.length != 1,
+                                                    config.android.ndk.runtimes.length != 1,
+                                                    config.android.ndk.platforms.length != 1);
+                                        }
                                     }
                                 }
                             }
@@ -245,13 +253,9 @@ public class CMakeify {
     }
 
     private void handleCMakeFlags(String[] args) throws IOException {
-        boolean takeNext = false;
         for (int i = 0; i < args.length; ++i) {
-            if (takeNext) {
-                this.cmakeFlags = args[i];
-                takeNext = false;
-            } else if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
-                takeNext = true;
+            if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
+                throw new RuntimeException("--cmake-flags no longer supported");
             }
         }
     }
