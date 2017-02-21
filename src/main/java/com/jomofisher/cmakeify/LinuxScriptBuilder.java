@@ -206,6 +206,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 body("    exit 100");
                 body("  fi");
             }
+            body("else");
+            body("  echo Build skipped ABI %s because arch folder didn't exist: %s", abi, archFolder);
             body("fi");
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         }
