@@ -244,6 +244,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         cdep("- file: %s", zip.getName());
         cdep("  sha256: $SHASUM256");
         cdep("  lib: %s", lib);
+        cdep("  flavor: %s", flavor);
         cdep("  runtime: %s", runtime);
         cdep("  platform: %s", platform);
         cdep("  ndk: %s", ndkVersion);
