@@ -13,11 +13,15 @@ deploy:
     - build/libs/cmakeify-${TRAVIS_TAG}-javadoc.jar
     - .cmakeify/build.sh
     - smoke-test/build/zips/cdep-manifest.yml
-    - smoke-test/build/zips/cmakeify-android-cxx_static-platform-21.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_shared-platform-21-debug.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_static-platform-9-release.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_shared-platform-21-release.zip
     - smoke-test/build/zips/cmakeify-linux.zip
-    - smoke-test/build/zips/cmakeify-android-cxx_shared-platform-9.zip
-    - smoke-test/build/zips/cmakeify-android-cxx_static-platform-9.zip
-    - smoke-test/build/zips/cmakeify-android-cxx_shared-platform-21.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_static-platform-21-release.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_static-platform-21-debug.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_static-platform-9-debug.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_shared-platform-9-debug.zip
+    - smoke-test/build/zips/cmakeify-android-cxx_shared-platform-9-release.zip
   provider: releases
   skip_cleanup: true
   true: 
