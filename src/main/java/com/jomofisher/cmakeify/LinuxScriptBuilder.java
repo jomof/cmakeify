@@ -212,7 +212,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("if [ -d '%s' ]; then", stagingFolder);
         if (includes != null) {
             for (String include : includes) {
-                body("  cp -r %s/%s %s/includes", workingFolder, include, redistFolder);
+                body("  cp -r %s/%s %s/include", workingFolder, include, redistFolder);
                 body("  " + ABORT_LAST_FAILED);
             }
         }
