@@ -6,7 +6,7 @@ android:
   lib: libhello.a
   flavors:
     debug: -DCMAKE_BUILD_TYPE=Debug
-    release: -DCMAKE_BUILD_TYPE=Release
+#    release: -DCMAKE_BUILD_TYPE=Release
 #    relwithdebinfo: -DCMAKE_BUILD_TYPE=RelWithDebInfo
 #    minsizerel: -DCMAKE_BUILD_TYPE=MinSizeRel
   ndk:
