@@ -1,12 +1,13 @@
 package com.jomofisher.cmakeify.model;
 
-public class Configuration {
+public class CMakeifyYml {
     final public OS targets[];
     final public String includes[];
     final public CMake cmake;
     final public Android android;
     final public Linux linux;
-    public Configuration() {
+
+    public CMakeifyYml() {
         targets = OS.values();
         includes = new String[0];
         cmake = new CMake();

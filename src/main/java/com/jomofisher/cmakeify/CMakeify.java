@@ -1,6 +1,6 @@
 package com.jomofisher.cmakeify;
 
-import com.jomofisher.cmakeify.model.Configuration;
+import com.jomofisher.cmakeify.model.CMakeifyYml;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
@@ -18,7 +18,7 @@ import static com.jomofisher.cmakeify.model.OS.linux;
 public class CMakeify {
     private PrintStream out = System.out;
     private File workingFolder = new File(".");
-    private Configuration config = null;
+    private CMakeifyYml config = null;
     private String targetGroupId = "";
     private String targetArtifactId = "";
     private String targetVersion = "";
@@ -232,11 +232,12 @@ public class CMakeify {
             return false;
         }
 
-        Yaml yaml = new Yaml(new Constructor(Configuration.class));
-        this.config = (Configuration)yaml.load(new FileInputStream(config));
+        Yaml yaml = new Yaml(new Constructor(CMakeifyYml.class));
+        this.config = (CMakeifyYml) yaml.load(new FileInputStream(config));
         if (this.config == null) {
-            this.config = new Configuration();
+            this.config = new CMakeifyYml();
         }
+        CMakeifyYmlUtils.validateModel(this.config);
         return true;
     }
 

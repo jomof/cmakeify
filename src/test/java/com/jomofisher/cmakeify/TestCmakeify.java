@@ -3,7 +3,7 @@ package com.jomofisher.cmakeify;
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
-import com.jomofisher.cmakeify.model.Configuration;
+import com.jomofisher.cmakeify.model.CMakeifyYml;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
 
@@ -56,8 +56,6 @@ public class TestCmakeify {
                 "--target-version", "my-target-version");
         File scriptFile = new File(".cmakeify/build.sh");
         String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
-        assertThat(script).contains("cxx_shared");
-        assertThat(script).contains("cxx_static");
     }
 
     @Test
@@ -125,7 +123,7 @@ public class TestCmakeify {
 
     @Test
     public void dumpIsSelfHost() throws IOException {
-        Configuration config = new Configuration();
+        CMakeifyYml config = new CMakeifyYml();
         System.out.printf(new Yaml().dump(config));
         File yaml = new File("test-files/simpleConfiguration/cmakeify.yml");
         yaml.getParentFile().mkdirs();

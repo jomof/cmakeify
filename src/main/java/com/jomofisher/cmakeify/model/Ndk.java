@@ -12,7 +12,7 @@ public class Ndk {
     final public Map<String, RemoteArchive> remotes;
     Ndk() {
         compilers = new String[] { "clang" };
-        runtimes = new String[] { "c++_shared", "c++_static" };
+        runtimes = new String[]{"c++"};
         versions = new String[] { "r13b" };
         platforms = new String[] { "21" };
         abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64" };
