@@ -187,7 +187,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                     "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                             "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
                             "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
-                    "   -DCMAKE_ANDROID_STL_TYPE=%s \\\n" +
+                            "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s %s\n",
                     cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
