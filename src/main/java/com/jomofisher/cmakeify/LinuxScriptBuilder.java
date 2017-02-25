@@ -242,11 +242,11 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("  ARCHIVESIZE=$(stat --printf=\"%%s\" %s)", zip);
         body("  " + ABORT_LAST_FAILED);
 
-        cdep("- archives:");
+        cdep("  lib: %s", lib);
+        cdep("  archives:");
         cdep("  - file: %s", zip.getName());
         cdep("    sha256: $SHASUM256");
         cdep("    size: $ARCHIVESIZE");
-        cdep("  lib: %s", lib);
         if (multipleFlavors) {
             cdep("  flavor: %s", flavor);
         }
