@@ -89,6 +89,7 @@ public class CMakeify {
 
     private void handleGenerateScript() {
         ScriptBuilder script = new LinuxScriptBuilder(
+                BuildInfo.PROJECT_VERSION,
             workingFolder,
             targetGroupId,
             targetArtifactId,

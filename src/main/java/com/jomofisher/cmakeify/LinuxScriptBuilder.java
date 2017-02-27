@@ -25,12 +25,15 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     final private String targetGroupId;
     final private String targetArtifactId;
     final private String targetVersion;
+    final private String cmakeifyVersion;
 
     LinuxScriptBuilder(
-        File workingFolder,
-        String targetGroupId,
-        String targetArtifactId,
-        String targetVersion) {
+            String cmakeifyVersion,
+            File workingFolder,
+            String targetGroupId,
+            String targetArtifactId,
+            String targetVersion) {
+        this.cmakeifyVersion = cmakeifyVersion;
         this.workingFolder = workingFolder;
         this.rootBuildFolder = new File(workingFolder, "build");
         this.zipsFolder = new File(rootBuildFolder, "zips");
@@ -218,7 +221,8 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("if [ -d '%s' ]; then", stagingFolder);
         // Create a folder with something in it so there'e always something to zip
         body("  mkdir -p %s", redistFolder);
-        body("  echo %s %s %s %s %s > %s/cmakeify.txt", flavor, ndkVersion, platform, compiler, runtime, redistFolder);
+        body("  echo %s %s %s %s %s %s > %s/cmakeify.txt", cmakeVersion, flavor, ndkVersion, platform, compiler,
+                runtime, redistFolder);
         if (includes != null) {
             for (String include : includes) {
                 body("  cp -r %s/%s %s/include", workingFolder, include, redistFolder);
