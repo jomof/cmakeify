@@ -359,7 +359,14 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder buildRedistFiles(File workingFolder, String[] includes) {
+    ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example) {
+        if (example != null && example.length() > 0) {
+            cdep("example: |");
+            String lines[] = example.split("\\r?\\n");
+            for (String line : lines) {
+                cdep("  %s", line);
+            }
+        }
         body("cat %s", cdepFile);
         body("echo - %s", cdepFile);
         for(String zip : zips.keySet()) {

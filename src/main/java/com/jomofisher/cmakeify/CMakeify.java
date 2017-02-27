@@ -211,7 +211,7 @@ public class CMakeify {
                 }
             }
         }
-        script.buildRedistFiles(workingFolder, config.includes);
+        script.buildRedistFiles(workingFolder, config.includes, config.example);
         script.uploadBadges();
         script.writeToShellScript();
     }

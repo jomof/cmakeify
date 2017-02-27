@@ -14,5 +14,9 @@ android:
 #    compilers: [4.9, clang]
 #    platforms: [9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
    platforms: [9, 21]
+example: |
+  #include <stdio.h>
+  void test(() {
+  }
 
 

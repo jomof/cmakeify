@@ -6,6 +6,7 @@ public class CMakeifyYml {
     final public CMake cmake;
     final public Android android;
     final public Linux linux;
+    final public String example;
 
     public CMakeifyYml() {
         targets = OS.values();
@@ -13,6 +14,7 @@ public class CMakeifyYml {
         cmake = new CMake();
         android = new Android();
         linux = new Linux();
+        example = null;
     }
 
     @Override

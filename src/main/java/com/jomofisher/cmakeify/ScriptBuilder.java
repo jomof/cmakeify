@@ -40,5 +40,5 @@ abstract class ScriptBuilder {
             boolean multipleCMake,
             boolean multipleGcc);
 
-    abstract ScriptBuilder buildRedistFiles(File workingFolder, String[] includes);
+    abstract ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example);
 }
