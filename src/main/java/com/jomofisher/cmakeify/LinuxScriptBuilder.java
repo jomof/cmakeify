@@ -249,7 +249,6 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("  ARCHIVESIZE=$(stat --printf=\"%%s\" %s)", zip);
         body("  " + ABORT_LAST_FAILED);
 
-        cdep("  archives:");
         cdep("  - lib: %s", lib);
         cdep("    file: %s", zip.getName());
         cdep("    sha256: $SHASUM256");
@@ -347,6 +346,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         switch(target) {
             case android:
                 cdep("android:");
+                cdep("  archives:");
                 return this;
             case linux:
                 cdep("linux:");
