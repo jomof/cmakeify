@@ -16,7 +16,7 @@ android:
    platforms: [9, 21]
 example: |
   #include <stdio.h>
-  void test(() {
+  void test() {
   }
 
 
