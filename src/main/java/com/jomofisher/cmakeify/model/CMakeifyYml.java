@@ -7,6 +7,7 @@ public class CMakeifyYml {
     final public Android android;
     final public Linux linux;
     final public String example;
+    final public boolean badges;
 
     public CMakeifyYml() {
         targets = OS.values();
@@ -15,6 +16,7 @@ public class CMakeifyYml {
         android = new Android();
         linux = new Linux();
         example = null;
+        badges = true;
     }
 
     @Override

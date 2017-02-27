@@ -212,7 +212,9 @@ public class CMakeify {
             }
         }
         script.buildRedistFiles(workingFolder, config.includes, config.example);
-        script.uploadBadges();
+        if (config.badges) {
+            script.uploadBadges();
+        }
         script.writeToShellScript();
     }
 
