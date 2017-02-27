@@ -113,6 +113,32 @@ public class TestCmakeify {
     }
 
     @Test
+    public void testSQLite() throws IOException {
+        File yaml = new File("test-files/testScript/cmakeify.yml");
+        yaml.getParentFile().mkdirs();
+        Files.write("targets: [android]\n" +
+                        "android:\n" +
+                        "  lib: libsqlite.a\n" +
+                        "  ndk:\n" +
+                        "    runtimes: [c++, gnustl, stlport]\n" +
+                        "    platforms: [12, 21]\n" +
+                        "example: |\n" +
+                        "   #include <sqlite3.h>\n" +
+                        "   void test() {\n" +
+                        "     sqlite3_initialize();\n" +
+                        "   }",
+                yaml, StandardCharsets.UTF_8);
+        main("-wf", yaml.getParent(),
+                "--host", "Linux",
+                "--group-id", "my-group-id",
+                "--artifact-id", "my-artifact-id",
+                "--target-version", "my-target-version");
+        File scriptFile = new File(".cmakeify/build.sh");
+        String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
+        assertThat(script).contains("cmake-3.7.2-Linux-x86_64.tar.gz");
+    }
+
+    @Test
     public void weirdHost() throws IOException {
         File yaml = new File("test-files/simpleConfiguration/cmakeify.yml");
         Files.write("",
