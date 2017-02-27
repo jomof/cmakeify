@@ -216,6 +216,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         }
         body("if [ -d '%s' ]; then", stagingFolder);
+        body("  mkdir -p %s", redistFolder);
         if (includes != null) {
             for (String include : includes) {
                 body("  cp -r %s/%s %s/include", workingFolder, include, redistFolder);
