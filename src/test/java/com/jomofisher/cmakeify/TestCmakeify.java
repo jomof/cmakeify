@@ -134,7 +134,5 @@ public class TestCmakeify {
         System.out.print(result1);
         String result2 = main("-wf", yaml.getParent(), "--dump");
         assertThat(result2).isEqualTo(result1);
-
-
     }
 }
