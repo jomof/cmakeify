@@ -216,7 +216,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         }
         body("if [ -d '%s' ]; then", stagingFolder);
+        // Create a folder with something in it so there'e always something to zip
         body("  mkdir -p %s", redistFolder);
+        body("  echo %s %s %s %s %s > %s/cmakeify.txt", flavor, ndkVersion, platform, compiler, runtime, redistFolder);
         if (includes != null) {
             for (String include : includes) {
                 body("  cp -r %s/%s %s/include", workingFolder, include, redistFolder);
