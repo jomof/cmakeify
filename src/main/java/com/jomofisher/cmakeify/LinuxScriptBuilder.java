@@ -249,23 +249,23 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         body("  ARCHIVESIZE=$(stat --printf=\"%%s\" %s)", zip);
         body("  " + ABORT_LAST_FAILED);
 
-        cdep("- lib: %s", lib);
         cdep("  archives:");
-        cdep("  - file: %s", zip.getName());
+        cdep("  - lib: %s", lib);
+        cdep("    file: %s", zip.getName());
         cdep("    sha256: $SHASUM256");
         cdep("    size: $ARCHIVESIZE");
         if (multipleFlavors) {
-            cdep("  flavor: %s", flavor);
+            cdep("    flavor: %s", flavor);
         }
-        cdep("  runtime: %s", runtime);
-        cdep("  platform: %s", platform);
-        cdep("  ndk: %s", ndkVersion);
-        cdep("  abis: [ ${ABIS} ]");
+        cdep("    runtime: %s", runtime);
+        cdep("    platform: %s", platform);
+        cdep("    ndk: %s", ndkVersion);
+        cdep("    abis: [ ${ABIS} ]");
         if (multipleCompiler) {
-            cdep("  compiler: %s", compiler);
+            cdep("    compiler: %s", compiler);
         }
         if (multipleCMake) {
-            cdep("  builder: cmake-%s", cmakeVersion);
+            cdep("    builder: cmake-%s", cmakeVersion);
         }
         if (lib == null || lib.length() > 0) {
             body("else");
