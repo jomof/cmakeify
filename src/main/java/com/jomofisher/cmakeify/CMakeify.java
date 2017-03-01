@@ -171,6 +171,7 @@ public class CMakeify {
                                             script.cmakeAndroid(
                                                     cmakeVersion,
                                                     config.cmake.remotes.get(cmakeVersion),
+                                                    config.android.ndk.cppFlags,
                                                     flavor,
                                                     flavors.get(flavor),
                                                     ndk,

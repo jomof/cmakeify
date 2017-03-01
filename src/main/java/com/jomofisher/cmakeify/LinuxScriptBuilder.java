@@ -111,6 +111,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     @Override
     ScriptBuilder cmakeAndroid(String cmakeVersion,
                                RemoteArchive cmakeRemote,
+                               String androidCppFlags,
                                String flavor,
                                String flavorFlags,
                                String ndkVersion,
@@ -192,10 +193,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                             "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
                             "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
-                    "   -DCMAKE_ANDROID_ARCH_ABI=%s %s\n",
+                    "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
                     cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
                     redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
-                    new File(ndkFolder).getAbsolutePath(), abi, flavorFlags);
+                    new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, androidCppFlags);
             body("  echo Executing %s", command);
             body("  " + command);
             body("  " + ABORT_LAST_FAILED);
