@@ -226,10 +226,9 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 runtime, redistFolder);
         if (includes != null) {
             for (String include : includes) {
-                body("  if [ -f '%s/%s' ]; then", workingFolder, include);
-                body("  else");
+                body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
                 body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist", workingFolder, include);
-                body("    exit 400");
+                body("    exit 600");
                 body("  fi");
                 body("  cp -r %s/%s %s/include", workingFolder, include, redistFolder);
                 body("  " + ABORT_LAST_FAILED);
