@@ -200,7 +200,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
             body("  echo Executing %s", command);
             body("  " + command);
             body("  " + ABORT_LAST_FAILED);
-            body(String.format("  %s --build %s", cmakeExe, abiBuildFolder));
+            body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
             body("  " + ABORT_LAST_FAILED);
             String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
             String redistAbiFolder = String.format("%s/lib/%s", redistFolder, abi);
