@@ -320,7 +320,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 cmakeExe, workingFolder, buildFolder,
                 redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
 
-        body(String.format("%s --build %s -j8", cmakeExe, buildFolder));
+        body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
         body(ABORT_LAST_FAILED);
         zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         body("# Zip Linux redist if folder was created in %s", redistFolder);
