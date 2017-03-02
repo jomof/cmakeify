@@ -230,8 +230,10 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
                 body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist", workingFolder, include);
                 body("    exit 600");
                 body("  fi");
-                body("  find %s/%s -name '*.h' | cpio -pdm %s", workingFolder, include, redistFolder);
-                body("  find %s/%s -name '*.hpp' | cpio -pdm %s", workingFolder, include, redistFolder);
+                body("  pushd %s", workingFolder);
+                body("  find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
+                body("  find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
+                body("  popd");
                 body("  " + ABORT_LAST_FAILED);
             }
         }
