@@ -1,5 +1,6 @@
 package com.jomofisher.cmakeify;
 
+import com.jomofisher.cmakeify.model.HardNameDependency;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
@@ -10,7 +11,7 @@ import java.util.Collection;
 abstract class ScriptBuilder {
     abstract File writeToShellScript();
     abstract ScriptBuilder startBuilding(OS target);
-    abstract ScriptBuilder createEmptyBuildFolder();
+    abstract ScriptBuilder createEmptyBuildFolder(HardNameDependency dependencies[]);
     abstract ScriptBuilder uploadBadges();
     abstract ScriptBuilder download(RemoteArchive remote);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);

@@ -1,5 +1,6 @@
 package com.jomofisher.cmakeify;
 
+import com.jomofisher.cmakeify.model.HardNameDependency;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
@@ -56,7 +57,7 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     }
 
     @Override
-    ScriptBuilder createEmptyBuildFolder() {
+    ScriptBuilder createEmptyBuildFolder(HardNameDependency dependencies[]) {
         body("rm -rf %s", rootBuildFolder);
         body("mkdir --parents %s", zipsFolder);
         body("mkdir --parents %s/", TOOLS_FOLDER);
@@ -66,6 +67,13 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
         cdep("  groupId: %s", targetGroupId);
         cdep("  artifactId: %s", targetArtifactId);
         cdep("  version: %s", targetVersion);
+        if (dependencies != null && dependencies.length > 0) {
+            cdep("dependencies:");
+            for (HardNameDependency dependency : dependencies) {
+                cdep("  - compile: %s", dependency.compile);
+                cdep("    sha256: %s", dependency.sha256);
+            }
+        }
         return this;
     }
 

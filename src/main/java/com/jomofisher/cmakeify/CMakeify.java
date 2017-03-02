@@ -118,7 +118,7 @@ public class CMakeify {
         }
 
         // Create working folders
-        script.createEmptyBuildFolder();
+        script.createEmptyBuildFolder(config.cdep.dependencies);
 
         // Download the CMakes we need.
         for (String cmakeVersion : config.cmake.versions) {
