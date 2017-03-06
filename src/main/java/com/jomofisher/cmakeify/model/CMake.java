@@ -14,27 +14,29 @@ public class CMake {
         remotes.put("3.7.2", remote(3, 7, 2));
     }
 
-    private static ArchiveUrl productionPath(int major, int minor, int point, String os, String extension) {
+    private static ArchiveUrl productionPath(int major, int minor, int point, String os,
+        String extension, String unpackRootSuffix) {
           return new ArchiveUrl(
-              String.format("cmake-%s.%s.%s-%s", major, minor, point, os),
+              String.format("cmake-%s.%s.%s-%s%s", major, minor, point, os, unpackRootSuffix),
               String.format("http://cmake.org/files/v%s.%s/cmake-%s.%s.%s-%s%s",
                 major, minor, major, minor, point, os, extension));
     }
 
     private static ArchiveUrl linuxPath(int major, int minor,int point) {
-        return productionPath(major, minor, point, "Linux-x86_64", ".tar.gz");
+        return productionPath(major, minor, point, "Linux-x86_64", ".tar.gz", "");
     }
 
     private static ArchiveUrl darwinPath(int major, int minor,int point) {
-        return productionPath(major, minor, point, "Darwin-x86_64", ".tar.gz");
+        return productionPath(major, minor, point, "Darwin-x86_64", ".tar.gz",
+            "/CMake.app/Contents");
     }
 
     private static ArchiveUrl win32Path(int major, int minor,int point) {
-        return productionPath(major, minor, point, "win32-x86", ".zip");
+        return productionPath(major, minor, point, "win32-x86", ".zip", "");
     }
 
     private static ArchiveUrl win64Path(int major, int minor,int point) {
-        return productionPath(major, minor, point, "win64-x64", ".zip");
+        return productionPath(major, minor, point, "win64-x64", ".zip", "");
     }
 
     private RemoteArchive remote(int major, int minor,int point) {
