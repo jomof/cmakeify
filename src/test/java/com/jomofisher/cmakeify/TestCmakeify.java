@@ -137,6 +137,7 @@ public class TestCmakeify {
         assertThat(script).contains("version: my-target-version");
         assertThat(script).contains("BOOST_ROOT=");
         assertThat(script).contains("-DANDROID");
+        assertThat(script).doesNotContain("--parent"); // mkdir --parents flag doesn't work on OSX
         assertThat(script).doesNotContain("didn't");
         String dump = main("-wf", yaml.getParent(), "--dump");
         assertThat(dump).contains("  lib:");

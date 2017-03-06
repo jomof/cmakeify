@@ -105,9 +105,10 @@ public class BashScriptBuilder extends ScriptBuilder {
         File folder = getCloneRoot(identifier);
         body("rm -rf %s", folder.getAbsolutePath());
         body("mkdir -p %s", folder.getAbsolutePath());
-        body("pushdir %s", folder.getAbsolutePath());
+        body("pushd %s", folder.getAbsolutePath());
         body("git clone %s %s", repo, folder.getAbsolutePath());
-        body("popdir");
+        body(ABORT_LAST_FAILED);
+        body("popd");
         return this;
     }
 
@@ -343,7 +344,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         body("echo Building to %s", outputFolder);
-        body("mkdir --parents %s/include", redistFolder);
+        body("mkdir -p %s/include", redistFolder);
 
         body(String.format(
                 "%s \\\n" +
@@ -416,9 +417,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         }
 
         body("echo Building to %s", outputFolder);
-        body("mkdir --parents %s/include", redistFolder);
+        body("mkdir -p %s/include", redistFolder);
 
-        body(String.format(
+        String command = String.format(
             "%s \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
@@ -427,7 +428,10 @@ public class BashScriptBuilder extends ScriptBuilder {
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n",
             cmakeExe, workingFolder, buildFolder, getCloneRoot(cmakeToolchainIdentifier),
-            redistFolder, redistFolder, redistFolder));
+            redistFolder, redistFolder, redistFolder);
+
+        body("  echo Executing %s", command);
+        body("  " + command);
 
         body(String.format("%s --build %s", cmakeExe, buildFolder));
         body(ABORT_LAST_FAILED);
