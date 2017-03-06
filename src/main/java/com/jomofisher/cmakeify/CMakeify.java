@@ -1,24 +1,17 @@
 package com.jomofisher.cmakeify;
 
-import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
-import static com.jomofisher.cmakeify.model.OS.linux;
+import com.jomofisher.cmakeify.model.*;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
-import com.jomofisher.cmakeify.model.CMakeifyYml;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import java.util.*;
+
+import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
+import static com.jomofisher.cmakeify.model.OS.linux;
 
 public class CMakeify {
     private PrintStream out = System.out;
@@ -94,6 +87,7 @@ public class CMakeify {
 
     private void handleGenerateScript() {
         ScriptBuilder script = new BashScriptBuilder(
+                out,
             hostOS,
             workingFolder,
             targetGroupId,

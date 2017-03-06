@@ -3,10 +3,7 @@ package com.jomofisher.cmakeify;
 import com.jomofisher.cmakeify.CMakeify.OSType;
 import com.jomofisher.cmakeify.model.*;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 public class BashScriptBuilder extends ScriptBuilder {
@@ -25,14 +22,17 @@ public class BashScriptBuilder extends ScriptBuilder {
     final private String targetArtifactId;
     final private String targetVersion;
     final private Set<File> outputFolders = new HashSet<>();
+    final private PrintStream out;
 
 
     BashScriptBuilder(
-        OSType hostOS,
+            PrintStream out,
+            OSType hostOS,
             File workingFolder,
             String targetGroupId,
             String targetArtifactId,
             String targetVersion) {
+        this.out = out;
         this.hostOS = hostOS;
         this.workingFolder = workingFolder;
         this.rootBuildFolder = new File(workingFolder, "build");
@@ -56,6 +56,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
 
     private void recordOutputFolder(File folder) {
+        out.printf("Output folder %s", folder);
         if (this.outputFolders.contains(folder)) {
             throw new RuntimeException(String.format("Output folder %s written twice", folder));
         }
