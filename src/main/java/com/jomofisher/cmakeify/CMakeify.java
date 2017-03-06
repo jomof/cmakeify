@@ -7,6 +7,7 @@ import com.jomofisher.cmakeify.model.CMakeifyYml;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -218,12 +219,16 @@ public class CMakeify {
                             String toolchainRepo = config.iOS.cmakeToolchainRemotes
                                 .get(cmakeToolchain);
                             script.gitClone(cmakeToolchain, toolchainRepo);
-                            script.cmakeIOs(
-                                cmakeVersion,
-                                cmakeToolchain,
-                                config.cmake.remotes.get(cmakeVersion),
-                                config.cmake.versions.length != 1,
-                                config.iOS.cmakeToolchains.size() != 1);
+                            for (iOSPlatform platform : config.iOS.platforms) {
+                                script.cmakeIOs(
+                                    cmakeVersion,
+                                    cmakeToolchain,
+                                    config.cmake.remotes.get(cmakeVersion),
+                                    platform,
+                                    config.cmake.versions.length != 1,
+                                    config.iOS.cmakeToolchains.size() != 1,
+                                    config.iOS.platforms.size() != 1);
+                            }
                         }
                         break;
                 }

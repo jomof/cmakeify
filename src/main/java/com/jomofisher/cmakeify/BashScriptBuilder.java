@@ -6,6 +6,7 @@ import com.jomofisher.cmakeify.model.HardNameDependency;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -392,8 +393,10 @@ public class BashScriptBuilder extends ScriptBuilder {
         String cmakeVersion,
         String cmakeToolchainIdentifier,
         RemoteArchive cmakeRemote,
+        iOSPlatform platform,
         boolean multipleCMake,
-        boolean multipleCMakeToolchain) {
+        boolean multipleCMakeToolchain,
+        boolean multiplePlatform) {
 
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
             getHostArchive(cmakeRemote).unpackroot);
@@ -406,6 +409,10 @@ public class BashScriptBuilder extends ScriptBuilder {
         if (multipleCMakeToolchain) {
             outputFolder = new File(outputFolder, "toolchain-" + cmakeToolchainIdentifier);
             zipName += "-toolchain-" + cmakeToolchainIdentifier;
+        }
+        if (multiplePlatform) {
+            outputFolder = new File(outputFolder, "platform-" + platform.toString());
+            zipName += "-platform-" + platform.toString();
         }
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
@@ -424,11 +431,12 @@ public class BashScriptBuilder extends ScriptBuilder {
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
                 "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
+                "   -DIOS_PLATFORM=%s \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n",
             cmakeExe, workingFolder, buildFolder, getCloneRoot(cmakeToolchainIdentifier),
-            redistFolder, redistFolder, redistFolder);
+            platform.cmakeCode, redistFolder, redistFolder, redistFolder);
 
         body("  echo Executing %s", command);
         body("  " + command);

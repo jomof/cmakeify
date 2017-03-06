@@ -1,19 +1,26 @@
 package com.jomofisher.cmakeify.model;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class IOs {
+public class iOS {
 
   final public String lib;
+  final public List<iOSPlatform> platforms = new ArrayList<>();
   final public Set<String> cmakeToolchains = new HashSet<>();
   final public Map<String, String> cmakeToolchainRemotes = new HashMap<>();
 
-  IOs() {
+  iOS() {
     lib = "";
+    platforms.add(iOSPlatform.iPhone);
+    platforms.add(iOSPlatform.simulator);
+    platforms.add(iOSPlatform.simulator64);
+
     cmakeToolchains.add("jomof-ios-cmake");
     cmakeToolchainRemotes.put("jomof-ios-cmake", "https://github.com/jomof/ios-cmake.git");
   }
@@ -24,8 +31,17 @@ public class IOs {
     if (lib != null && lib.length() > 0) {
       sb.append(String.format("  lib: %s\n", lib));
     }
-    sb.append("  cmakeToolchains: [");
+    sb.append("  platforms: [");
     int i = 0;
+    for (iOSPlatform platform : platforms) {
+      if (i++ != 0) {
+        sb.append(", ");
+      }
+      sb.append(platform);
+    }
+    sb.append("]\n");
+    sb.append("  cmakeToolchains: [");
+    i = 0;
     for (String cmakeToolchain : cmakeToolchains) {
       if (i++ != 0) {
         sb.append(", ");

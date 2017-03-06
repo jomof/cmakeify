@@ -6,7 +6,7 @@ public class CMakeifyYml {
     final public CMake cmake;
     final public Android android;
     final public Linux linux;
-    final public IOs iOS;
+    final public com.jomofisher.cmakeify.model.iOS iOS;
     final public String example;
     final public boolean badges;
     final public CDep cdep;
@@ -17,7 +17,7 @@ public class CMakeifyYml {
         cmake = new CMake();
         android = new Android();
         linux = new Linux();
-        iOS = new IOs();
+        iOS = new iOS();
         example = null;
         badges = true;
         cdep = new CDep();

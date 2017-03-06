@@ -4,6 +4,7 @@ import com.jomofisher.cmakeify.model.HardNameDependency;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.File;
 import java.util.Collection;
 
@@ -42,14 +43,16 @@ abstract class ScriptBuilder {
             RemoteArchive cmakeRemote,
             Toolset toolset,
             boolean multipleCMake,
-            boolean multipleGcc);
+        boolean multipleGcc);
 
     abstract ScriptBuilder cmakeIOs(
         String cmakeVersion,
         String cmakeToolchainIdentifier,
         RemoteArchive cmakeRemote,
+        iOSPlatform platform,
         boolean multipleCMake,
-        boolean multipleCMakeToolchain);
+        boolean multipleCMakeToolchain,
+        boolean multiplePlatform);
 
     abstract ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example);
 }
