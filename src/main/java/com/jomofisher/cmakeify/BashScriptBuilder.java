@@ -275,7 +275,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  popd");
         body("  " + ABORT_LAST_FAILED);
         body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
-        body("  ARCHIVESIZE=$(stat --printf=\"%%s\" %s)", zip);
+        body("  ARCHIVESIZE=$(du %s | awk '{print $1}'", zip);
         body("  " + ABORT_LAST_FAILED);
 
         cdep("  - lib: %s", lib);
