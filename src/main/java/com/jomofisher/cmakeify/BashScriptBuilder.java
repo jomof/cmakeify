@@ -1,18 +1,13 @@
 package com.jomofisher.cmakeify;
 
 import com.jomofisher.cmakeify.CMakeify.OSType;
-import com.jomofisher.cmakeify.model.ArchiveUrl;
-import com.jomofisher.cmakeify.model.HardNameDependency;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSPlatform;
+import com.jomofisher.cmakeify.model.*;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
 public class BashScriptBuilder extends ScriptBuilder {
     final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi";
@@ -29,6 +24,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     final private String targetGroupId;
     final private String targetArtifactId;
     final private String targetVersion;
+    final private Set<File> outputFolders = new HashSet<>();
 
 
     BashScriptBuilder(
@@ -57,6 +53,24 @@ public class BashScriptBuilder extends ScriptBuilder {
         String embed = String.format(format, args);
         body.append(String.format("printf \"%%s\\r\\n\" \"%s\" >> %s \n", embed, cdepFile));
         return this;
+    }
+
+    private void recordOutputFolder(File folder) {
+        if (this.outputFolders.contains(folder)) {
+            throw new RuntimeException(String.format("Output folder %s written twice", folder));
+        }
+
+        try {
+            File canonical = folder.getCanonicalFile();
+            if (this.outputFolders.contains(canonical)) {
+                throw new RuntimeException(String.format("Output folder %s written twice", folder));
+            }
+            this.outputFolders.add(folder);
+            this.outputFolders.add(canonical);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override
@@ -216,8 +230,8 @@ public class BashScriptBuilder extends ScriptBuilder {
             body("    ABIS=\"${ABIS}, %s\"", abi);
             body("  fi");
 
-            String stagingAbiFolder = String.format("%s/lib/%s", stagingFolder, abi);
-
+            File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
+            recordOutputFolder(stagingAbiFolder);
             String command = String.format(
                     "%s \\\n" +
                     "   -H%s \\\n" +
@@ -241,7 +255,8 @@ public class BashScriptBuilder extends ScriptBuilder {
             body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
             body("  " + ABORT_LAST_FAILED);
             String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
-            String redistAbiFolder = String.format("%s/lib/%s", redistFolder, abi);
+            File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
+            recordOutputFolder(redistAbiFolder);
             if (lib != null && lib.length() > 0) {
                 body("  if [ -f '%s' ]; then", stagingLib);
                 body("    mkdir -p %s", redistAbiFolder);
@@ -346,6 +361,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         body("echo Building to %s", outputFolder);
         body("mkdir -p %s/include", redistFolder);
+        recordOutputFolder(outputFolder);
+        recordOutputFolder(redistFolder);
 
         body(String.format(
                 "%s \\\n" +
@@ -425,7 +442,8 @@ public class BashScriptBuilder extends ScriptBuilder {
 
         body("echo Building to %s", outputFolder);
         body("mkdir -p %s/include", redistFolder);
-
+        recordOutputFolder(outputFolder);
+        recordOutputFolder(redistFolder);
         String command = String.format(
             "%s \\\n" +
                 "   -H%s \\\n" +
