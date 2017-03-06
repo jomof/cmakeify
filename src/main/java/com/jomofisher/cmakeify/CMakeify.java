@@ -1,5 +1,6 @@
 package com.jomofisher.cmakeify;
 
+import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
 import static com.jomofisher.cmakeify.model.OS.linux;
 
 import com.jomofisher.cmakeify.model.CMakeifyYml;
@@ -31,7 +32,7 @@ public class CMakeify {
         this.out = out;
         String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
         if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
-            hostOS = OSType.MacOS;
+            hostOS = MacOS;
         } else if (OS.indexOf("win") >= 0) {
             hostOS = OSType.Windows;
         } else if (OS.indexOf("nux") >= 0) {
@@ -92,6 +93,7 @@ public class CMakeify {
 
     private void handleGenerateScript() {
         ScriptBuilder script = new BashScriptBuilder(
+            hostOS,
             workingFolder,
             targetGroupId,
             targetArtifactId,
@@ -131,17 +133,7 @@ public class CMakeify {
                     String.format(
                         "CMake version %s is not known. It doesn't have a remote.", cmakeVersion));
             }
-            switch (hostOS) {
-                case Linux:
-                    script.download(remote.linux);
-                    break;
-                case MacOS:
-                    script.download(remote.darwin);
-                    break;
-                default:
-                    throw new RuntimeException(hostOS.toString());
-            }
-
+            script.download(remote);
         }
 
         // Download the NDKs that we need
@@ -152,16 +144,7 @@ public class CMakeify {
                     throw new RuntimeException(
                             String.format("NDK version %s is not known. It doesn't have a remote.", version));
                 }
-                switch (hostOS) {
-                    case Linux:
-                        script.download(remote.linux);
-                        break;
-                    case MacOS:
-                        script.download(remote.darwin);
-                        break;
-                    default:
-                        throw new RuntimeException(hostOS.toString());
-                }
+                script.download(remote);
             }
         }
 

@@ -1,5 +1,6 @@
 package com.jomofisher.cmakeify;
 
+import com.jomofisher.cmakeify.CMakeify.OSType;
 import com.jomofisher.cmakeify.model.ArchiveUrl;
 import com.jomofisher.cmakeify.model.HardNameDependency;
 import com.jomofisher.cmakeify.model.OS;
@@ -18,6 +19,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     final private static String DOWNLOADS_FOLDER = ".cmakeify/downloads";
     final private StringBuilder body = new StringBuilder();
     final private Map<String, String> zips = new HashMap<>();
+    final private OSType hostOS;
     final private File workingFolder;
     final private File rootBuildFolder;
     final private File zipsFolder;
@@ -29,10 +31,12 @@ public class BashScriptBuilder extends ScriptBuilder {
 
 
     BashScriptBuilder(
+        OSType hostOS,
             File workingFolder,
             String targetGroupId,
             String targetArtifactId,
             String targetVersion) {
+        this.hostOS = hostOS;
         this.workingFolder = workingFolder;
         this.rootBuildFolder = new File(workingFolder, "build");
         this.zipsFolder = new File(rootBuildFolder, "zips");
@@ -75,9 +79,19 @@ public class BashScriptBuilder extends ScriptBuilder {
         return this;
     }
 
+    private ArchiveUrl getHostArchive(RemoteArchive remote) {
+        switch (hostOS) {
+            case Linux:
+                return remote.linux;
+            case MacOS:
+                return remote.darwin;
+        }
+        throw new RuntimeException(hostOS.toString());
+    }
+
     @Override
-    ScriptBuilder download(ArchiveUrl archiveUrl) {
-        ArchiveInfo archive = new ArchiveInfo(archiveUrl);
+    ScriptBuilder download(RemoteArchive remote) {
+        ArchiveInfo archive = new ArchiveInfo(getHostArchive(remote));
         return body(archive.downloadToFolder(DOWNLOADS_FOLDER))
               .body(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
     }
@@ -136,7 +150,7 @@ public class BashScriptBuilder extends ScriptBuilder {
                                boolean multiplePlatforms) {
         body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime);
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-                cmakeRemote.linux.unpackroot);
+            getHostArchive(cmakeRemote).unpackroot);
         File outputFolder = androidFolder;
         String zipName = targetArtifactId + "-android";
         if (multipleCMake) {
@@ -168,7 +182,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
 
         File buildFolder = new File(outputFolder, "cmake-generated-files");
-        String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, ndkRemote.linux.unpackroot);
+        String ndkFolder = String
+            .format("%s/%s", TOOLS_FOLDER, getHostArchive(ndkRemote).unpackroot);
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
         body("ABIS=");
@@ -297,7 +312,7 @@ public class BashScriptBuilder extends ScriptBuilder {
             boolean multipleCMake,
             boolean multipleCompiler) {
         String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-            cmakeRemote.linux.unpackroot);
+            getHostArchive(cmakeRemote).unpackroot);
         File outputFolder = new File(rootBuildFolder, "Linux");
         String zipName = targetArtifactId + "-linux";
         if (multipleCMake) {
