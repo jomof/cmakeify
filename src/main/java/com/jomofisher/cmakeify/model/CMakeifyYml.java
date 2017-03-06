@@ -6,6 +6,7 @@ public class CMakeifyYml {
     final public CMake cmake;
     final public Android android;
     final public Linux linux;
+    final public IOs iOS;
     final public String example;
     final public boolean badges;
     final public CDep cdep;
@@ -16,6 +17,7 @@ public class CMakeifyYml {
         cmake = new CMake();
         android = new Android();
         linux = new Linux();
+        iOS = new IOs();
         example = null;
         badges = true;
         cdep = new CDep();
@@ -53,6 +55,10 @@ public class CMakeifyYml {
         if (android != null) {
             sb.append("android:\n");
             sb.append(android.toString());
+        }
+        if (android != null) {
+            sb.append("iOS:\n");
+            sb.append(iOS.toString());
         }
         return sb.toString();
     }

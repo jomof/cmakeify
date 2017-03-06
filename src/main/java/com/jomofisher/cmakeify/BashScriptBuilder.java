@@ -96,6 +96,21 @@ public class BashScriptBuilder extends ScriptBuilder {
               .body(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
     }
 
+    private File getCloneRoot(String identifier) {
+        return new File(new File(DOWNLOADS_FOLDER, "git-clones"), identifier).getAbsoluteFile();
+    }
+
+    @Override
+    ScriptBuilder gitClone(String identifier, String repo) {
+        File folder = getCloneRoot(identifier);
+        body("rm -rf %s", folder.getAbsolutePath());
+        body("mkdir -p %s", folder.getAbsolutePath());
+        body("pushdir %s", folder.getAbsolutePath());
+        body("git clone %s %s", repo, folder.getAbsolutePath());
+        body("popdir");
+        return this;
+    }
+
     @Override
     File writeToShellScript() {
         BufferedWriter writer = null;
@@ -370,6 +385,78 @@ public class BashScriptBuilder extends ScriptBuilder {
         return this;
     }
 
+
+    @Override
+    ScriptBuilder cmakeIOs(
+        String cmakeVersion,
+        String cmakeToolchainIdentifier,
+        RemoteArchive cmakeRemote,
+        boolean multipleCMake,
+        boolean multipleCMakeToolchain) {
+
+        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
+            getHostArchive(cmakeRemote).unpackroot);
+        File outputFolder = new File(rootBuildFolder, "iOS");
+        String zipName = targetArtifactId + "-ios";
+        if (multipleCMake) {
+            outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
+            zipName += "-cmake-" + cmakeVersion;
+        }
+        if (multipleCMakeToolchain) {
+            outputFolder = new File(outputFolder, "toolchain-" + cmakeToolchainIdentifier);
+            zipName += "-toolchain-" + cmakeToolchainIdentifier;
+        }
+        zipName += ".zip";
+        File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+        File buildFolder = new File(outputFolder, "cmake-generated-files");
+        File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+        if (hostOS != OSType.MacOS) {
+            body("echo No XCode available. NOT building to %s", outputFolder);
+            return this;
+        }
+
+        body("echo Building to %s", outputFolder);
+        body("mkdir --parents %s/include", redistFolder);
+
+        body(String.format(
+            "%s \\\n" +
+                "   -H%s \\\n" +
+                "   -B%s \\\n" +
+                "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
+                "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
+                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n",
+            cmakeExe, workingFolder, buildFolder, getCloneRoot(cmakeToolchainIdentifier),
+            redistFolder, redistFolder, redistFolder));
+
+        body(String.format("%s --build %s", cmakeExe, buildFolder));
+        body(ABORT_LAST_FAILED);
+        zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+        body("# Zip iOS redist if folder was created in %s", redistFolder);
+        body("if [ -d '%s' ]; then", redistFolder);
+        body("  if [ -f '%s' ]; then", zip);
+        body("    echo CMAKEIFY ERROR: iOS zip %s would be overwritten", zip);
+        body("    exit 500");
+        body("  fi");
+        body("  pushd %s", redistFolder);
+        body("  " + ABORT_LAST_FAILED);
+        body("  zip %s . -r", zip);
+        body("  " + ABORT_LAST_FAILED);
+        body("  if [ -f '%s' ]; then", zip);
+        body("    echo Zip %s was created", zip);
+        body("  else");
+        body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
+        body("    exit 402");
+        body("  fi");
+        body("  popd");
+        body("  " + ABORT_LAST_FAILED);
+        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
+        body("  ARCHIVESIZE=$(ls -l %s | awk '{print $5}')", zip);
+        body("  " + ABORT_LAST_FAILED);
+        body("fi");
+        return this;
+    }
+
     @Override
     ScriptBuilder startBuilding(OS target) {
         switch(target) {
@@ -382,6 +469,9 @@ public class BashScriptBuilder extends ScriptBuilder {
                 return this;
             case windows:
                 cdep("windows:");
+                return this;
+            case iOS:
+                cdep("iOS:");
                 return this;
         }
         throw new RuntimeException(target.toString());

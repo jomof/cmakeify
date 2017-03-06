@@ -1,19 +1,18 @@
 package com.jomofisher.cmakeify;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Joiner;
 import com.google.common.io.Files;
 import com.jomofisher.cmakeify.model.CMakeifyYml;
-import org.junit.Test;
-import org.yaml.snakeyaml.Yaml;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-
-import static com.google.common.truth.Truth.assertThat;
+import org.junit.Test;
+import org.yaml.snakeyaml.Yaml;
 
 public class TestCmakeify {
 
@@ -110,6 +109,39 @@ public class TestCmakeify {
         String dump = main("-wf", yaml.getParent(), "--dump");
         assertThat(dump).contains("  lib:");
         assertThat(dump).contains("runtimes:");
+        System.out.printf(dump);
+    }
+
+    @Test
+    public void testScriptMacOS() throws IOException {
+        File yaml = new File("test-files/testScript/cmakeify.yml");
+        yaml.getParentFile().mkdirs();
+        Files.write("includes: [extra-includes]\n" +
+                "android:\n" +
+                "  flavors:\n" +
+                "    myflags: -DANDROID -DBOOST_ROOT=bob\n" +
+                "  lib: libbob.a\n" +
+                "  ndk:\n" +
+                "    platforms: [21, 22]\n",
+            yaml, StandardCharsets.UTF_8);
+        main("-wf", yaml.getParent(),
+            "--host", "MacOS",
+            "--group-id", "my-group-id",
+            "--artifact-id", "my-artifact-id",
+            "--target-version", "my-target-version");
+        File scriptFile = new File(".cmakeify/build.sh");
+        String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
+        assertThat(script).contains("cmake-3.7.2-Darwin-x86_64.tar.gz");
+        assertThat(script).contains("groupId: my-group-id");
+        assertThat(script).contains("artifactId: my-artifact-id");
+        assertThat(script).contains("version: my-target-version");
+        assertThat(script).contains("BOOST_ROOT=");
+        assertThat(script).contains("-DANDROID");
+        assertThat(script).doesNotContain("didn't");
+        String dump = main("-wf", yaml.getParent(), "--dump");
+        assertThat(dump).contains("  lib:");
+        assertThat(dump).contains("runtimes:");
+        System.out.printf(dump);
     }
 
     @Test

@@ -213,6 +213,19 @@ public class CMakeify {
                                     config.linux.compilers.length != 1);
                         }
                         break;
+                    case iOS:
+                        for (String cmakeToolchain : config.iOS.cmakeToolchains) {
+                            String toolchainRepo = config.iOS.cmakeToolchainRemotes
+                                .get(cmakeToolchain);
+                            script.gitClone(cmakeToolchain, toolchainRepo);
+                            script.cmakeIOs(
+                                cmakeVersion,
+                                cmakeToolchain,
+                                config.cmake.remotes.get(cmakeVersion),
+                                config.cmake.versions.length != 1,
+                                config.iOS.cmakeToolchains.size() != 1);
+                        }
+                        break;
                 }
             }
         }

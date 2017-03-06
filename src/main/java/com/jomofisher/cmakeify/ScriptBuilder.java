@@ -14,6 +14,8 @@ abstract class ScriptBuilder {
     abstract ScriptBuilder uploadBadges();
 
     abstract ScriptBuilder download(RemoteArchive remote);
+
+    abstract ScriptBuilder gitClone(String identifier, String repo);
     abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
     abstract ScriptBuilder cmakeAndroid(
             String cmakeVersion,
@@ -41,6 +43,13 @@ abstract class ScriptBuilder {
             Toolset toolset,
             boolean multipleCMake,
             boolean multipleGcc);
+
+    abstract ScriptBuilder cmakeIOs(
+        String cmakeVersion,
+        String cmakeToolchainIdentifier,
+        RemoteArchive cmakeRemote,
+        boolean multipleCMake,
+        boolean multipleCMakeToolchain);
 
     abstract ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example);
 }
