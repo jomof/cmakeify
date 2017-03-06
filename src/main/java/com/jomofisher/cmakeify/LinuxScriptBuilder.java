@@ -4,7 +4,6 @@ import com.jomofisher.cmakeify.model.HardNameDependency;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -26,15 +25,13 @@ public class LinuxScriptBuilder  extends ScriptBuilder {
     final private String targetGroupId;
     final private String targetArtifactId;
     final private String targetVersion;
-    final private String cmakeifyVersion;
+
 
     LinuxScriptBuilder(
-            String cmakeifyVersion,
             File workingFolder,
             String targetGroupId,
             String targetArtifactId,
             String targetVersion) {
-        this.cmakeifyVersion = cmakeifyVersion;
         this.workingFolder = workingFolder;
         this.rootBuildFolder = new File(workingFolder, "build");
         this.zipsFolder = new File(rootBuildFolder, "zips");
