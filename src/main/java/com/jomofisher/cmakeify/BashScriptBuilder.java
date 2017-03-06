@@ -56,7 +56,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
 
     private void recordOutputFolder(File folder) {
-        out.printf("Output folder %s", folder);
+        out.printf("Output folder %s\n", folder);
         if (this.outputFolders.contains(folder)) {
             throw new RuntimeException(String.format("Output folder %s written twice", folder));
         }
