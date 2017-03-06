@@ -431,7 +431,7 @@ public class BashScriptBuilder extends ScriptBuilder {
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
                 "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
-                "   -DIOS_PLATFORM=%s \\\n" +
+                "   -DIOS_PLATFORM:STRING=\"%s\" \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
                 "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n",
