@@ -91,7 +91,7 @@ public class CMakeify {
     }
 
     private void handleGenerateScript() {
-        ScriptBuilder script = new LinuxScriptBuilder(
+        ScriptBuilder script = new BashScriptBuilder(
             workingFolder,
             targetGroupId,
             targetArtifactId,
@@ -131,7 +131,17 @@ public class CMakeify {
                     String.format(
                         "CMake version %s is not known. It doesn't have a remote.", cmakeVersion));
             }
-            script.download(remote);
+            switch (hostOS) {
+                case Linux:
+                    script.download(remote.linux);
+                    break;
+                case MacOS:
+                    script.download(remote.darwin);
+                    break;
+                default:
+                    throw new RuntimeException(hostOS.toString());
+            }
+
         }
 
         // Download the NDKs that we need
@@ -142,7 +152,16 @@ public class CMakeify {
                     throw new RuntimeException(
                             String.format("NDK version %s is not known. It doesn't have a remote.", version));
                 }
-                script.download(remote);
+                switch (hostOS) {
+                    case Linux:
+                        script.download(remote.linux);
+                        break;
+                    case MacOS:
+                        script.download(remote.darwin);
+                        break;
+                    default:
+                        throw new RuntimeException(hostOS.toString());
+                }
             }
         }
 
