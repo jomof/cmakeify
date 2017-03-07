@@ -438,6 +438,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         } else {
           body("echo Building to %s", outputFolder);
           body("mkdir -p %s/include", redistFolder);
+          body("CDEP_IOS_CLANG=$(xcrun -sdk iphoneos -find clang)");
+          body("CDEP_IOS_AR=$(xcrun -sdk iphoneos -find ar)");
         }
         recordOutputLocation(zip);
         recordOutputLocation(outputFolder);
@@ -448,6 +450,10 @@ public class BashScriptBuilder extends ScriptBuilder {
             "%s \\\n" +
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
+                "   -DCMAKE_C_COMPILER=\"${CDEP_IOS_CLANG}\" \\\n" +
+                "   -DCMAKE_CPP_COMPILER=\"${CDEP_IOS_CLANG} -E\" \\\n" +
+                "   -DCMAKE_AR=${CDEP_IOS_AR} \\\n" +
+                "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
                 "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
                 "   -DIOS_PLATFORM:STRING=\"%s\" \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
