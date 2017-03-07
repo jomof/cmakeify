@@ -393,7 +393,6 @@ public class BashScriptBuilder extends ScriptBuilder {
         return this;
     }
 
-
     @Override
     ScriptBuilder cmakeiOS(
         String cmakeVersion,
@@ -537,12 +536,15 @@ public class BashScriptBuilder extends ScriptBuilder {
                 return this;
             case linux:
                 cdep("linux:");
+                cdep("  archives:");
                 return this;
             case windows:
                 cdep("windows:");
+                cdep("  archives:");
                 return this;
             case iOS:
                 cdep("iOS:");
+                cdep("  archives:");
                 return this;
         }
         throw new RuntimeException(target.toString());

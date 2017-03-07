@@ -84,7 +84,8 @@ public class TestCmakeify {
     public void testScript() throws IOException {
         File yaml = new File("test-files/testScript/cmakeify.yml");
         yaml.getParentFile().mkdirs();
-        Files.write("includes: [extra-includes]\n" +
+        Files.write("targets: [android]\n" +
+                "includes: [extra-includes]\n" +
                         "android:\n" +
                         "  flavors:\n" +
                         "    myflags: -DANDROID -DBOOST_ROOT=bob\n" +
@@ -116,13 +117,12 @@ public class TestCmakeify {
     public void testScriptMacOS() throws IOException {
         File yaml = new File("test-files/testScript/cmakeify.yml");
         yaml.getParentFile().mkdirs();
-        Files.write("includes: [extra-includes]\n" +
-                "android:\n" +
+        Files.write("targets: [iOS]\n" +
+                "includes: [extra-includes]\n" +
+                "iOS:\n" +
                 "  flavors:\n" +
                 "    myflags: -DANDROID -DBOOST_ROOT=bob\n" +
-                "  lib: libbob.a\n" +
-                "  ndk:\n" +
-                "    platforms: [21, 22]\n",
+                "  lib: libbob.a\n",
             yaml, StandardCharsets.UTF_8);
         main("-wf", yaml.getParent(),
             "--host", "MacOS",

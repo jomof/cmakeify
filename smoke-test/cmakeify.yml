@@ -14,7 +14,8 @@ android:
 #    compilers: [4.9, clang]
 #    platforms: [9, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
    platforms: [9, 21]
-
+iOS:
+  lib: libhello.a
 cdep:
   dependencies:
     - compile: com.github.jomof:boost:1.0.63-rev18
