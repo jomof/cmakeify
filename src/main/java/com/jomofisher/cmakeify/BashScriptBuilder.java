@@ -483,7 +483,6 @@ public class BashScriptBuilder extends ScriptBuilder {
             cdep("    flavor: %s", flavor);
         }
         cdep("    platform: %s", platform);
-        cdep("    abis: [ ${ABIS} ]");
         if (multipleCMake) {
             cdep("    builder: cmake-%s", cmakeVersion);
         }
