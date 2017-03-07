@@ -1,10 +1,24 @@
 package com.jomofisher.cmakeify;
 
-import com.jomofisher.cmakeify.CMakeify.OSType;
-import com.jomofisher.cmakeify.model.*;
+import static com.sun.tools.corba.se.idl.toJavaPortable.Compile.compiler;
 
-import java.io.*;
-import java.util.*;
+import com.jomofisher.cmakeify.CMakeify.OSType;
+import com.jomofisher.cmakeify.model.ArchiveUrl;
+import com.jomofisher.cmakeify.model.HardNameDependency;
+import com.jomofisher.cmakeify.model.OS;
+import com.jomofisher.cmakeify.model.RemoteArchive;
+import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSPlatform;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class BashScriptBuilder extends ScriptBuilder {
     final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi";
@@ -21,7 +35,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     final private String targetGroupId;
     final private String targetArtifactId;
     final private String targetVersion;
-    final private Set<File> outputFolders = new HashSet<>();
+    final private Set<File> outputLocations = new HashSet<>();
     final private PrintStream out;
 
 
@@ -55,19 +69,20 @@ public class BashScriptBuilder extends ScriptBuilder {
         return this;
     }
 
-    private void recordOutputFolder(File folder) {
-        out.printf("Output folder %s\n", folder);
-        if (this.outputFolders.contains(folder)) {
-            throw new RuntimeException(String.format("Output folder %s written twice", folder));
+    private void recordOutputLocation(File folder) {
+        out.printf("Writing to %s\n", folder);
+        if (this.outputLocations.contains(folder)) {
+            throw new RuntimeException(String.format("Output location %s written twice", folder));
         }
 
         try {
             File canonical = folder.getCanonicalFile();
-            if (this.outputFolders.contains(canonical)) {
-                throw new RuntimeException(String.format("Output folder %s written twice", folder));
+            if (this.outputLocations.contains(canonical)) {
+                throw new RuntimeException(
+                    String.format("Output location %s written twice", folder));
             }
-            this.outputFolders.add(folder);
-            this.outputFolders.add(canonical);
+            this.outputLocations.add(folder);
+            this.outputLocations.add(canonical);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -212,6 +227,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         }
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+        recordOutputLocation(zip);
 
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         String ndkFolder = String
@@ -232,7 +248,7 @@ public class BashScriptBuilder extends ScriptBuilder {
             body("  fi");
 
             File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
-            recordOutputFolder(stagingAbiFolder);
+            recordOutputLocation(stagingAbiFolder);
             String command = String.format(
                     "%s \\\n" +
                     "   -H%s \\\n" +
@@ -242,9 +258,9 @@ public class BashScriptBuilder extends ScriptBuilder {
                     "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
                     "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
                     "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-                            "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
-                            "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
-                            "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
+                        "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
+                        "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
+                        "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
                     "   -DCMAKE_ANDROID_NDK=%s \\\n" +
                     "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
                     cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
@@ -257,7 +273,7 @@ public class BashScriptBuilder extends ScriptBuilder {
             body("  " + ABORT_LAST_FAILED);
             String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
             File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
-            recordOutputFolder(redistAbiFolder);
+            recordOutputLocation(redistAbiFolder);
             if (lib != null && lib.length() > 0) {
                 body("  if [ -f '%s' ]; then", stagingLib);
                 body("    mkdir -p %s", redistAbiFolder);
@@ -276,40 +292,17 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("if [ -d '%s' ]; then", stagingFolder);
         // Create a folder with something in it so there'e always something to zip
         body("  mkdir -p %s", redistFolder);
-        body("  echo %s %s %s %s %s %s > %s/cmakeify.txt", cmakeVersion, flavor, ndkVersion, platform, compiler,
-                runtime, redistFolder);
-        if (includes != null) {
-            for (String include : includes) {
-                body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
-                body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist", workingFolder, include);
-                body("    exit 600");
-                body("  fi");
-                body("  pushd %s", workingFolder);
-                body("  find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
-                body("  find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
-                body("  popd");
-                body("  " + ABORT_LAST_FAILED);
-            }
-        }
-        body("  if [ -f '%s' ]; then", zip);
-        body("    echo CMAKEIFY ERROR: Android zip %s would be overwritten", zip);
-        body("    exit 400");
-        body("  fi");
-        body("  pushd %s", redistFolder);
-        body("  " + ABORT_LAST_FAILED);
-        body("  zip %s . -r", zip);
-        body("  " + ABORT_LAST_FAILED);
-        body("  if [ -f '%s' ]; then", zip);
-        body("    echo Zip %s was created", zip);
-        body("  else");
-        body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
-        body("    exit 402");
-        body("  fi");
-        body("  popd");
-        body("  " + ABORT_LAST_FAILED);
-        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
-        body("  ARCHIVESIZE=$(ls -l %s | awk '{print $5}')", zip);
-        body("  " + ABORT_LAST_FAILED);
+        body("  echo Android %s %s %s %s %s %s > %s/cmakeify.txt",
+            cmakeVersion,
+            flavor,
+            ndkVersion,
+            platform,
+            compiler,
+            runtime,
+            redistFolder);
+        writeExtraIncludesToBody(includes, redistFolder);
+        writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+        writeZipFileStatisticsToBody(zip);
 
         cdep("  - lib: %s", lib);
         cdep("    file: %s", zip.getName());
@@ -337,6 +330,13 @@ public class BashScriptBuilder extends ScriptBuilder {
         return this;
     }
 
+    private void writeZipFileStatisticsToBody(File zip) {
+        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
+        body("  " + ABORT_LAST_FAILED);
+        body("  ARCHIVESIZE=$(ls -l %s | awk '{print $5}')", zip);
+        body("  " + ABORT_LAST_FAILED);
+    }
+
     @Override
     ScriptBuilder cmakeLinux(
             String cmakeVersion,
@@ -362,8 +362,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
         body("echo Building to %s", outputFolder);
         body("mkdir -p %s/include", redistFolder);
-        recordOutputFolder(outputFolder);
-        recordOutputFolder(redistFolder);
+        recordOutputLocation(zip);
+        recordOutputLocation(outputFolder);
+        recordOutputLocation(redistFolder);
 
         body(String.format(
                 "%s \\\n" +
@@ -387,18 +388,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("    echo CMAKEIFY ERROR: Linux zip %s would be overwritten", zip);
         body("    exit 500");
         body("  fi");
-        body("  pushd %s", redistFolder);
-        body("  " + ABORT_LAST_FAILED);
-        body("  zip %s . -r", zip);
-        body("  " + ABORT_LAST_FAILED);
-        body("  if [ -f '%s' ]; then", zip);
-        body("    echo Zip %s was created", zip);
-        body("  else");
-        body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
-        body("    exit 402");
-        body("  fi");
-        body("  popd");
-        body("  " + ABORT_LAST_FAILED);
+        writeCreateZipFromRedistFolderToBody(zip, redistFolder);
         body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
         body("  " + ABORT_LAST_FAILED);
         body("fi");
@@ -407,11 +397,16 @@ public class BashScriptBuilder extends ScriptBuilder {
 
 
     @Override
-    ScriptBuilder cmakeIOs(
+    ScriptBuilder cmakeiOS(
         String cmakeVersion,
         String cmakeToolchainIdentifier,
         RemoteArchive cmakeRemote,
+        String flavor,
+        String flavorFlags,
+        String includes[],
+        String lib,
         iOSPlatform platform,
+        boolean multipleFlavor,
         boolean multipleCMake,
         boolean multipleCMakeToolchain,
         boolean multiplePlatform) {
@@ -432,10 +427,15 @@ public class BashScriptBuilder extends ScriptBuilder {
             outputFolder = new File(outputFolder, "platform-" + platform.toString());
             zipName += "-platform-" + platform.toString();
         }
+        if (multipleFlavor) {
+            outputFolder = new File(outputFolder, "flavor-" + flavor);
+            zipName += "-" + flavor;
+        }
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+        File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
         if (hostOS != OSType.MacOS) {
             body("echo No XCode available. NOT building to %s", outputFolder);
             return this;
@@ -443,8 +443,11 @@ public class BashScriptBuilder extends ScriptBuilder {
 
         body("echo Building to %s", outputFolder);
         body("mkdir -p %s/include", redistFolder);
-        recordOutputFolder(outputFolder);
-        recordOutputFolder(redistFolder);
+        recordOutputLocation(zip);
+        recordOutputLocation(outputFolder);
+        recordOutputLocation(redistFolder);
+        recordOutputLocation(stagingFolder);
+
         String command = String.format(
             "%s \\\n" +
                 "   -H%s \\\n" +
@@ -453,9 +456,9 @@ public class BashScriptBuilder extends ScriptBuilder {
                 "   -DIOS_PLATFORM:STRING=\"%s\" \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
-                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n",
+                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s\\\n",
             cmakeExe, workingFolder, buildFolder, getCloneRoot(cmakeToolchainIdentifier),
-            platform.cmakeCode, redistFolder, redistFolder, redistFolder);
+            platform.cmakeCode, redistFolder, stagingFolder, stagingFolder, flavorFlags);
 
         body("  echo Executing %s", command);
         body("  " + command);
@@ -463,12 +466,41 @@ public class BashScriptBuilder extends ScriptBuilder {
         body(String.format("%s --build %s", cmakeExe, buildFolder));
         body(ABORT_LAST_FAILED);
         zips.put(zip.getAbsolutePath(), redistFolder.getPath());
-        body("# Zip iOS redist if folder was created in %s", redistFolder);
-        body("if [ -d '%s' ]; then", redistFolder);
-        body("  if [ -f '%s' ]; then", zip);
-        body("    echo CMAKEIFY ERROR: iOS zip %s would be overwritten", zip);
-        body("    exit 500");
-        body("  fi");
+        body("if [ -d '%s' ]; then", stagingFolder);
+        // Create a folder with something in it so there'e always something to zip
+        body("  mkdir -p %s", redistFolder);
+        body("  echo iOS %s %s %s > %s/cmakeify.txt",
+            cmakeVersion,
+            platform,
+            compiler,
+            redistFolder);
+        writeExtraIncludesToBody(includes, redistFolder);
+        writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+        writeZipFileStatisticsToBody(zip);
+
+        cdep("  - lib: %s", lib);
+        cdep("    file: %s", zip.getName());
+        cdep("    sha256: $SHASUM256");
+        cdep("    size: $ARCHIVESIZE");
+        if (multipleFlavor) {
+            cdep("    flavor: %s", flavor);
+        }
+        cdep("    platform: %s", platform);
+        cdep("    abis: [ ${ABIS} ]");
+        if (multipleCMake) {
+            cdep("    builder: cmake-%s", cmakeVersion);
+        }
+        if (lib == null || lib.length() > 0) {
+            body("else");
+            body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
+            body("  exit 200");
+        }
+        body("fi");
+
+        return this;
+    }
+
+    private void writeCreateZipFromRedistFolderToBody(File zip, File redistFolder) {
         body("  pushd %s", redistFolder);
         body("  " + ABORT_LAST_FAILED);
         body("  zip %s . -r", zip);
@@ -481,11 +513,23 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  fi");
         body("  popd");
         body("  " + ABORT_LAST_FAILED);
-        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
-        body("  ARCHIVESIZE=$(ls -l %s | awk '{print $5}')", zip);
-        body("  " + ABORT_LAST_FAILED);
-        body("fi");
-        return this;
+    }
+
+    private void writeExtraIncludesToBody(String[] includes, File redistFolder) {
+        if (includes != null) {
+            for (String include : includes) {
+                body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
+                body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist",
+                    workingFolder, include);
+                body("    exit 600");
+                body("  fi");
+                body("  pushd %s", workingFolder);
+                body("  find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
+                body("  find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
+                body("  popd");
+                body("  " + ABORT_LAST_FAILED);
+            }
+        }
     }
 
     @Override

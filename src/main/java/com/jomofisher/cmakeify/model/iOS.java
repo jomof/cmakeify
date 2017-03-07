@@ -10,12 +10,14 @@ import java.util.Set;
 
 public class iOS {
 
+  final public Map<String, String> flavors;
   final public String lib;
   final public List<iOSPlatform> platforms = new ArrayList<>();
   final public Set<String> cmakeToolchains = new HashSet<>();
   final public Map<String, String> cmakeToolchainRemotes = new HashMap<>();
 
   iOS() {
+    flavors = null;
     lib = "";
     platforms.add(iOSPlatform.iPhone);
     platforms.add(iOSPlatform.simulator);
@@ -28,6 +30,15 @@ public class iOS {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
+    if (flavors != null && flavors.size() > 0) {
+      sb.append("  flavors:\n");
+      for (String flavor : flavors.keySet()) {
+        String flags = flavors.get(flavor);
+        if (flags != null) {
+          sb.append(String.format("    %s: %s\n", flavor, flags));
+        }
+      }
+    }
     if (lib != null && lib.length() > 0) {
       sb.append(String.format("  lib: %s\n", lib));
     }

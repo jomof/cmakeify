@@ -1,17 +1,25 @@
 package com.jomofisher.cmakeify;
 
-import com.jomofisher.cmakeify.model.*;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
+import static com.jomofisher.cmakeify.model.OS.linux;
+import static com.sun.tools.corba.se.idl.toJavaPortable.Compile.compiler;
 
+import com.jomofisher.cmakeify.model.CMakeifyYml;
+import com.jomofisher.cmakeify.model.OS;
+import com.jomofisher.cmakeify.model.RemoteArchive;
+import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
-
-import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
-import static com.jomofisher.cmakeify.model.OS.linux;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 public class CMakeify {
     private PrintStream out = System.out;
@@ -165,7 +173,8 @@ public class CMakeify {
                                             flavors.put("default-flavor", "");
                                         }
                                         for (String flavor : flavors.keySet()) {
-                                            out.printf("Building script for %s %s %s %s %s\n",
+                                            out.printf(
+                                                "Building script for Android %s %s %s %s %s\n",
                                                     flavor, ndk, platform, compiler, runtime);
                                             script.cmakeAndroid(
                                                     cmakeVersion,
@@ -214,14 +223,31 @@ public class CMakeify {
                                 .get(cmakeToolchain);
                             script.gitClone(cmakeToolchain, toolchainRepo);
                             for (iOSPlatform platform : config.iOS.platforms) {
-                                script.cmakeIOs(
-                                    cmakeVersion,
-                                    cmakeToolchain,
-                                    config.cmake.remotes.get(cmakeVersion),
-                                    platform,
-                                    config.cmake.versions.length != 1,
-                                    config.iOS.cmakeToolchains.size() != 1,
-                                    config.iOS.platforms.size() != 1);
+                                Map<String, String> flavors = config.android.flavors;
+                                if (flavors == null) {
+                                    flavors = new HashMap<>();
+                                }
+                                if (flavors.size() == 0) {
+                                    flavors.put("default-flavor", "");
+                                }
+                                for (String flavor : flavors.keySet()) {
+                                    out.printf("Building script for iOS %s %s %s\n",
+                                        flavor, platform, compiler);
+                                    script.cmakeiOS(
+                                        cmakeVersion,
+                                        cmakeToolchain,
+                                        config.cmake.remotes.get(cmakeVersion),
+                                        flavor,
+                                        flavors.get(flavor),
+                                        config.includes,
+                                        config.iOS.lib,
+                                        platform,
+                                        flavors.size() != 1,
+                                        config.cmake.versions.length != 1,
+                                        config.iOS.cmakeToolchains.size() != 1,
+                                        config.iOS.platforms.size() != 1);
+                                }
+
                             }
                         }
                         break;

@@ -45,11 +45,16 @@ abstract class ScriptBuilder {
             boolean multipleCMake,
         boolean multipleGcc);
 
-    abstract ScriptBuilder cmakeIOs(
+    abstract ScriptBuilder cmakeiOS(
         String cmakeVersion,
         String cmakeToolchainIdentifier,
         RemoteArchive cmakeRemote,
+        String flavor,
+        String flavorFlags,
+        String includes[],
+        String lib,
         iOSPlatform platform,
+        boolean multipleFlavor,
         boolean multipleCMake,
         boolean multipleCMakeToolchain,
         boolean multiplePlatform);
