@@ -451,7 +451,7 @@ public class BashScriptBuilder extends ScriptBuilder {
                 "   -H%s \\\n" +
                 "   -B%s \\\n" +
                 "   -DCMAKE_C_COMPILER=\"${CDEP_IOS_CLANG}\" \\\n" +
-                "   -DCMAKE_CPP_COMPILER=\"${CDEP_IOS_CLANG} -E\" \\\n" +
+                "   -DCMAKE_CXX_COMPILER=\"${CDEP_IOS_CLANG} -E\" \\\n" +
                 "   -DCMAKE_AR=${CDEP_IOS_AR} \\\n" +
                 "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
                 "   -DIOS_PLATFORM:STRING=\"%s\" \\\n" +
