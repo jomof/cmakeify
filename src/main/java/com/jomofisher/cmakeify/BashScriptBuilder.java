@@ -167,7 +167,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         for (String compiler : compilers) {
             body("if [[ -z \"$(which %s)\" ]]; then", compiler);
             body("  echo CMAKEIFY ERROR: Missing %s. Please install.", compiler);
-            body("  exit 100");
+          body("  exit 110");
             body("fi");
         }
         return this;
@@ -278,7 +278,7 @@ public class BashScriptBuilder extends ScriptBuilder {
                 body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
                 body("    " + ABORT_LAST_FAILED);
                 body("  else");
-                body("    echo CMAKEIFY ERROR: CMake build did not produce %s", lib);
+              body("    echo CMAKEIFY ERROR: CMake build did not produce Android %s", lib);
                 body("    exit 100");
                 body("  fi");
             }
@@ -301,7 +301,12 @@ public class BashScriptBuilder extends ScriptBuilder {
         writeExtraIncludesToBody(includes, redistFolder);
         writeCreateZipFromRedistFolderToBody(zip, redistFolder);
         writeZipFileStatisticsToBody(zip);
-
+      if (lib == null || lib.length() > 0) {
+        body("else");
+        body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
+        body("  exit 200");
+      }
+      body("fi");
         cdep("  - lib: %s", lib);
         cdep("    file: %s", zip.getName());
         cdep("    sha256: $SHASUM256");
@@ -319,12 +324,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         if (multipleCMake) {
             cdep("    builder: cmake-%s", cmakeVersion);
         }
-        if (lib == null || lib.length() > 0) {
-            body("else");
-            body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
-            body("  exit 200");
-        }
-        body("fi");
+
         return this;
     }
 
@@ -467,6 +467,20 @@ public class BashScriptBuilder extends ScriptBuilder {
 
         body(String.format("%s --build %s", cmakeExe, buildFolder));
         body(ABORT_LAST_FAILED);
+
+        if (lib != null && lib.length() > 0) {
+          String stagingLib = String.format("%s/%s", stagingFolder, lib);
+          body("  if [ -f '%s' ]; then", stagingLib);
+          body("    mkdir -p %s", redistFolder);
+          body("    cp %s %s/%s", stagingLib, redistFolder, lib);
+          body("    " + ABORT_LAST_FAILED);
+          body("  else");
+          body("    echo CMAKEIFY ERROR: CMake build did not produce iOS %s", lib);
+          body("    exit 100");
+          body("  fi");
+        }
+
+
         zips.put(zip.getAbsolutePath(), redistFolder.getPath());
         body("if [ -d '%s' ]; then", stagingFolder);
         // Create a folder with something in it so there'e always something to zip
