@@ -435,11 +435,10 @@ public class BashScriptBuilder extends ScriptBuilder {
         File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
         if (hostOS != OSType.MacOS) {
             body("echo No XCode available. NOT building to %s", outputFolder);
-            return this;
+        } else {
+          body("echo Building to %s", outputFolder);
+          body("mkdir -p %s/include", redistFolder);
         }
-
-        body("echo Building to %s", outputFolder);
-        body("mkdir -p %s/include", redistFolder);
         recordOutputLocation(zip);
         recordOutputLocation(outputFolder);
         recordOutputLocation(redistFolder);
@@ -457,6 +456,7 @@ public class BashScriptBuilder extends ScriptBuilder {
             cmakeExe, workingFolder, buildFolder, getCloneRoot(cmakeToolchainIdentifier),
             platform.cmakeCode, redistFolder, stagingFolder, stagingFolder, flavorFlags);
 
+      if (hostOS == OSType.MacOS) {
         body("  echo Executing %s", command);
         body("  " + command);
 
@@ -474,6 +474,15 @@ public class BashScriptBuilder extends ScriptBuilder {
         writeCreateZipFromRedistFolderToBody(zip, redistFolder);
         writeZipFileStatisticsToBody(zip);
 
+        if (lib == null || lib.length() > 0) {
+          body("else");
+          body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
+          body("  exit 200");
+        }
+        body("fi");
+      }
+
+      // Still create the manifest for what would have been built.
         cdep("  - lib: %s", lib);
         cdep("    file: %s", zip.getName());
         cdep("    sha256: $SHASUM256");
@@ -485,12 +494,6 @@ public class BashScriptBuilder extends ScriptBuilder {
         if (multipleCMake) {
             cdep("    builder: cmake-%s", cmakeVersion);
         }
-        if (lib == null || lib.length() > 0) {
-            body("else");
-            body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
-            body("  exit 200");
-        }
-        body("fi");
 
         return this;
     }
