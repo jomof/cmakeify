@@ -278,7 +278,7 @@ public class BashScriptBuilder extends ScriptBuilder {
                 body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
                 body("    " + ABORT_LAST_FAILED);
                 body("  else");
-              body("    echo CMAKEIFY ERROR: CMake build did not produce Android %s", lib);
+              body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
                 body("    exit 100");
                 body("  fi");
             }
@@ -469,13 +469,13 @@ public class BashScriptBuilder extends ScriptBuilder {
         body(ABORT_LAST_FAILED);
 
         if (lib != null && lib.length() > 0) {
-          String stagingLib = String.format("%s/%s", stagingFolder, lib);
+          String stagingLib = String.format("%s/lib/%s", stagingFolder, lib);
           body("  if [ -f '%s' ]; then", stagingLib);
           body("    mkdir -p %s", redistFolder);
           body("    cp %s %s/%s", stagingLib, redistFolder, lib);
           body("    " + ABORT_LAST_FAILED);
           body("  else");
-          body("    echo CMAKEIFY ERROR: CMake build did not produce iOS %s", lib);
+          body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
           body("    exit 100");
           body("  fi");
         }
