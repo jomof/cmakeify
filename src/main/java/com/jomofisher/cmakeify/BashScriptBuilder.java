@@ -454,7 +454,6 @@ public class BashScriptBuilder extends ScriptBuilder {
                 "   -DCMAKE_CPP_COMPILER=\"${CDEP_IOS_CLANG} -E\" \\\n" +
                 "   -DCMAKE_AR=${CDEP_IOS_AR} \\\n" +
                 "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
-                "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
                 "   -DIOS_PLATFORM:STRING=\"%s\" \\\n" +
                 "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
                 "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
