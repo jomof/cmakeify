@@ -2,7 +2,6 @@ package com.jomofisher.cmakeify;
 
 import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
 import static com.jomofisher.cmakeify.model.OS.linux;
-import static com.sun.tools.corba.se.idl.toJavaPortable.Compile.compiler;
 
 import com.jomofisher.cmakeify.model.CMakeifyYml;
 import com.jomofisher.cmakeify.model.OS;
@@ -231,8 +230,8 @@ public class CMakeify {
                                     flavors.put("default-flavor", "");
                                 }
                                 for (String flavor : flavors.keySet()) {
-                                    out.printf("Building script for iOS %s %s %s\n",
-                                        flavor, platform, compiler);
+                                  out.printf("Building script for iOS %s %s\n",
+                                      flavor, platform);
                                     script.cmakeiOS(
                                         cmakeVersion,
                                         cmakeToolchain,

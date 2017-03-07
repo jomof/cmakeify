@@ -1,7 +1,5 @@
 package com.jomofisher.cmakeify;
 
-import static com.sun.tools.corba.se.idl.toJavaPortable.Compile.compiler;
-
 import com.jomofisher.cmakeify.CMakeify.OSType;
 import com.jomofisher.cmakeify.model.ArchiveUrl;
 import com.jomofisher.cmakeify.model.HardNameDependency;
@@ -469,10 +467,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("if [ -d '%s' ]; then", stagingFolder);
         // Create a folder with something in it so there'e always something to zip
         body("  mkdir -p %s", redistFolder);
-        body("  echo iOS %s %s %s > %s/cmakeify.txt",
+        body("  echo iOS %s %s  > %s/cmakeify.txt",
             cmakeVersion,
             platform,
-            compiler,
             redistFolder);
         writeExtraIncludesToBody(includes, redistFolder);
         writeCreateZipFromRedistFolderToBody(zip, redistFolder);
