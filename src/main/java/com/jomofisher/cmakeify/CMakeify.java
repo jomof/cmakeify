@@ -156,9 +156,6 @@ public class CMakeify {
             for (String cmakeVersion : config.cmake.versions) {
                 switch (target) {
                     case android:
-                      if (config.android.lib == null || config.android.lib.length() == 0) {
-                        throw new RuntimeException("Expected android.lib");
-                      }
                         for (String ndk : config.android.ndk.versions) {
                             RemoteArchive remote = config.android.ndk.remotes.get(ndk);
                             if (remote == null) {
@@ -224,9 +221,6 @@ public class CMakeify {
                             String toolchainRepo = config.iOS.cmakeToolchainRemotes
                                 .get(cmakeToolchain);
                             script.gitClone(cmakeToolchain, toolchainRepo);
-                          if (config.iOS.lib == null || config.iOS.lib.length() == 0) {
-                            throw new RuntimeException("Expected iOS.lib");
-                          }
                             for (iOSPlatform platform : config.iOS.platforms) {
                               Map<String, String> flavors = config.iOS.flavors;
                                 if (flavors == null) {
