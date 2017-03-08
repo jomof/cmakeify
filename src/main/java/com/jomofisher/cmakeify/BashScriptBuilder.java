@@ -461,7 +461,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("if [ ! -f \"${CDEP_IOS_SDK_ROOT}\" ]; then");
       body("  echo Not building for non-existent SDK root ${CDEP_IOS_SDK_ROOT}. "
           + "Listing available:");
-      body("  ll ${CDEP_IOS_DEVELOPER_ROOT}/SDKs");
+      body("  ls ${CDEP_IOS_DEVELOPER_ROOT}/SDKs");
       body("else");
       body("  echo Building to %s", outputFolder);
       body("  mkdir -p %s/include", redistFolder);
