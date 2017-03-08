@@ -458,7 +458,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("CDEP_IOS_DEVELOPER_ROOT=${CDEP_XCODE_DEVELOPER_DIR}/Platforms/%s.platform/Developer",
           platform);
       body("CDEP_IOS_SDK_ROOT=${CDEP_IOS_DEVELOPER_ROOT}/SDKs/%s%s.sdk", platform, sdk);
-      body("if [ ! -f \"${CDEP_IOS_SDK_ROOT}\" ]; then");
+      body("if [ ! -d \"${CDEP_IOS_SDK_ROOT}\" ]; then");
       body("  echo Not building for non-existent SDK root ${CDEP_IOS_SDK_ROOT}. "
           + "Listing available:");
       body("  ls ${CDEP_IOS_DEVELOPER_ROOT}/SDKs");
@@ -547,7 +547,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform,
       iOSArchitecture architecture) {
-    if (platform.equals(iOSPlatform.iPhone)) {
+    if (platform.equals(iOSPlatform.iPhoneOS)) {
       if (architecture.equals(iOSArchitecture.amd64)) {
         return true;
       }
