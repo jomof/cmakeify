@@ -414,7 +414,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       boolean multipleSdk) {
 
     if (!isSupportediOSPlatformArchitecture(platform, architecture)) {
-      out.printf("Skipping iOS %s %s because it isn't supported by XCode", platform, architecture);
+      out.printf("Skipping iOS %s %s because it isn't supported by XCode\n", platform,
+          architecture);
       return this;
     }
 
