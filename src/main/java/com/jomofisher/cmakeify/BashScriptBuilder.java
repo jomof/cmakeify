@@ -522,24 +522,23 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("    exit 200");
       }
       body("  fi");
+
+      // Still create the manifest for what would have been built.
+      cdep("  - lib: %s", lib);
+      cdep("    file: %s", zip.getName());
+      cdep("    sha256: $SHASUM256");
+      cdep("    size: $ARCHIVESIZE");
+      if (multipleFlavor) {
+        cdep("    flavor: %s", flavor);
+      }
+      cdep("    platform: %s", platform);
+      cdep("    architecture: %s", architecture);
+      cdep("    sdk: %s", sdk);
+      if (multipleCMake) {
+        cdep("    builder: cmake-%s", cmakeVersion);
+      }
       body("fi");
     }
-
-    // Still create the manifest for what would have been built.
-    cdep("  - lib: %s", lib);
-    cdep("    file: %s", zip.getName());
-    cdep("    sha256: $SHASUM256");
-    cdep("    size: $ARCHIVESIZE");
-    if (multipleFlavor) {
-      cdep("    flavor: %s", flavor);
-    }
-    cdep("    platform: %s", platform);
-    cdep("    architecture: %s", architecture);
-    cdep("    sdk: %s", sdk);
-    if (multipleCMake) {
-      cdep("    builder: cmake-%s", cmakeVersion);
-    }
-
     return this;
   }
 
