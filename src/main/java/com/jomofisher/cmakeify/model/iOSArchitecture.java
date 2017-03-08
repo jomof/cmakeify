@@ -5,5 +5,5 @@ public enum iOSArchitecture {
   x86_64,
   armv7,
   armv7s,
-  amd64
+  arm64
 }

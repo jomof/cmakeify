@@ -548,7 +548,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform,
       iOSArchitecture architecture) {
     if (platform.equals(iOSPlatform.iPhoneOS)) {
-      if (architecture.equals(iOSArchitecture.amd64)) {
+      if (architecture.equals(iOSArchitecture.arm64)) {
         return true;
       }
       if (architecture.equals(iOSArchitecture.armv7)) {
