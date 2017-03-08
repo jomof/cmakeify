@@ -121,7 +121,7 @@ public class TestCmakeify {
                 "includes: [extra-includes]\n" +
                 "iOS:\n" +
                 "  flavors:\n" +
-                "    myflags: -DANDROID -DBOOST_ROOT=bob\n" +
+                "    myflags: -DOSX -DBOOST_ROOT=bob\n" +
                 "  lib: libbob.a\n",
             yaml, StandardCharsets.UTF_8);
         main("-wf", yaml.getParent(),
@@ -136,7 +136,7 @@ public class TestCmakeify {
         assertThat(script).contains("artifactId: my-artifact-id");
         assertThat(script).contains("version: my-target-version");
         assertThat(script).contains("BOOST_ROOT=");
-        assertThat(script).contains("-DANDROID");
+      assertThat(script).contains("-DOSX");
         assertThat(script).doesNotContain("--parent"); // mkdir --parents flag doesn't work on OSX
         assertThat(script).doesNotContain("didn't");
         String dump = main("-wf", yaml.getParent(), "--dump");
