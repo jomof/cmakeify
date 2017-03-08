@@ -115,7 +115,7 @@ public class TestCmakeify {
 
     @Test
     public void testScriptMacOS() throws IOException {
-        File yaml = new File("test-files/testScript/cmakeify.yml");
+      File yaml = new File("test-files/testScriptMacOS/cmakeify.yml");
         yaml.getParentFile().mkdirs();
         Files.write("targets: [iOS]\n" +
                 "includes: [extra-includes]\n" +

@@ -1,616 +1,676 @@
 package com.jomofisher.cmakeify;
 
 import com.jomofisher.cmakeify.CMakeify.OSType;
-import com.jomofisher.cmakeify.model.*;
-
-import java.io.*;
-import java.util.*;
+import com.jomofisher.cmakeify.model.ArchiveUrl;
+import com.jomofisher.cmakeify.model.HardNameDependency;
+import com.jomofisher.cmakeify.model.OS;
+import com.jomofisher.cmakeify.model.RemoteArchive;
+import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSArchitecture;
+import com.jomofisher.cmakeify.model.iOSPlatform;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class BashScriptBuilder extends ScriptBuilder {
-    final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi";
-    final private static String TOOLS_FOLDER = ".cmakeify/tools";
-    final private static String DOWNLOADS_FOLDER = ".cmakeify/downloads";
-    final private StringBuilder body = new StringBuilder();
-    final private Map<String, String> zips = new HashMap<>();
-    final private OSType hostOS;
-    final private File workingFolder;
-    final private File rootBuildFolder;
-    final private File zipsFolder;
-    final private File cdepFile;
-    final private File androidFolder;
-    final private String targetGroupId;
-    final private String targetArtifactId;
-    final private String targetVersion;
-    final private Set<File> outputLocations = new HashSet<>();
-    final private PrintStream out;
+
+  final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi";
+  final private static String TOOLS_FOLDER = ".cmakeify/tools";
+  final private static String DOWNLOADS_FOLDER = ".cmakeify/downloads";
+  final private StringBuilder body = new StringBuilder();
+  final private Map<String, String> zips = new HashMap<>();
+  final private OSType hostOS;
+  final private File workingFolder;
+  final private File rootBuildFolder;
+  final private File zipsFolder;
+  final private File cdepFile;
+  final private File androidFolder;
+  final private String targetGroupId;
+  final private String targetArtifactId;
+  final private String targetVersion;
+  final private Set<File> outputLocations = new HashSet<>();
+  final private PrintStream out;
 
 
-    BashScriptBuilder(
-            PrintStream out,
-            OSType hostOS,
-            File workingFolder,
-            String targetGroupId,
-            String targetArtifactId,
-            String targetVersion) {
-        this.out = out;
-        this.hostOS = hostOS;
-        this.workingFolder = workingFolder;
-        this.rootBuildFolder = new File(workingFolder, "build");
-        this.zipsFolder = new File(rootBuildFolder, "zips");
-        this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
-        this.androidFolder = new File(rootBuildFolder, "Android");
-        this.targetGroupId = targetGroupId;
-        this.targetArtifactId = targetArtifactId;
-        this.targetVersion = targetVersion;
+  BashScriptBuilder(
+      PrintStream out,
+      OSType hostOS,
+      File workingFolder,
+      String targetGroupId,
+      String targetArtifactId,
+      String targetVersion) {
+    this.out = out;
+    this.hostOS = hostOS;
+    this.workingFolder = workingFolder;
+    this.rootBuildFolder = new File(workingFolder, "build");
+    this.zipsFolder = new File(rootBuildFolder, "zips");
+    this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
+    this.androidFolder = new File(rootBuildFolder, "Android");
+    this.targetGroupId = targetGroupId;
+    this.targetArtifactId = targetArtifactId;
+    this.targetVersion = targetVersion;
+  }
+
+  private BashScriptBuilder body(String format, Object... args) {
+    body.append(String.format(format + "\n", args));
+    return this;
+  }
+
+  private BashScriptBuilder cdep(String format, Object... args) {
+    String embed = String.format(format, args);
+    body.append(String.format("printf \"%%s\\r\\n\" \"%s\" >> %s \n", embed, cdepFile));
+    return this;
+  }
+
+  private void recordOutputLocation(File folder) {
+    out.printf("Writing to %s\n", folder);
+    if (this.outputLocations.contains(folder)) {
+      throw new RuntimeException(String.format("Output location %s written twice", folder));
     }
 
-    private BashScriptBuilder body(String format, Object... args) {
-        body.append(String.format(format + "\n", args));
-        return this;
-    }
-
-    private BashScriptBuilder cdep(String format, Object... args) {
-        String embed = String.format(format, args);
-        body.append(String.format("printf \"%%s\\r\\n\" \"%s\" >> %s \n", embed, cdepFile));
-        return this;
-    }
-
-    private void recordOutputLocation(File folder) {
-        out.printf("Writing to %s\n", folder);
-        if (this.outputLocations.contains(folder)) {
-            throw new RuntimeException(String.format("Output location %s written twice", folder));
-        }
-
-        try {
-            File canonical = folder.getCanonicalFile();
-            if (this.outputLocations.contains(canonical)) {
-                throw new RuntimeException(
-                    String.format("Output location %s written twice", folder));
-            }
-            this.outputLocations.add(folder);
-            this.outputLocations.add(canonical);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
-    @Override
-    ScriptBuilder createEmptyBuildFolder(HardNameDependency dependencies[]) {
-        body("rm -rf %s", rootBuildFolder);
-        body("mkdir -p %s", zipsFolder);
-        body("mkdir -p %s/", TOOLS_FOLDER);
-        body("mkdir -p %s/", DOWNLOADS_FOLDER);
-        cdep("# Generated by CMakeify");
-        cdep("coordinate:");
-        cdep("  groupId: %s", targetGroupId);
-        cdep("  artifactId: %s", targetArtifactId);
-        cdep("  version: %s", targetVersion);
-        if (dependencies != null && dependencies.length > 0) {
-            cdep("dependencies:");
-            for (HardNameDependency dependency : dependencies) {
-                cdep("  - compile: %s", dependency.compile);
-                cdep("    sha256: %s", dependency.sha256);
-            }
-        }
-        return this;
-    }
-
-    private ArchiveUrl getHostArchive(RemoteArchive remote) {
-        switch (hostOS) {
-            case Linux:
-                return remote.linux;
-            case MacOS:
-                return remote.darwin;
-        }
-        throw new RuntimeException(hostOS.toString());
-    }
-
-    @Override
-    ScriptBuilder download(RemoteArchive remote) {
-        ArchiveInfo archive = new ArchiveInfo(getHostArchive(remote));
-        return body(archive.downloadToFolder(DOWNLOADS_FOLDER))
-              .body(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
-    }
-
-    private File getCloneRoot(String identifier) {
-        return new File(new File(DOWNLOADS_FOLDER, "git-clones"), identifier).getAbsoluteFile();
-    }
-
-    @Override
-    ScriptBuilder gitClone(String identifier, String repo) {
-        File folder = getCloneRoot(identifier);
-        body("rm -rf %s", folder.getAbsolutePath());
-        body("mkdir -p %s", folder.getAbsolutePath());
-        body("pushd %s", folder.getAbsolutePath());
-        body("git clone %s %s", repo, folder.getAbsolutePath());
-        body(ABORT_LAST_FAILED);
-        body("popd");
-        return this;
-    }
-
-    @Override
-    File writeToShellScript() {
-        BufferedWriter writer = null;
-        File file = new File(".cmakeify/build.sh");
-        file.getAbsoluteFile().mkdirs();
-        file.delete();
-        try {
-            writer = new BufferedWriter(new FileWriter(file));
-            writer.write(body.toString());
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                // Close the writer regardless of what happens...
-                writer.close();
-            } catch (Exception e) {
-            }
-        }
-        return file;
-    }
-
-    @Override
-    ScriptBuilder checkForCompilers(Collection<String> compilers) {
-        for (String compiler : compilers) {
-            body("if [[ -z \"$(which %s)\" ]]; then", compiler);
-            body("  echo CMAKEIFY ERROR: Missing %s. Please install.", compiler);
-          body("  exit 110");
-            body("fi");
-        }
-        return this;
-    }
-
-    @Override
-    ScriptBuilder cmakeAndroid(String cmakeVersion,
-                               RemoteArchive cmakeRemote,
-                               String androidCppFlags,
-                               String flavor,
-                               String flavorFlags,
-                               String ndkVersion,
-                               RemoteArchive ndkRemote,
-                               String includes[],
-                               String lib,
-                               String compiler,
-                               String runtime,
-                               String platform,
-                               String abis[],
-                               boolean multipleFlavors,
-                               boolean multipleCMake,
-                               boolean multipleNDK,
-                               boolean multipleCompiler,
-                               boolean multipleRuntime,
-                               boolean multiplePlatforms) {
-        body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime);
-        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-            getHostArchive(cmakeRemote).unpackroot);
-        File outputFolder = androidFolder;
-        String zipName = targetArtifactId + "-android";
-        if (multipleCMake) {
-            outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
-            zipName += "-cmake-" + cmakeVersion;
-        }
-        if (multipleNDK) {
-            outputFolder = new File(outputFolder, ndkVersion);
-            zipName += "-" + ndkVersion;
-        }
-        if (multipleCompiler) {
-            outputFolder = new File(outputFolder, compiler);
-            zipName += "-" + compiler;
-        }
-        if (multipleRuntime) {
-            String fixedRuntime = runtime.replace('+', 'x');
-            outputFolder = new File(outputFolder, fixedRuntime);
-            zipName += "-" + fixedRuntime;
-        }
-        if (multiplePlatforms) {
-            outputFolder = new File(outputFolder, "android-" + platform);
-            zipName += "-platform-" + platform;
-        }
-        if (multipleFlavors) {
-            outputFolder = new File(outputFolder, "flavor-" + flavor);
-            zipName += "-" + flavor;
-        }
-        zipName += ".zip";
-        File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-        recordOutputLocation(zip);
-
-        File buildFolder = new File(outputFolder, "cmake-generated-files");
-        String ndkFolder = String
-            .format("%s/%s", TOOLS_FOLDER, getHostArchive(ndkRemote).unpackroot);
-        File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
-        File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
-        body("ABIS=");
-        for (String abi : abis) {
-            File abiBuildFolder = new File(buildFolder, abi);
-            File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
-                    new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
-            body("if [ -d '%s' ]; then", archFolder);
-            body("  echo Creating make project in %s", abiBuildFolder);
-            body("  if [[ \"$ABIS\" == \"\" ]]; then");
-            body("    ABIS=%s", abi);
-            body("  else");
-            body("    ABIS=\"${ABIS}, %s\"", abi);
-            body("  fi");
-
-            File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
-            recordOutputLocation(stagingAbiFolder);
-            String command = String.format(
-                    "%s \\\n" +
-                    "   -H%s \\\n" +
-                    "   -B%s \\\n" +
-                    "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
-                    "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
-                    "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
-                    "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
-                    "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-                        "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
-                        "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
-                        "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
-                    "   -DCMAKE_ANDROID_NDK=%s \\\n" +
-                    "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
-                    cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
-                    redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
-                    new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, androidCppFlags);
-            body("  echo Executing %s", command);
-            body("  " + command);
-            body("  " + ABORT_LAST_FAILED);
-            body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
-            body("  " + ABORT_LAST_FAILED);
-            String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
-            File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
-            recordOutputLocation(redistAbiFolder);
-            if (lib != null && lib.length() > 0) {
-                body("  if [ -f '%s' ]; then", stagingLib);
-                body("    mkdir -p %s", redistAbiFolder);
-                body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
-                body("    " + ABORT_LAST_FAILED);
-                body("  else");
-              body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
-                body("    exit 100");
-                body("  fi");
-            }
-            body("else");
-            body("  echo Build skipped ABI %s because arch folder didnt exist: %s", abi, archFolder);
-            body("fi");
-            zips.put(zip.getAbsolutePath(), redistFolder.getPath());
-        }
-        body("if [ -d '%s' ]; then", stagingFolder);
-        // Create a folder with something in it so there'e always something to zip
-        body("  mkdir -p %s", redistFolder);
-        body("  echo Android %s %s %s %s %s %s > %s/cmakeify.txt",
-            cmakeVersion,
-            flavor,
-            ndkVersion,
-            platform,
-            compiler,
-            runtime,
-            redistFolder);
-        writeExtraIncludesToBody(includes, redistFolder);
-        writeCreateZipFromRedistFolderToBody(zip, redistFolder);
-        writeZipFileStatisticsToBody(zip);
-      if (lib == null || lib.length() > 0) {
-        body("else");
-        body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
-        body("  exit 200");
+    try {
+      File canonical = folder.getCanonicalFile();
+      if (this.outputLocations.contains(canonical)) {
+        throw new RuntimeException(
+            String.format("Output location %s written twice", folder));
       }
+      this.outputLocations.add(folder);
+      this.outputLocations.add(canonical);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  @Override
+  ScriptBuilder createEmptyBuildFolder(HardNameDependency dependencies[]) {
+    body("rm -rf %s", rootBuildFolder);
+    body("mkdir -p %s", zipsFolder);
+    body("mkdir -p %s/", TOOLS_FOLDER);
+    body("mkdir -p %s/", DOWNLOADS_FOLDER);
+    cdep("# Generated by CMakeify");
+    cdep("coordinate:");
+    cdep("  groupId: %s", targetGroupId);
+    cdep("  artifactId: %s", targetArtifactId);
+    cdep("  version: %s", targetVersion);
+    if (dependencies != null && dependencies.length > 0) {
+      cdep("dependencies:");
+      for (HardNameDependency dependency : dependencies) {
+        cdep("  - compile: %s", dependency.compile);
+        cdep("    sha256: %s", dependency.sha256);
+      }
+    }
+    return this;
+  }
+
+  private ArchiveUrl getHostArchive(RemoteArchive remote) {
+    switch (hostOS) {
+      case Linux:
+        return remote.linux;
+      case MacOS:
+        return remote.darwin;
+    }
+    throw new RuntimeException(hostOS.toString());
+  }
+
+  @Override
+  ScriptBuilder download(RemoteArchive remote) {
+    ArchiveInfo archive = new ArchiveInfo(getHostArchive(remote));
+    return body(archive.downloadToFolder(DOWNLOADS_FOLDER))
+        .body(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
+  }
+
+  private File getCloneRoot(String identifier) {
+    return new File(new File(DOWNLOADS_FOLDER, "git-clones"), identifier).getAbsoluteFile();
+  }
+
+  @Override
+  ScriptBuilder gitClone(String identifier, String repo) {
+    File folder = getCloneRoot(identifier);
+    body("rm -rf %s", folder.getAbsolutePath());
+    body("mkdir -p %s", folder.getAbsolutePath());
+    body("pushd %s", folder.getAbsolutePath());
+    body("git clone %s %s", repo, folder.getAbsolutePath());
+    body(ABORT_LAST_FAILED);
+    body("popd");
+    return this;
+  }
+
+  @Override
+  File writeToShellScript() {
+    BufferedWriter writer = null;
+    File file = new File(".cmakeify/build.sh");
+    file.getAbsoluteFile().mkdirs();
+    file.delete();
+    try {
+      writer = new BufferedWriter(new FileWriter(file));
+      writer.write(body.toString());
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        // Close the writer regardless of what happens...
+        writer.close();
+      } catch (Exception e) {
+      }
+    }
+    return file;
+  }
+
+  @Override
+  ScriptBuilder checkForCompilers(Collection<String> compilers) {
+    for (String compiler : compilers) {
+      body("if [[ -z \"$(which %s)\" ]]; then", compiler);
+      body("  echo CMAKEIFY ERROR: Missing %s. Please install.", compiler);
+      body("  exit 110");
       body("fi");
-        cdep("  - lib: %s", lib);
-        cdep("    file: %s", zip.getName());
-        cdep("    sha256: $SHASUM256");
-        cdep("    size: $ARCHIVESIZE");
-        if (multipleFlavors) {
-            cdep("    flavor: %s", flavor);
-        }
-        cdep("    runtime: %s", runtime);
-        cdep("    platform: %s", platform);
-        cdep("    ndk: %s", ndkVersion);
-        cdep("    abis: [ ${ABIS} ]");
-        if (multipleCompiler) {
-            cdep("    compiler: %s", compiler);
-        }
-        if (multipleCMake) {
-            cdep("    builder: cmake-%s", cmakeVersion);
-        }
-
-        return this;
     }
+    return this;
+  }
 
-    private void writeZipFileStatisticsToBody(File zip) {
-        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
-        body("  " + ABORT_LAST_FAILED);
-        body("  ARCHIVESIZE=$(ls -l %s | awk '{print $5}')", zip);
-        body("  " + ABORT_LAST_FAILED);
+  @Override
+  ScriptBuilder cmakeAndroid(String cmakeVersion,
+      RemoteArchive cmakeRemote,
+      String androidCppFlags,
+      String flavor,
+      String flavorFlags,
+      String ndkVersion,
+      RemoteArchive ndkRemote,
+      String includes[],
+      String lib,
+      String compiler,
+      String runtime,
+      String platform,
+      String abis[],
+      boolean multipleFlavors,
+      boolean multipleCMake,
+      boolean multipleNDK,
+      boolean multipleCompiler,
+      boolean multipleRuntime,
+      boolean multiplePlatforms) {
+    body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
+        runtime);
+    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
+        getHostArchive(cmakeRemote).unpackroot);
+    File outputFolder = androidFolder;
+    String zipName = targetArtifactId + "-android";
+    if (multipleCMake) {
+      outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
+      zipName += "-cmake-" + cmakeVersion;
     }
+    if (multipleNDK) {
+      outputFolder = new File(outputFolder, ndkVersion);
+      zipName += "-" + ndkVersion;
+    }
+    if (multipleCompiler) {
+      outputFolder = new File(outputFolder, compiler);
+      zipName += "-" + compiler;
+    }
+    if (multipleRuntime) {
+      String fixedRuntime = runtime.replace('+', 'x');
+      outputFolder = new File(outputFolder, fixedRuntime);
+      zipName += "-" + fixedRuntime;
+    }
+    if (multiplePlatforms) {
+      outputFolder = new File(outputFolder, "android-" + platform);
+      zipName += "-platform-" + platform;
+    }
+    if (multipleFlavors) {
+      outputFolder = new File(outputFolder, "flavor-" + flavor);
+      zipName += "-" + flavor;
+    }
+    zipName += ".zip";
+    File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+    recordOutputLocation(zip);
 
-    @Override
-    ScriptBuilder cmakeLinux(
-            String cmakeVersion,
-            RemoteArchive cmakeRemote,
-            Toolset toolset,
-            boolean multipleCMake,
-            boolean multipleCompiler) {
-        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-            getHostArchive(cmakeRemote).unpackroot);
-        File outputFolder = new File(rootBuildFolder, "Linux");
-        String zipName = targetArtifactId + "-linux";
-        if (multipleCMake) {
-            outputFolder = new File(outputFolder,  "cmake-" + cmakeVersion);
-            zipName += "-cmake-" + cmakeVersion;
-        }
-        if (multipleCompiler) {
-            outputFolder = new File(outputFolder, toolset.c);
-            zipName += "-" + toolset.c;
-        }
-        zipName += ".zip";
-        File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-        File buildFolder = new File(outputFolder, "cmake-generated-files");
-        File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
-        body("echo Building to %s", outputFolder);
-        body("mkdir -p %s/include", redistFolder);
-        recordOutputLocation(zip);
-        recordOutputLocation(outputFolder);
-        recordOutputLocation(redistFolder);
+    File buildFolder = new File(outputFolder, "cmake-generated-files");
+    String ndkFolder = String
+        .format("%s/%s", TOOLS_FOLDER, getHostArchive(ndkRemote).unpackroot);
+    File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+    File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
+    body("ABIS=");
+    for (String abi : abis) {
+      File abiBuildFolder = new File(buildFolder, abi);
+      File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
+          new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
+      body("if [ -d '%s' ]; then", archFolder);
+      body("  echo Creating make project in %s", abiBuildFolder);
+      body("  if [[ \"$ABIS\" == \"\" ]]; then");
+      body("    ABIS=%s", abi);
+      body("  else");
+      body("    ABIS=\"${ABIS}, %s\"", abi);
+      body("  fi");
 
-        body(String.format(
-                "%s \\\n" +
-                "   -H%s \\\n" +
-                "   -B%s \\\n" +
-                "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
-                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
-                "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
-                "   -DCMAKE_C_COMPILER=%s \\\n" +
-                        "   -DCMAKE_CXX_COMPILER=%s",
-                cmakeExe, workingFolder, buildFolder,
-                redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
-
-        body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
-        body(ABORT_LAST_FAILED);
-        zips.put(zip.getAbsolutePath(), redistFolder.getPath());
-        body("# Zip Linux redist if folder was created in %s", redistFolder);
-        body("if [ -d '%s' ]; then", redistFolder);
-        body("  if [ -f '%s' ]; then", zip);
-        body("    echo CMAKEIFY ERROR: Linux zip %s would be overwritten", zip);
-        body("    exit 500");
+      File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
+      recordOutputLocation(stagingAbiFolder);
+      String command = String.format(
+          "%s \\\n" +
+              "   -H%s \\\n" +
+              "   -B%s \\\n" +
+              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
+              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
+              "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
+              "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
+              "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+              "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
+              "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
+              "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
+              "   -DCMAKE_ANDROID_NDK=%s \\\n" +
+              "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
+          cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
+          redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
+          new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, androidCppFlags);
+      body("  echo Executing %s", command);
+      body("  " + command);
+      body("  " + ABORT_LAST_FAILED);
+      body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
+      body("  " + ABORT_LAST_FAILED);
+      String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
+      File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
+      recordOutputLocation(redistAbiFolder);
+      if (lib != null && lib.length() > 0) {
+        body("  if [ -f '%s' ]; then", stagingLib);
+        body("    mkdir -p %s", redistAbiFolder);
+        body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
+        body("    " + ABORT_LAST_FAILED);
+        body("  else");
+        body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
+        body("    exit 100");
         body("  fi");
-        writeCreateZipFromRedistFolderToBody(zip, redistFolder);
-        body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
-        body("  " + ABORT_LAST_FAILED);
-        body("fi");
-        return this;
+      }
+      body("else");
+      body("  echo Build skipped ABI %s because arch folder didnt exist: %s", abi, archFolder);
+      body("fi");
+      zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+    }
+    body("if [ -d '%s' ]; then", stagingFolder);
+    // Create a folder with something in it so there'e always something to zip
+    body("  mkdir -p %s", redistFolder);
+    body("  echo Android %s %s %s %s %s %s > %s/cmakeify.txt",
+        cmakeVersion,
+        flavor,
+        ndkVersion,
+        platform,
+        compiler,
+        runtime,
+        redistFolder);
+    writeExtraIncludesToBody(includes, redistFolder);
+    writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+    writeZipFileStatisticsToBody(zip);
+    if (lib == null || lib.length() > 0) {
+      body("else");
+      body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
+      body("  exit 200");
+    }
+    body("fi");
+    cdep("  - lib: %s", lib);
+    cdep("    file: %s", zip.getName());
+    cdep("    sha256: $SHASUM256");
+    cdep("    size: $ARCHIVESIZE");
+    if (multipleFlavors) {
+      cdep("    flavor: %s", flavor);
+    }
+    cdep("    runtime: %s", runtime);
+    cdep("    platform: %s", platform);
+    cdep("    ndk: %s", ndkVersion);
+    cdep("    abis: [ ${ABIS} ]");
+    if (multipleCompiler) {
+      cdep("    compiler: %s", compiler);
+    }
+    if (multipleCMake) {
+      cdep("    builder: cmake-%s", cmakeVersion);
     }
 
-    @Override
-    ScriptBuilder cmakeiOS(
-        String cmakeVersion,
-        String cmakeToolchainIdentifier,
-        RemoteArchive cmakeRemote,
-        String flavor,
-        String flavorFlags,
-        String includes[],
-        String lib,
-        iOSPlatform platform,
-        boolean multipleFlavor,
-        boolean multipleCMake,
-        boolean multipleCMakeToolchain,
-        boolean multiplePlatform) {
+    return this;
+  }
 
-        String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-            getHostArchive(cmakeRemote).unpackroot);
-        File outputFolder = new File(rootBuildFolder, "iOS");
-        String zipName = targetArtifactId + "-ios";
-        if (multipleCMake) {
-            outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
-            zipName += "-cmake-" + cmakeVersion;
-        }
-        if (multipleCMakeToolchain) {
-            outputFolder = new File(outputFolder, "toolchain-" + cmakeToolchainIdentifier);
-            zipName += "-toolchain-" + cmakeToolchainIdentifier;
-        }
-        if (multiplePlatform) {
-            outputFolder = new File(outputFolder, "platform-" + platform.toString());
-            zipName += "-platform-" + platform.toString();
-        }
-        if (multipleFlavor) {
-            outputFolder = new File(outputFolder, "flavor-" + flavor);
-            zipName += "-" + flavor;
-        }
-        zipName += ".zip";
-        File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-        File buildFolder = new File(outputFolder, "cmake-generated-files");
-        File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
-        File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
-        if (hostOS != OSType.MacOS) {
-            body("echo No XCode available. NOT building to %s", outputFolder);
-        } else {
-          body("echo Building to %s", outputFolder);
-          body("mkdir -p %s/include", redistFolder);
-          body("CDEP_IOS_CLANG=$(xcrun -sdk iphoneos -find clang)");
-          body("CDEP_IOS_AR=$(xcrun -sdk iphoneos -find ar)");
-        }
-        recordOutputLocation(zip);
-        recordOutputLocation(outputFolder);
-        recordOutputLocation(redistFolder);
-        recordOutputLocation(stagingFolder);
+  private void writeZipFileStatisticsToBody(File zip) {
+    body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
+    body("  " + ABORT_LAST_FAILED);
+    body("  ARCHIVESIZE=$(ls -l %s | awk '{print $5}')", zip);
+    body("  " + ABORT_LAST_FAILED);
+  }
 
-        String command = String.format(
-            "%s \\\n" +
-                "   -H%s \\\n" +
-                "   -B%s \\\n" +
-                "   -DCMAKE_C_COMPILER=\"${CDEP_IOS_CLANG}\" \\\n" +
-                "   -DCMAKE_CXX_COMPILER=\"${CDEP_IOS_CLANG} -E\" \\\n" +
-                "   -DCMAKE_AR=${CDEP_IOS_AR} \\\n" +
-                "   -DCMAKE_TOOLCHAIN_FILE=%s/toolchain/iOS.cmake \\\n" +
-                "   -DIOS_PLATFORM:STRING=\"%s\" \\\n" +
-                "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-                "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
-                "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s\\\n",
-            cmakeExe, workingFolder, buildFolder, getCloneRoot(cmakeToolchainIdentifier),
-            platform.cmakeCode, redistFolder, stagingFolder, stagingFolder, flavorFlags);
+  @Override
+  ScriptBuilder cmakeLinux(
+      String cmakeVersion,
+      RemoteArchive cmakeRemote,
+      Toolset toolset,
+      boolean multipleCMake,
+      boolean multipleCompiler) {
+    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
+        getHostArchive(cmakeRemote).unpackroot);
+    File outputFolder = new File(rootBuildFolder, "Linux");
+    String zipName = targetArtifactId + "-linux";
+    if (multipleCMake) {
+      outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
+      zipName += "-cmake-" + cmakeVersion;
+    }
+    if (multipleCompiler) {
+      outputFolder = new File(outputFolder, toolset.c);
+      zipName += "-" + toolset.c;
+    }
+    zipName += ".zip";
+    File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+    File buildFolder = new File(outputFolder, "cmake-generated-files");
+    File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+    body("echo Building to %s", outputFolder);
+    body("mkdir -p %s/include", redistFolder);
+    recordOutputLocation(zip);
+    recordOutputLocation(outputFolder);
+    recordOutputLocation(redistFolder);
 
-      if (hostOS == OSType.MacOS) {
-        body("  echo Executing %s", command);
-        body("  " + command);
+    body(String.format(
+        "%s \\\n" +
+            "   -H%s \\\n" +
+            "   -B%s \\\n" +
+            "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+            "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
+            "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
+            "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
+            "   -DCMAKE_C_COMPILER=%s \\\n" +
+            "   -DCMAKE_CXX_COMPILER=%s",
+        cmakeExe, workingFolder, buildFolder,
+        redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
 
-        body(String.format("%s --build %s", cmakeExe, buildFolder));
-        body(ABORT_LAST_FAILED);
+    body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
+    body(ABORT_LAST_FAILED);
+    zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+    body("# Zip Linux redist if folder was created in %s", redistFolder);
+    body("if [ -d '%s' ]; then", redistFolder);
+    body("  if [ -f '%s' ]; then", zip);
+    body("    echo CMAKEIFY ERROR: Linux zip %s would be overwritten", zip);
+    body("    exit 500");
+    body("  fi");
+    writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+    body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
+    body("  " + ABORT_LAST_FAILED);
+    body("fi");
+    return this;
+  }
 
-        if (lib != null && lib.length() > 0) {
-          String stagingLib = String.format("%s/lib/%s", stagingFolder, lib);
-          body("  if [ -f '%s' ]; then", stagingLib);
-            body("    mkdir -p %s/lib", redistFolder);
-            body("    cp %s %s/lib/%s", stagingLib, redistFolder, lib);
-          body("    " + ABORT_LAST_FAILED);
-          body("  else");
-          body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
-          body("    exit 100");
-          body("  fi");
-        }
+  @Override
+  ScriptBuilder cmakeiOS(
+      String cmakeVersion,
+      RemoteArchive cmakeRemote,
+      String flavor,
+      String flavorFlags,
+      String includes[],
+      String lib,
+      iOSPlatform platform,
+      iOSArchitecture architecture,
+      String sdk,
+      boolean multipleFlavor,
+      boolean multipleCMake,
+      boolean multiplePlatform,
+      boolean multipleArchitecture,
+      boolean multipleSdk) {
 
+    if (!isSupportediOSPlatformArchitecture(platform, architecture)) {
+      out.printf("Skipping iOS %s %s because it isn't supported by XCode", platform, architecture);
+      return this;
+    }
 
-        zips.put(zip.getAbsolutePath(), redistFolder.getPath());
-        body("if [ -d '%s' ]; then", stagingFolder);
-        // Create a folder with something in it so there'e always something to zip
-        body("  mkdir -p %s", redistFolder);
-        body("  echo iOS %s %s  > %s/cmakeify.txt",
-            cmakeVersion,
-            platform,
-            redistFolder);
-        writeExtraIncludesToBody(includes, redistFolder);
-        writeCreateZipFromRedistFolderToBody(zip, redistFolder);
-        writeZipFileStatisticsToBody(zip);
+    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
+        getHostArchive(cmakeRemote).unpackroot);
+    File outputFolder = new File(rootBuildFolder, "iOS");
+    String zipName = targetArtifactId + "-ios";
+    if (multipleCMake) {
+      outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
+      zipName += "-cmake-" + cmakeVersion;
+    }
+    if (multipleFlavor) {
+      outputFolder = new File(outputFolder, "flavor-" + flavor);
+      zipName += "-" + flavor;
+    }
+    if (multiplePlatform) {
+      outputFolder = new File(outputFolder, "platform-" + platform.toString());
+      zipName += "-platform-" + platform.toString();
+    }
+    if (multipleArchitecture) {
+      outputFolder = new File(outputFolder, "architecture-" + architecture.toString());
+      zipName += "-architecture-" + architecture.toString();
+    }
+    if (multipleSdk) {
+      outputFolder = new File(outputFolder, "sdk-" + architecture.toString());
+      zipName += "-sdk-" + architecture.toString();
+    }
 
-        if (lib == null || lib.length() > 0) {
-          body("else");
-          body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
-          body("  exit 200");
-        }
-        body("fi");
+    zipName += ".zip";
+    File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+    File buildFolder = new File(outputFolder, "cmake-generated-files");
+    File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+    File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
+    if (hostOS != OSType.MacOS) {
+      body("echo No XCode available. NOT building to %s", outputFolder);
+    } else {
+      body("CDEP_IOS_CLANG=$(xcrun -sdk iphoneos -find clang)");
+      body("CDEP_IOS_AR=$(xcrun -sdk iphoneos -find ar)");
+      body("CDEP_XCODE_DEVELOPER_DIR=$(xcode-select -print-path)");
+      body("CDEP_IOS_DEVELOPER_ROOT=${CDEP_XCODE_DEVELOPER_DIR}/Platforms/%s.platform/Developer",
+          platform);
+      body("CDEP_IOS_SDK_ROOT=${CDEP_IOS_DEVELOPER_ROOT}/SDKs/%s%s.sdk", platform, sdk);
+      body("if [ ! -f \"${CDEP_IOS_SDK_ROOT}\" ]; then");
+      body("  echo Not building for non-existent SDK root '${CDEP_IOS_SDK_ROOT}'");
+      body("else");
+      body("  echo Building to %s", outputFolder);
+      body("  mkdir -p %s/include", redistFolder);
+    }
+    recordOutputLocation(zip);
+    recordOutputLocation(outputFolder);
+    recordOutputLocation(redistFolder);
+    recordOutputLocation(stagingFolder);
+
+    String command = String.format(
+        "%s \\\n" +
+            "     -H%s \\\n" +
+            "     -B%s \\\n" +
+            "     -DCMAKE_C_COMPILER=${CDEP_IOS_CLANG} \\\n" +
+            "     -DCMAKE_CXX_COMPILER=${CDEP_IOS_CLANG} \\\n" +
+            "     -DCMAKE_C_COMPILER_WORKS=1 \\\n" +
+            "     -DCMAKE_CXX_COMPILER_WORKS=1 \\\n" +
+            "     -DCMAKE_AR=${CDEP_IOS_AR} \\\n" +
+            "     -DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" +
+            "     -DCMAKE_OSX_ARCHITECTURES=%s \\\n" +
+            "     -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+            "     -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
+            "     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s\\\n",
+        cmakeExe, workingFolder, buildFolder, architecture,
+        redistFolder, stagingFolder, stagingFolder, flavorFlags);
+
+    if (hostOS == OSType.MacOS) {
+      body("  echo Executing %s", command);
+      body("  " + command);
+
+      body(String.format("  %s --build %s", cmakeExe, buildFolder));
+      body("  " + ABORT_LAST_FAILED);
+
+      if (lib != null && lib.length() > 0) {
+        String stagingLib = String.format("%s/lib/%s", stagingFolder, lib);
+        body("  if [ -f '%s' ]; then", stagingLib);
+        body("    mkdir -p %s/lib", redistFolder);
+        body("    cp %s %s/lib/%s", stagingLib, redistFolder, lib);
+        body("    " + ABORT_LAST_FAILED);
+        body("  else");
+        body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
+        body("    exit 100");
+        body("  fi");
       }
 
-      // Still create the manifest for what would have been built.
-        cdep("  - lib: %s", lib);
-        cdep("    file: %s", zip.getName());
-        cdep("    sha256: $SHASUM256");
-        cdep("    size: $ARCHIVESIZE");
-        if (multipleFlavor) {
-            cdep("    flavor: %s", flavor);
-        }
-        cdep("    platform: %s", platform);
-        if (multipleCMake) {
-            cdep("    builder: cmake-%s", cmakeVersion);
-        }
+      zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+      body("  if [ -d '%s' ]; then", stagingFolder);
+      // Create a folder with something in it so there'e always something to zip
+      body("    mkdir -p %s", redistFolder);
+      body("    echo iOS %s %s  > %s/cmakeify.txt",
+          cmakeVersion,
+          platform,
+          redistFolder);
+      writeExtraIncludesToBody(includes, redistFolder);
+      writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+      writeZipFileStatisticsToBody(zip);
 
-        return this;
+      if (lib == null || lib.length() > 0) {
+        body("  else");
+        body("    echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
+        body("    exit 200");
+      }
+      body("  fi");
+      body("fi");
     }
 
-    private void writeCreateZipFromRedistFolderToBody(File zip, File redistFolder) {
-        body("  pushd %s", redistFolder);
-        body("  " + ABORT_LAST_FAILED);
-        body("  zip %s . -r", zip);
-        body("  " + ABORT_LAST_FAILED);
-        body("  if [ -f '%s' ]; then", zip);
-        body("    echo Zip %s was created", zip);
-        body("  else");
-        body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
-        body("    exit 402");
+    // Still create the manifest for what would have been built.
+    cdep("  - lib: %s", lib);
+    cdep("    file: %s", zip.getName());
+    cdep("    sha256: $SHASUM256");
+    cdep("    size: $ARCHIVESIZE");
+    if (multipleFlavor) {
+      cdep("    flavor: %s", flavor);
+    }
+    cdep("    platform: %s", platform);
+    cdep("    architecture: %s", architecture);
+    cdep("    sdk: %s", sdk);
+    if (multipleCMake) {
+      cdep("    builder: cmake-%s", cmakeVersion);
+    }
+
+    return this;
+  }
+
+  private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform,
+      iOSArchitecture architecture) {
+    if (platform.equals(iOSPlatform.iPhone)) {
+      if (architecture.equals(iOSArchitecture.amd64)) {
+        return true;
+      }
+      if (architecture.equals(iOSArchitecture.armv7)) {
+        return true;
+      }
+      return architecture.equals(iOSArchitecture.armv7s);
+    }
+
+    if (platform.equals(iOSPlatform.iPhoneSimulator)) {
+      if (architecture.equals(iOSArchitecture.x86)) {
+        return true;
+      }
+      return architecture.equals(iOSArchitecture.x86_64);
+    }
+    throw new RuntimeException(platform.toString());
+  }
+
+  private void writeCreateZipFromRedistFolderToBody(File zip, File redistFolder) {
+    body("  pushd %s", redistFolder);
+    body("  " + ABORT_LAST_FAILED);
+    body("  zip %s . -r", zip);
+    body("  " + ABORT_LAST_FAILED);
+    body("  if [ -f '%s' ]; then", zip);
+    body("    echo Zip %s was created", zip);
+    body("  else");
+    body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
+    body("    exit 402");
+    body("  fi");
+    body("  popd");
+    body("  " + ABORT_LAST_FAILED);
+  }
+
+  private void writeExtraIncludesToBody(String[] includes, File redistFolder) {
+    if (includes != null) {
+      for (String include : includes) {
+        body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
+        body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist",
+            workingFolder, include);
+        body("    exit 600");
         body("  fi");
+        body("  pushd %s", workingFolder);
+        body("  find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
+        body("  find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
         body("  popd");
         body("  " + ABORT_LAST_FAILED);
+      }
     }
+  }
 
-    private void writeExtraIncludesToBody(String[] includes, File redistFolder) {
-        if (includes != null) {
-            for (String include : includes) {
-                body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
-                body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist",
-                    workingFolder, include);
-                body("    exit 600");
-                body("  fi");
-                body("  pushd %s", workingFolder);
-                body("  find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
-                body("  find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
-                body("  popd");
-                body("  " + ABORT_LAST_FAILED);
-            }
-        }
-    }
-
-    @Override
-    ScriptBuilder startBuilding(OS target) {
-        switch(target) {
-            case android:
-                cdep("android:");
-                cdep("  archives:");
-                return this;
-            case linux:
-                cdep("linux:");
-                cdep("  archives:");
-                return this;
-            case windows:
-                cdep("windows:");
-                cdep("  archives:");
-                return this;
-            case iOS:
-                cdep("iOS:");
-                cdep("  archives:");
-                return this;
-        }
-        throw new RuntimeException(target.toString());
-    }
-
-    @Override
-    ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example) {
-        if (example != null && example.length() > 0) {
-            cdep("example: |");
-            String lines[] = example.split("\\r?\\n");
-            for (String line : lines) {
-                cdep("  %s", line);
-            }
-        }
-        body("cat %s", cdepFile);
-        body("echo - %s", cdepFile);
-        for(String zip : zips.keySet()) {
-            String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
-            body("if [ -f '%s' ]; then", relativeZip);
-            body("  echo - %s", relativeZip);
-            body("fi");
-        }
+  @Override
+  ScriptBuilder startBuilding(OS target) {
+    switch (target) {
+      case android:
+        cdep("android:");
+        cdep("  archives:");
+        return this;
+      case linux:
+        cdep("linux:");
+        cdep("  archives:");
+        return this;
+      case windows:
+        cdep("windows:");
+        cdep("  archives:");
+        return this;
+      case iOS:
+        cdep("iOS:");
+        cdep("  archives:");
         return this;
     }
+    throw new RuntimeException(target.toString());
+  }
 
-    @Override
-    ScriptBuilder uploadBadges() {
-        // Record build information
-        String badgeUrl = String.format("%s:%s:%s", targetGroupId, targetArtifactId, targetVersion);
-        badgeUrl = badgeUrl.replace(":", "%3A");
-        badgeUrl = badgeUrl.replace("-", "--");
-        badgeUrl = String.format("https://img.shields.io/badge/cdep-%s-brightgreen.svg", badgeUrl);
-        String badgeFolder = String.format("%s/%s",
-            targetGroupId,
-            targetArtifactId);
-        body("if [ -n \"$TRAVIS_TAG\" ]; then");
-        body("  if [ -n \"$CDEP_BADGES_API_KEY\" ]; then");
-        body("    git clone https://github.com/cdep-io/cdep-io.github.io.git");
-        body("    pushd cdep-io.github.io");
-        body("    mkdir -p %s/latest", badgeFolder);
-        body("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
-        body("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
-        body("    " + ABORT_LAST_FAILED);
-        body("    git add %s/latest/latest.svg", badgeFolder);
-        body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
-        body("    git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io &2>/dev/null");
-        body("    popd");
-        body("  else");
-        body("    echo Add CDEP_BADGES_API_KEY to Travis settings to get badges!");
-        body("  fi");
-        body("fi");
-        return this;
+  @Override
+  ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example) {
+    if (example != null && example.length() > 0) {
+      cdep("example: |");
+      String lines[] = example.split("\\r?\\n");
+      for (String line : lines) {
+        cdep("  %s", line);
+      }
     }
+    body("cat %s", cdepFile);
+    body("echo - %s", cdepFile);
+    for (String zip : zips.keySet()) {
+      String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
+      body("if [ -f '%s' ]; then", relativeZip);
+      body("  echo - %s", relativeZip);
+      body("fi");
+    }
+    return this;
+  }
 
-    @Override
-    public String toString() {
-        return body.toString();
-    }
+  @Override
+  ScriptBuilder uploadBadges() {
+    // Record build information
+    String badgeUrl = String.format("%s:%s:%s", targetGroupId, targetArtifactId, targetVersion);
+    badgeUrl = badgeUrl.replace(":", "%3A");
+    badgeUrl = badgeUrl.replace("-", "--");
+    badgeUrl = String.format("https://img.shields.io/badge/cdep-%s-brightgreen.svg", badgeUrl);
+    String badgeFolder = String.format("%s/%s",
+        targetGroupId,
+        targetArtifactId);
+    body("if [ -n \"$TRAVIS_TAG\" ]; then");
+    body("  if [ -n \"$CDEP_BADGES_API_KEY\" ]; then");
+    body("    git clone https://github.com/cdep-io/cdep-io.github.io.git");
+    body("    pushd cdep-io.github.io");
+    body("    mkdir -p %s/latest", badgeFolder);
+    body("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
+    body("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
+    body("    " + ABORT_LAST_FAILED);
+    body("    git add %s/latest/latest.svg", badgeFolder);
+    body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
+    body(
+        "    git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io &2>/dev/null");
+    body("    popd");
+    body("  else");
+    body("    echo Add CDEP_BADGES_API_KEY to Travis settings to get badges!");
+    body("  fi");
+    body("fi");
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return body.toString();
+  }
 }

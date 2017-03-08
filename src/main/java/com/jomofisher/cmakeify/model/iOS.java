@@ -2,29 +2,27 @@ package com.jomofisher.cmakeify.model;
 
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class iOS {
 
   final public Map<String, String> flavors;
   final public String lib;
   final public List<iOSPlatform> platforms = new ArrayList<>();
-  final public Set<String> cmakeToolchains = new HashSet<>();
-  final public Map<String, String> cmakeToolchainRemotes = new HashMap<>();
+  final public List<iOSArchitecture> architectures = new ArrayList<>();
+  final public List<String> sdks = new ArrayList<>();
 
   iOS() {
     flavors = null;
     lib = "";
-    platforms.add(iOSPlatform.iPhone);
-    platforms.add(iOSPlatform.simulator);
-    platforms.add(iOSPlatform.simulator64);
-
-    cmakeToolchains.add("jomof-ios-cmake");
-    cmakeToolchainRemotes.put("jomof-ios-cmake", "https://github.com/jomof/ios-cmake.git");
+    for (iOSPlatform platform : iOSPlatform.values()) {
+      platforms.add(platform);
+    }
+    for (iOSArchitecture architecture : iOSArchitecture.values()) {
+      architectures.add(architecture);
+    }
+    sdks.add("10.2");
   }
 
   @Override
@@ -51,24 +49,25 @@ public class iOS {
       sb.append(platform);
     }
     sb.append("]\n");
-    sb.append("  cmakeToolchains: [");
+    sb.append("  architectures: [");
     i = 0;
-    for (String cmakeToolchain : cmakeToolchains) {
+    for (iOSArchitecture architecture : architectures) {
       if (i++ != 0) {
         sb.append(", ");
       }
-      sb.append(cmakeToolchain);
+      sb.append(architecture);
     }
     sb.append("]\n");
-    if (cmakeToolchainRemotes != null && cmakeToolchainRemotes.size() > 0) {
-      sb.append("  cmakeToolchainRemotes:\n");
-      for (String name : cmakeToolchainRemotes.keySet()) {
-        String repo = cmakeToolchainRemotes.get(name);
-        if (repo != null) {
-          sb.append(String.format("    %s: %s\n", name, repo));
-        }
+    sb.append("  sdks: [");
+    i = 0;
+    for (String sdk : sdks) {
+      if (i++ != 0) {
+        sb.append(", ");
       }
+      sb.append(sdk);
     }
+    sb.append("]\n");
+
     return sb.toString();
   }
 }

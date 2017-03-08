@@ -7,6 +7,7 @@ import com.jomofisher.cmakeify.model.CMakeifyYml;
 import com.jomofisher.cmakeify.model.OS;
 import com.jomofisher.cmakeify.model.RemoteArchive;
 import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSArchitecture;
 import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.File;
 import java.io.FileInputStream;
@@ -217,36 +218,36 @@ public class CMakeify {
                         }
                         break;
                     case iOS:
-                        for (String cmakeToolchain : config.iOS.cmakeToolchains) {
-                            String toolchainRepo = config.iOS.cmakeToolchainRemotes
-                                .get(cmakeToolchain);
-                            script.gitClone(cmakeToolchain, toolchainRepo);
-                            for (iOSPlatform platform : config.iOS.platforms) {
-                              Map<String, String> flavors = config.iOS.flavors;
+                      for (iOSPlatform platform : config.iOS.platforms) {
+                        for (iOSArchitecture architecture : config.iOS.architectures) {
+                          for (String sdk : config.iOS.sdks) {
+                            Map<String, String> flavors = config.iOS.flavors;
                                 if (flavors == null) {
-                                    flavors = new HashMap<>();
+                                  flavors = new HashMap<>();
                                 }
                                 if (flavors.size() == 0) {
-                                    flavors.put("default-flavor", "");
+                                  flavors.put("default-flavor", "");
                                 }
                                 for (String flavor : flavors.keySet()) {
-                                  out.printf("Building script for iOS %s %s\n",
-                                      flavor, platform);
-                                    script.cmakeiOS(
-                                        cmakeVersion,
-                                        cmakeToolchain,
-                                        config.cmake.remotes.get(cmakeVersion),
-                                        flavor,
-                                        flavors.get(flavor),
-                                        config.includes,
-                                        config.iOS.lib,
-                                        platform,
-                                        flavors.size() != 1,
-                                        config.cmake.versions.length != 1,
-                                        config.iOS.cmakeToolchains.size() != 1,
-                                        config.iOS.platforms.size() != 1);
+                                  out.printf("Building script for iOS %s %s %s %s\n",
+                                      flavor, platform, architecture, sdk);
+                                  script.cmakeiOS(
+                                      cmakeVersion,
+                                      config.cmake.remotes.get(cmakeVersion),
+                                      flavor,
+                                      flavors.get(flavor),
+                                      config.includes,
+                                      config.iOS.lib,
+                                      platform,
+                                      architecture,
+                                      sdk,
+                                      flavors.size() != 1,
+                                      config.cmake.versions.length != 1,
+                                      config.iOS.platforms.size() != 1,
+                                      config.iOS.architectures.size() != 1,
+                                      config.iOS.sdks.size() != 1);
                                 }
-
+                          }
                             }
                         }
                         break;
