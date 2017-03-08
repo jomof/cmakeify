@@ -32,7 +32,7 @@ public class CMake {
     }
 
     private static ArchiveUrl win32Path(int major, int minor,int point) {
-        return productionPath(major, minor, point, "win32-x86", ".zip", "");
+        return productionPath(major, minor, point, "win32-i386", ".zip", "");
     }
 
     private static ArchiveUrl win64Path(int major, int minor,int point) {

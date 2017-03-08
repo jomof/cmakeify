@@ -558,7 +558,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
 
     if (platform.equals(iOSPlatform.iPhoneSimulator)) {
-      if (architecture.equals(iOSArchitecture.x86)) {
+      if (architecture.equals(iOSArchitecture.i386)) {
         return true;
       }
       return architecture.equals(iOSArchitecture.x86_64);
