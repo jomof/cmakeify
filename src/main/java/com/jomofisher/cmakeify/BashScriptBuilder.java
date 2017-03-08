@@ -1,22 +1,10 @@
 package com.jomofisher.cmakeify;
 
 import com.jomofisher.cmakeify.CMakeify.OSType;
-import com.jomofisher.cmakeify.model.ArchiveUrl;
-import com.jomofisher.cmakeify.model.HardNameDependency;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSPlatform;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.jomofisher.cmakeify.model.*;
+
+import java.io.*;
+import java.util.*;
 
 public class BashScriptBuilder extends ScriptBuilder {
     final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi";
@@ -471,8 +459,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         if (lib != null && lib.length() > 0) {
           String stagingLib = String.format("%s/lib/%s", stagingFolder, lib);
           body("  if [ -f '%s' ]; then", stagingLib);
-          body("    mkdir -p %s", redistFolder);
-          body("    cp %s %s/%s", stagingLib, redistFolder, lib);
+            body("    mkdir -p %s/lib", redistFolder);
+            body("    cp %s %s/lib/%s", stagingLib, redistFolder, lib);
           body("    " + ABORT_LAST_FAILED);
           body("  else");
           body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
