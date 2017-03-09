@@ -440,8 +440,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       zipName += "-architecture-" + architecture.toString();
     }
     if (multipleSdk) {
-      outputFolder = new File(outputFolder, "sdk-" + architecture.toString());
-      zipName += "-sdk-" + architecture.toString();
+      outputFolder = new File(outputFolder, "sdk-" + sdk);
+      zipName += "-sdk-" + sdk;
     }
 
     zipName += ".zip";

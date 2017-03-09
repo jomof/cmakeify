@@ -22,6 +22,7 @@ public class iOS {
     for (iOSArchitecture architecture : iOSArchitecture.values()) {
       architectures.add(architecture);
     }
+    sdks.add("9.3");
     sdks.add("10.2");
   }
 
