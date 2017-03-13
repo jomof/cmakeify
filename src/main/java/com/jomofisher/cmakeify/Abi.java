@@ -7,7 +7,7 @@ public enum Abi {
   ARMEABI("armeabi", "arm"),
   ARMEABI_V7A("armeabi-v7a", "arm"),
   ARM64_V8A("arm64-v8a", "arm64"),
-  X86("i386", "i386"),
+  X86("x86", "x86"),
   X86_64("x86_64", "x86_64");
 
   private final String name;
