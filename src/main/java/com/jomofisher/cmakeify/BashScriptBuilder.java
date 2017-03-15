@@ -1,23 +1,10 @@
 package com.jomofisher.cmakeify;
 
 import com.jomofisher.cmakeify.CMakeify.OSType;
-import com.jomofisher.cmakeify.model.ArchiveUrl;
-import com.jomofisher.cmakeify.model.HardNameDependency;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSArchitecture;
-import com.jomofisher.cmakeify.model.iOSPlatform;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.jomofisher.cmakeify.model.*;
+
+import java.io.*;
+import java.util.*;
 
 public class BashScriptBuilder extends ScriptBuilder {
 
@@ -45,13 +32,18 @@ public class BashScriptBuilder extends ScriptBuilder {
       File workingFolder,
       String targetGroupId,
       String targetArtifactId,
-      String targetVersion) {
+      String targetVersion,
+      OS specificTargetOS) {
     this.out = out;
     this.hostOS = hostOS;
     this.workingFolder = workingFolder;
     this.rootBuildFolder = new File(workingFolder, "build");
     this.zipsFolder = new File(rootBuildFolder, "zips");
-    this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
+    if (specificTargetOS == null) {
+      this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
+    } else {
+      this.cdepFile = new File(zipsFolder, String.format("cdep-manifest-%s.yml", specificTargetOS));
+    }
     this.androidFolder = new File(rootBuildFolder, "Android");
     this.targetGroupId = targetGroupId;
     this.targetArtifactId = targetArtifactId;
@@ -177,24 +169,24 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder cmakeAndroid(String cmakeVersion,
-      RemoteArchive cmakeRemote,
-      String androidCppFlags,
-      String flavor,
-      String flavorFlags,
-      String ndkVersion,
-      RemoteArchive ndkRemote,
-      String includes[],
-      String lib,
-      String compiler,
-      String runtime,
-      String platform,
-      String abis[],
-      boolean multipleFlavors,
-      boolean multipleCMake,
-      boolean multipleNDK,
-      boolean multipleCompiler,
-      boolean multipleRuntime,
-      boolean multiplePlatforms) {
+                             RemoteArchive cmakeRemote,
+                             String androidCppFlags,
+                             String flavor,
+                             String flavorFlags,
+                             String ndkVersion,
+                             RemoteArchive ndkRemote,
+                             String includes[],
+                             String lib,
+                             String compiler,
+                             String runtime,
+                             String platform,
+                             String abis[],
+                             boolean multipleFlavors,
+                             boolean multipleCMake,
+                             boolean multipleNDK,
+                             boolean multipleCompiler,
+                             boolean multipleRuntime,
+                             boolean multiplePlatforms) {
     body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
         runtime);
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
@@ -546,7 +538,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform,
-      iOSArchitecture architecture) {
+                                                     iOSArchitecture architecture) {
     if (platform.equals(iOSPlatform.iPhoneOS)) {
       if (architecture.equals(iOSArchitecture.arm64)) {
         return true;
