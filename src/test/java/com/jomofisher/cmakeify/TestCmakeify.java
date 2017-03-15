@@ -131,6 +131,7 @@ public class TestCmakeify {
         "--artifact-id", "my-artifact-id",
         "--target-version", "my-target-version",
         "--target-os", "iOS");
+    
     File scriptFile = new File(".cmakeify/build.sh");
     String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
     assertThat(script).contains("cmake-3.7.2-Darwin-x86_64.tar.gz");
