@@ -28,12 +28,7 @@ matrix:
       os: linux
       script:
         - ./gradlew assemble check
-        - > ./travis_cmakeify
-            -wf smoke-test
-            --group-id com.github.jomof
-            --artifact-id cmakeify
-            --target-version ${TRAVIS_TAG}
-            --targetOS=android
+        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG} --targetOS=android
 #    - os: osx
 #      script:
 #        - ./gradlew assemble check
