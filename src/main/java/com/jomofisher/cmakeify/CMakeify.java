@@ -48,6 +48,7 @@ public class CMakeify {
     handleGroupId(args);
     handleArtifactId(args);
     handleTargetVersion(args);
+    handleTargetOS(args);
     if (!handleReadConfig(args)) return;
     if (!handleDump(args)) return;
     if (!handleSupportedHostOS(args)) return;
