@@ -16,7 +16,7 @@ public class Ndk {
         runtimes = new String[]{"c++"};
         versions = new String[] { "r13b" };
         platforms = new String[] { "21" };
-        abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "i386", "x86_64" };
+        abis = new String[] { "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64" };
         remotes = new HashMap<>();
         remotes.put("r13b", archiveUrlOf("r13b"));
         remotes.put("r14-beta1", archiveUrlOf("r14-beta1"));
