@@ -131,7 +131,7 @@ public class TestCmakeify {
         "--artifact-id", "my-artifact-id",
         "--target-version", "my-target-version",
         "--target-os", "iOS");
-    
+
     File scriptFile = new File(".cmakeify/build.sh");
     String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
     assertThat(script).contains("cmake-3.7.2-Darwin-x86_64.tar.gz");
@@ -140,6 +140,7 @@ public class TestCmakeify {
     assertThat(script).contains("version: my-target-version");
     assertThat(script).contains("BOOST_ROOT=");
     assertThat(script).contains("cdep-manifest-iOS.yml");
+    assertThat(script).doesNotContain("cdep-manifest.yml");
     assertThat(script).contains("-DOSX");
     assertThat(script).doesNotContain("--parent"); // mkdir --parents flag doesn't work on OSX
     assertThat(script).doesNotContain("didn't");
