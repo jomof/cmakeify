@@ -664,6 +664,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         targetVersion,
         file.getAbsolutePath(),
         file.getName());
+    body(ABORT_LAST_FAILED);
 
   }
 
