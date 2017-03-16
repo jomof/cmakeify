@@ -644,6 +644,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (targetVersion == null || targetVersion.length() == 0) {
       return this;
     }
+    body("echo Not skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
     upload(cdepFile, githubRelease);
     for (String zip : zips.keySet()) {
       String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
