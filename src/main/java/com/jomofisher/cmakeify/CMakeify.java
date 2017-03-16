@@ -370,6 +370,9 @@ public class CMakeify {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
+        if (args[i].startsWith("-")) {
+          throw new RuntimeException(String.format("Proposed target-version '%s' looks like a flag", args));
+        }
         argsUsed.add(i);
         this.targetVersion = args[i];
         takeNext = false;

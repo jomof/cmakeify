@@ -641,7 +641,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder deployRedistFiles(RemoteArchive githubRelease) {
-    if (targetVersion == null || targetVersion.length() == 0) {
+    if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       return this;
     }
