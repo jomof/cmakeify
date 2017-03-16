@@ -667,8 +667,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         user,
         targetArtifactId,
         targetVersion,
-        file.getAbsolutePath(),
-        file.getName());
+        file.getName(),
+        file.getAbsolutePath()
+    );
     body(
         "  %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
         TOOLS_FOLDER,
@@ -676,8 +677,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         user,
         targetArtifactId,
         targetVersion,
-        file.getAbsolutePath(),
-        file.getName());
+        file.getName(),
+        file.getAbsolutePath()
+    );
     body(ABORT_LAST_FAILED);
 
   }
