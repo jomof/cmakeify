@@ -24,6 +24,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   final private String targetVersion;
   final private Set<File> outputLocations = new HashSet<>();
   final private PrintStream out;
+  final private OS specificTargetOS;
 
 
   BashScriptBuilder(
@@ -48,6 +49,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     this.targetGroupId = targetGroupId;
     this.targetArtifactId = targetArtifactId;
     this.targetVersion = targetVersion;
+    this.specificTargetOS = specificTargetOS;
   }
 
   private BashScriptBuilder body(String format, Object... args) {
@@ -623,6 +625,10 @@ public class BashScriptBuilder extends ScriptBuilder {
       }
     }
     body("cat %s", cdepFile);
+    if (specificTargetOS != null) {
+      // Copy to cdep-manifest.yml as well
+      body("cp %s %s", cdepFile, new File(cdepFile.getParentFile(), "cdep-manifest.yml"));
+    }
     body("echo - %s", cdepFile);
     for (String zip : zips.keySet()) {
       String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
