@@ -7,4 +7,12 @@ public class HardNameDependency {
         this.compile = null;
         this.sha256 = null;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("    - compile: %s\n", compile));
+        sb.append(String.format("      sha256: %s\n", sha256));
+        return super.toString();
+    }
 }

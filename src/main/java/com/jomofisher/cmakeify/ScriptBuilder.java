@@ -1,11 +1,7 @@
 package com.jomofisher.cmakeify;
 
-import com.jomofisher.cmakeify.model.HardNameDependency;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSArchitecture;
-import com.jomofisher.cmakeify.model.iOSPlatform;
+import com.jomofisher.cmakeify.model.*;
+
 import java.io.File;
 import java.util.Collection;
 
@@ -64,4 +60,6 @@ abstract class ScriptBuilder {
         boolean multipleSdk);
 
     abstract ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example);
+
+    abstract ScriptBuilder deployRedistFiles(RemoteArchive githubRelease);
 }

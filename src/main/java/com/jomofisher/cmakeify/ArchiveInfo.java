@@ -18,6 +18,8 @@ public class ArchiveInfo {
             extension = ".tar.gz";
         } else if (url.endsWith(".zip")) {
             extension = ".zip";
+        } else if (url.endsWith(".tar.bz2")) {
+            extension = ".tar.bz2";
         } else {
           throw new RuntimeException("Could not decode type of " + url);
         }
@@ -40,6 +42,10 @@ public class ArchiveInfo {
         sb.append(String.format("if [ ! -d %s/%s ]; then\n", toolsFolder, unpackRoot));
         sb.append(String.format("    echo Uncompressing %s/%s\n", downloadFolder, name));
         switch(extension) {
+            case ".tar.bz2":
+                sb.append(String.format("    tar xjf %s/%s -C %s > %s/%s.uncompress-log 2>&1\n",
+                    downloadFolder, name, toolsFolder, toolsFolder, baseName));
+                break;
             case ".tar.gz":
                 sb.append(String.format("    tar xvfz %s/%s -C %s > %s/%s.uncompress-log 2>&1\n",
                         downloadFolder, name, toolsFolder, toolsFolder, baseName));

@@ -148,6 +148,9 @@ public class CMakeify {
       script.download(remote);
     }
 
+    // Download deployment tools
+    script.download(config.releases.github);
+
     // Download the NDKs that we need
     if (targetOS.contains(OS.android)) {
       for (String version : config.android.ndk.versions) {
@@ -264,6 +267,7 @@ public class CMakeify {
       }
     }
     script.buildRedistFiles(workingFolder, config.includes, config.example);
+    script.deployRedistFiles(config.releases.github);
     if (config.badges) {
       script.uploadBadges();
     }

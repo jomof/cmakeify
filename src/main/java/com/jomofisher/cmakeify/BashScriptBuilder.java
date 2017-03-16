@@ -640,6 +640,33 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
+  ScriptBuilder deployRedistFiles(RemoteArchive githubRelease) {
+    if (targetVersion == null || targetVersion.length() == 0) {
+      return this;
+    }
+    upload(cdepFile, githubRelease);
+    for (String zip : zips.keySet()) {
+      String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
+      upload(new File(relativeZip), githubRelease);
+    }
+    return this;
+  }
+
+  private void upload(File file, RemoteArchive githubRelease) {
+    String user = targetGroupId.substring(targetGroupId.lastIndexOf(".") + 1);
+
+    body(
+        "%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
+        getHostArchive(githubRelease).unpackroot,
+        user,
+        targetArtifactId,
+        targetVersion,
+        file.getAbsolutePath(),
+        file.getName());
+
+  }
+
+  @Override
   ScriptBuilder uploadBadges() {
     // Record build information
     String badgeUrl = String.format("%s:%s:%s", targetGroupId, targetArtifactId, targetVersion);
