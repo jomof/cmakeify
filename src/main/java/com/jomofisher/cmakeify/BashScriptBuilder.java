@@ -629,6 +629,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       // Copy to cdep-manifest.yml as well
       body("echo cp %s %s", cdepFile, new File(cdepFile.getParentFile(), "cdep-manifest.yml"));
       body("cp %s %s", cdepFile, new File(cdepFile.getParentFile(), "cdep-manifest.yml"));
+      body(ABORT_LAST_FAILED);
     }
     body("echo - %s", cdepFile);
     for (String zip : zips.keySet()) {
