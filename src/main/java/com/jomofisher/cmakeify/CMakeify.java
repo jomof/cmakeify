@@ -22,6 +22,7 @@ public class CMakeify {
   private String targetVersion = "";
   private OSType hostOS;
   private OS targetOS = null;
+  private Set<Integer> argsUsed = new HashSet<>();
 
   CMakeify(PrintStream out) {
     this.out = out;
@@ -49,9 +50,16 @@ public class CMakeify {
     handleArtifactId(args);
     handleTargetVersion(args);
     handleTargetOS(args);
-    if (!handleReadConfig(args)) return;
-    if (!handleDump(args)) return;
+    if (!handleReadConfig(args)) {
+      checkAllArgsUsed(args);
+      return;
+    }
+    if (!handleDump(args)) {
+      checkAllArgsUsed(args);
+      return;
+    }
     if (!handleSupportedHostOS(args)) return;
+    checkAllArgsUsed(args);
     handleGenerateScript();
   }
 
@@ -61,6 +69,7 @@ public class CMakeify {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
+        argsUsed.add(i);
         switch (args[i]) {
           case "Windows":
             hostOS = OSType.Windows;
@@ -77,6 +86,7 @@ public class CMakeify {
         }
         takeNext = false;
       } else if (args[i].equals("--host") || args[i].equals("-h")) {
+        argsUsed.add(i);
         takeNext = true;
       }
     }
@@ -263,6 +273,7 @@ public class CMakeify {
   private boolean handleDump(String[] args) {
     for (int i = 0; i < args.length; ++i) {
       if (args[i].equals("--dump") || args[i].equals("-d")) {
+        argsUsed.add(i);
         out.print(config.toString());
         return false;
       }
@@ -290,10 +301,12 @@ public class CMakeify {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
+        argsUsed.add(i);
         this.workingFolder = new File(args[i]);
         takeNext = false;
       } else if (args[i].equals("--working-folder") || args[i].equals("-wf")) {
         takeNext = true;
+        argsUsed.add(i);
       }
     }
   }
@@ -302,9 +315,11 @@ public class CMakeify {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
+        argsUsed.add(i);
         this.targetOS = OS.valueOf(args[i]);
         takeNext = false;
       } else if (args[i].equals("--target-os") || args[i].equals("-to")) {
+        argsUsed.add(i);
         takeNext = true;
       }
     }
@@ -313,6 +328,7 @@ public class CMakeify {
   private void handleCMakeFlags(String[] args) throws IOException {
     for (int i = 0; i < args.length; ++i) {
       if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
+        argsUsed.add(i);
         throw new RuntimeException("--cmake-flags no longer supported");
       }
     }
@@ -322,9 +338,11 @@ public class CMakeify {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
+        argsUsed.add(i);
         this.targetGroupId = args[i];
         takeNext = false;
       } else if (args[i].equals("--group-id") || args[i].equals("-gid")) {
+        argsUsed.add(i);
         takeNext = true;
       }
     }
@@ -334,9 +352,11 @@ public class CMakeify {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
+        argsUsed.add(i);
         this.targetArtifactId = args[i];
         takeNext = false;
       } else if (args[i].equals("--artifact-id") || args[i].equals("-aid")) {
+        argsUsed.add(i);
         takeNext = true;
       }
     }
@@ -346,9 +366,11 @@ public class CMakeify {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
+        argsUsed.add(i);
         this.targetVersion = args[i];
         takeNext = false;
       } else if (args[i].equals("--target-version") || args[i].equals("-tv")) {
+        argsUsed.add(i);
         takeNext = true;
       }
     }
@@ -359,8 +381,17 @@ public class CMakeify {
       return true;
     }
 
+    argsUsed.add(0);
     out.printf("cmakeify %s\n", BuildInfo.PROJECT_VERSION);
     return false;
+  }
+
+  private void checkAllArgsUsed(String args[]) {
+    for (int i = 0; i < args.length; ++i) {
+      if (!argsUsed.contains(i)) {
+        throw new RuntimeException(String.format("Argument %s '%s' was not recognized.", i, args[i]));
+      }
+    }
   }
 
   enum OSType {

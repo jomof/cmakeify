@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import static com.google.common.truth.Truth.assertThat;
+import static org.junit.Assert.fail;
 
 public class TestCmakeify {
 
@@ -43,6 +44,16 @@ public class TestCmakeify {
   @Test
   public void wfFlag() throws IOException {
     assertThat(main("-wf", "non-existing-blah")).contains("non-existing-blah");
+  }
+
+  @Test
+  public void unusedFlags() throws IOException {
+    try {
+      main("--what");
+      fail("expected excdeption");
+    } catch (RuntimeException e) {
+      assertThat(e).hasMessage("Argument 0 '--what' was not recognized.");
+    }
   }
 
   @Test
