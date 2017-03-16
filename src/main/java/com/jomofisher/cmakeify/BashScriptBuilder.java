@@ -656,7 +656,8 @@ public class BashScriptBuilder extends ScriptBuilder {
     String user = targetGroupId.substring(targetGroupId.lastIndexOf(".") + 1);
 
     body(
-        "%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
+        "%s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
+        TOOLS_FOLDER,
         getHostArchive(githubRelease).unpackroot,
         user,
         targetArtifactId,
