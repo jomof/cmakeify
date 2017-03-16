@@ -14,10 +14,6 @@ deploy:
     - build/libs/cmakeify-${TRAVIS_TAG}.jar
     - build/libs/cmakeify-${TRAVIS_TAG}-sources.jar
     - build/libs/cmakeify-${TRAVIS_TAG}-javadoc.jar
-    - smoke-test/build/zips/cdep-manifest.yml
-    - smoke-test/build/zips/cdep-manifest-android.zip
-    - smoke-test/build/zips/cmakeify-android-platform-21.zip
-    - smoke-test/build/zips/cmakeify-android-platform-9.zip
   provider: releases
   skip_cleanup: true
   true: 
