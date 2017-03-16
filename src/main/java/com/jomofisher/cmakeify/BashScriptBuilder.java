@@ -649,7 +649,10 @@ public class BashScriptBuilder extends ScriptBuilder {
     upload(cdepFile, githubRelease);
     for (String zip : zips.keySet()) {
       String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
+      body("if [ -f '%s' ]; then", relativeZip);
+      body("  echo Uploading %s", relativeZip);
       upload(new File(relativeZip), githubRelease);
+      body("fi");
     }
     return this;
   }
@@ -658,7 +661,16 @@ public class BashScriptBuilder extends ScriptBuilder {
     String user = targetGroupId.substring(targetGroupId.lastIndexOf(".") + 1);
 
     body(
-        "%s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
+        "  echo %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
+        TOOLS_FOLDER,
+        getHostArchive(githubRelease).unpackroot,
+        user,
+        targetArtifactId,
+        targetVersion,
+        file.getAbsolutePath(),
+        file.getName());
+    body(
+        "  %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
         TOOLS_FOLDER,
         getHostArchive(githubRelease).unpackroot,
         user,
