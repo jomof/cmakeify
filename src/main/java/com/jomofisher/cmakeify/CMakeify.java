@@ -1,19 +1,28 @@
 package com.jomofisher.cmakeify;
 
-import com.jomofisher.cmakeify.model.*;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
+import static com.jomofisher.cmakeify.model.OS.linux;
 
+import com.jomofisher.cmakeify.model.CMakeifyYml;
+import com.jomofisher.cmakeify.model.OS;
+import com.jomofisher.cmakeify.model.RemoteArchive;
+import com.jomofisher.cmakeify.model.Toolset;
+import com.jomofisher.cmakeify.model.iOSArchitecture;
+import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.*;
-
-import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
-import static com.jomofisher.cmakeify.model.OS.linux;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 public class CMakeify {
+
   private PrintStream out = System.out;
   private File workingFolder = new File(".");
   private CMakeifyYml config = null;
@@ -43,7 +52,9 @@ public class CMakeify {
   }
 
   void go(String[] args) throws IOException {
-    if (!handleVersion(args)) return;
+    if (!handleVersion(args)) {
+      return;
+    }
     handleWorkingFolder(args);
     handleCMakeFlags(args);
     handleGroupId(args);
@@ -58,7 +69,9 @@ public class CMakeify {
       checkAllArgsUsed(args);
       return;
     }
-    if (!handleSupportedHostOS(args)) return;
+    if (!handleSupportedHostOS(args)) {
+      return;
+    }
     checkAllArgsUsed(args);
     handleGenerateScript();
   }
@@ -371,7 +384,8 @@ public class CMakeify {
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
         if (args[i].startsWith("-")) {
-          throw new RuntimeException(String.format("Proposed target-version '%s' looks like a flag", args));
+          throw new RuntimeException(
+              String.format("Proposed target-version '%s' looks like a flag", args[i]));
         }
         argsUsed.add(i);
         this.targetVersion = args[i];
@@ -396,7 +410,8 @@ public class CMakeify {
   private void checkAllArgsUsed(String args[]) {
     for (int i = 0; i < args.length; ++i) {
       if (!argsUsed.contains(i)) {
-        throw new RuntimeException(String.format("Argument %s '%s' was not recognized.", i, args[i]));
+        throw new RuntimeException(
+            String.format("Argument %s '%s' was not recognized.", i, args[i]));
       }
     }
   }
