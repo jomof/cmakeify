@@ -411,7 +411,7 @@ public class CMakeify {
     for (int i = 0; i < args.length; ++i) {
       if (!argsUsed.contains(i)) {
         throw new RuntimeException(
-            String.format("Argument %s '%s' was not recognized.", i, args[i]));
+            String.format("Argument %s '%s' was not recognized", i, args[i]));
       }
     }
   }

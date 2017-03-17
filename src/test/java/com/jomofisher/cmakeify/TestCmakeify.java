@@ -52,7 +52,7 @@ public class TestCmakeify {
       main("--what");
       fail("expected excdeption");
     } catch (RuntimeException e) {
-      assertThat(e).hasMessage("Argument 0 '--what' was not recognized.");
+      assertThat(e).hasMessage("Argument 0 '--what' was not recognized");
     }
   }
 
