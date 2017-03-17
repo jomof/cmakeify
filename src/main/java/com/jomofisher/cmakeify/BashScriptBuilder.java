@@ -680,10 +680,38 @@ public class BashScriptBuilder extends ScriptBuilder {
       String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
       body("if [ -f '%s' ]; then", relativeZip);
       body("  echo Uploading %s", relativeZip);
+      deleteReleaseFile(new File(relativeZip), githubRelease);
       upload(new File(relativeZip), githubRelease);
       body("fi");
     }
     return this;
+  }
+
+  private void deleteReleaseFile(File file, RemoteArchive githubRelease) {
+    String user = targetGroupId.substring(targetGroupId.lastIndexOf(".") + 1);
+
+    body(
+        "  echo %s/%s/github-release delete --user %s --repo %s --tag %s --name %s --file %s",
+        TOOLS_FOLDER,
+        getHostArchive(githubRelease).unpackroot,
+        user,
+        targetArtifactId,
+        targetVersion,
+        file.getName(),
+        file.getAbsolutePath()
+    );
+    body(
+        "  %s/%s/github-release delete --user %s --repo %s --tag %s --name %s --file %s",
+        TOOLS_FOLDER,
+        getHostArchive(githubRelease).unpackroot,
+        user,
+        targetArtifactId,
+        targetVersion,
+        file.getName(),
+        file.getAbsolutePath()
+    );
+    body(ABORT_LAST_FAILED);
+
   }
 
   private void upload(File file, RemoteArchive githubRelease) {
