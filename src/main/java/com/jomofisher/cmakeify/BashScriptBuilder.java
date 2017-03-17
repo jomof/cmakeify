@@ -661,6 +661,12 @@ public class BashScriptBuilder extends ScriptBuilder {
     File manifestUpload = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     if (specificTargetOS != null) {
       // Merge any existing manifest with the currently generated one
+      body("echo ./cdep merge %s:%s:%s %s %s",
+          targetGroupId,
+          targetArtifactId,
+          targetVersion,
+          cdepFile,
+          manifestUpload);
       body("./cdep merge %s:%s:%s %s %s",
           targetGroupId,
           targetArtifactId,
