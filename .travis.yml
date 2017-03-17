@@ -34,10 +34,10 @@ matrix:
 #        - ./gradlew assemble check
 #        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os linux
 
-#    - env: TARGET_OS=iOS
-#      os: osx
-#      script:
-#        - ./gradlew assemble check
-#        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os iOS
+    - env: TARGET_OS=iOS
+      os: osx
+      script:
+        - ./gradlew assemble check
+        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os iOS
 
 
