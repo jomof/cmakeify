@@ -61,5 +61,5 @@ abstract class ScriptBuilder {
 
     abstract ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example);
 
-    abstract ScriptBuilder deployRedistFiles(RemoteArchive githubRelease);
+    abstract ScriptBuilder deployRedistFiles(RemoteArchive githubRelease, OS[] allTargets);
 }

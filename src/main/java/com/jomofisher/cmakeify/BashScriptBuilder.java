@@ -650,7 +650,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
-  ScriptBuilder deployRedistFiles(RemoteArchive githubRelease) {
+  ScriptBuilder deployRedistFiles(RemoteArchive githubRelease, OS[] allTargets) {
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
           targetVersion.length());
@@ -658,60 +658,72 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     body("echo Not skipping upload because targetVersion='%s' %s", targetVersion,
         targetVersion.length());
-    File manifestUpload = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
+
+    // Merging manifests from multiple travis runs is a PITA.
+    // All runs need to upload cdep-manifest-[targetOS].yml.
+    // The final run needs to figure out that it is the final run and also upload a merged
+    // cdep-manifest.yml.
+    // None of this needs to happen if specificTargetOS is null because that means there aren't
+    // multiple travis runs.
+
     if (specificTargetOS != null) {
-      // Merge any existing manifest with the currently generated one
-      body("echo ./cdep merge %s:%s:%s %s %s",
-          targetGroupId,
-          targetArtifactId,
-          targetVersion,
-          cdepFile,
-          manifestUpload);
-      body("./cdep merge %s:%s:%s %s %s",
-          targetGroupId,
-          targetArtifactId,
-          targetVersion,
-          cdepFile,
-          manifestUpload);
-      body(ABORT_LAST_FAILED);
+      assert !cdepFile.toString().endsWith("cdep-manifest.yml");
+      File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
+      if (allTargets.length == 1) {
+        // There is a specificTargetOS specified but it is the only one.
+        // We can combine the file locally.
+        body("cp %s %s", cdepFile, combinedManifest);
+        body(ABORT_LAST_FAILED);
+        upload(combinedManifest, githubRelease);
+        body(ABORT_LAST_FAILED);
+      } else {
+        // Accumulate a list of all targets to merge except for this one
+        String otherCoordinates = "";
+        for (OS os : allTargets) {
+          if (os != specificTargetOS) {
+            otherCoordinates += String.format("%s:%s/%s:%s ",
+                targetGroupId,
+                targetArtifactId,
+                os,
+                targetVersion);
+          }
+        }
+
+        // Now add this file
+        String coordinates = otherCoordinates + cdepFile.toString();
+
+        // Merge any existing manifest with the currently generated one.
+        body("echo ./cdep merge %s %s",
+            coordinates,
+            combinedManifest);
+
+        body("./cdep merge %s %s",
+            coordinates,
+            combinedManifest);
+        body(ABORT_LAST_FAILED);
+
+        // If the merge succeeded, that means we got all of the coordinates.
+        // We can upload.
+        body("if [ -f '%s' ]; then", combinedManifest);
+        body("  echo Uploading %s", combinedManifest);
+        upload(combinedManifest, githubRelease);
+        body("fi");
+      }
+    } else {
+      // There is not a specificTargetOS so there aren't multiple travis runs.
+      // Just upload cdep-manifest.yml.
+      assert cdepFile.toString().endsWith("cdep-manifest.yml");
+      upload(cdepFile, githubRelease);
     }
-    upload(manifestUpload, githubRelease);
+
     for (String zip : zips.keySet()) {
       String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
       body("if [ -f '%s' ]; then", relativeZip);
       body("  echo Uploading %s", relativeZip);
-      deleteReleaseFile(new File(relativeZip), githubRelease);
       upload(new File(relativeZip), githubRelease);
       body("fi");
     }
     return this;
-  }
-
-  private void deleteReleaseFile(File file, RemoteArchive githubRelease) {
-    String user = targetGroupId.substring(targetGroupId.lastIndexOf(".") + 1);
-
-    body(
-        "  echo %s/%s/github-release delete --user %s --repo %s --tag %s --name %s --file %s",
-        TOOLS_FOLDER,
-        getHostArchive(githubRelease).unpackroot,
-        user,
-        targetArtifactId,
-        targetVersion,
-        file.getName(),
-        file.getAbsolutePath()
-    );
-    body(
-        "  %s/%s/github-release delete --user %s --repo %s --tag %s --name %s --file %s",
-        TOOLS_FOLDER,
-        getHostArchive(githubRelease).unpackroot,
-        user,
-        targetArtifactId,
-        targetVersion,
-        file.getName(),
-        file.getAbsolutePath()
-    );
-    body(ABORT_LAST_FAILED);
-
   }
 
   private void upload(File file, RemoteArchive githubRelease) {

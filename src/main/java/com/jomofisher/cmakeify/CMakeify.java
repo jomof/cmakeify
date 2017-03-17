@@ -280,7 +280,7 @@ public class CMakeify {
       }
     }
     script.buildRedistFiles(workingFolder, config.includes, config.example);
-    script.deployRedistFiles(config.releases.github);
+    script.deployRedistFiles(config.releases.github, config.targets);
     if (config.badges) {
       script.uploadBadges();
     }
