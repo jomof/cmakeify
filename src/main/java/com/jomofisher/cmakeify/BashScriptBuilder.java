@@ -171,24 +171,24 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder cmakeAndroid(String cmakeVersion,
-      RemoteArchive cmakeRemote,
-      String androidCppFlags,
-      String flavor,
-      String flavorFlags,
-      String ndkVersion,
-      RemoteArchive ndkRemote,
-      String includes[],
-      String lib,
-      String compiler,
-      String runtime,
-      String platform,
-      String abis[],
-      boolean multipleFlavors,
-      boolean multipleCMake,
-      boolean multipleNDK,
-      boolean multipleCompiler,
-      boolean multipleRuntime,
-      boolean multiplePlatforms) {
+                             RemoteArchive cmakeRemote,
+                             String androidCppFlags,
+                             String flavor,
+                             String flavorFlags,
+                             String ndkVersion,
+                             RemoteArchive ndkRemote,
+                             String includes[],
+                             String lib,
+                             String compiler,
+                             String runtime,
+                             String platform,
+                             String abis[],
+                             boolean multipleFlavors,
+                             boolean multipleCMake,
+                             boolean multipleNDK,
+                             boolean multipleCompiler,
+                             boolean multipleRuntime,
+                             boolean multiplePlatforms) {
     body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
         runtime);
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
@@ -540,7 +540,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform,
-      iOSArchitecture architecture) {
+                                                     iOSArchitecture architecture) {
     if (platform.equals(iOSPlatform.iPhoneOS)) {
       if (architecture.equals(iOSArchitecture.arm64)) {
         return true;
@@ -638,9 +638,14 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder deployRedistFiles(RemoteArchive githubRelease, OS[] allTargets) {
+    File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
           targetVersion.length());
+      if (combinedManifest.equals(cdepFile)) {
+        body("  cp %s %s", cdepFile, combinedManifest);
+        body("  " + ABORT_LAST_FAILED);
+      }
       return this;
     }
     body("echo Not skipping upload because targetVersion='%s' %s", targetVersion,
@@ -655,7 +660,6 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     if (specificTargetOS != null) {
       assert !cdepFile.toString().endsWith("cdep-manifest.yml");
-      File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
       if (allTargets.length == 1) {
         // There is a specificTargetOS specified but it is the only one.
         // We can combine the file locally.
