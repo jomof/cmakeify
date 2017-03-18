@@ -643,6 +643,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
           targetVersion.length());
       if (combinedManifest.equals(cdepFile)) {
+        body("  echo cp %s %s", cdepFile, combinedManifest);
         body("  cp %s %s", cdepFile, combinedManifest);
         body("  " + ABORT_LAST_FAILED);
       }
