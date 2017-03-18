@@ -649,7 +649,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  " + ABORT_LAST_FAILED);
       } else {
         System.out.printf("cdep-manifest.yml tracking: not copying because it has the same name as combined\n");
-        body("Echo not copying %s -> %s because it was already there", combinedManifest, cdepFile);
+        body("echo not copying %s -> %s because it was already there", combinedManifest, cdepFile);
+        body(" ll %s", combinedManifest.getParent());
       }
       return this;
     }
