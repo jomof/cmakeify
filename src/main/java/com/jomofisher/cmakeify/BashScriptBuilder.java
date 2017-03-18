@@ -643,10 +643,12 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
           targetVersion.length());
       if (combinedManifest.equals(cdepFile)) {
+        System.out.printf("cdep-manifest.yml tracking: %s to %s\n", cdepFile, combinedManifest);
         body("  echo cp %s %s", cdepFile, combinedManifest);
         body("  cp %s %s", cdepFile, combinedManifest);
         body("  " + ABORT_LAST_FAILED);
       } else {
+        System.out.printf("cdep-manifest.yml tracking: not copying because it has the same name as combined\n");
         body("Echo not copying %s -> %s because it was already there", combinedManifest, cdepFile);
       }
       return this;
