@@ -647,7 +647,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  cp %s %s", cdepFile, combinedManifest);
         body("  " + ABORT_LAST_FAILED);
       } else {
-        body("Echo not copying %s because it was already there");
+        body("Echo not copying %s -> %s because it was already there", combinedManifest, cdepFile);
       }
       return this;
     }
