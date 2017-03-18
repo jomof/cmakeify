@@ -1,23 +1,10 @@
 package com.jomofisher.cmakeify;
 
 import com.jomofisher.cmakeify.CMakeify.OSType;
-import com.jomofisher.cmakeify.model.ArchiveUrl;
-import com.jomofisher.cmakeify.model.HardNameDependency;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSArchitecture;
-import com.jomofisher.cmakeify.model.iOSPlatform;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.jomofisher.cmakeify.model.*;
+
+import java.io.*;
+import java.util.*;
 
 public class BashScriptBuilder extends ScriptBuilder {
 
@@ -708,6 +695,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  echo Uploading %s", combinedManifest);
         upload(combinedManifest, githubRelease);
         body("fi");
+        upload(cdepFile, githubRelease);
       }
     } else {
       // There is not a specificTargetOS so there aren't multiple travis runs.
