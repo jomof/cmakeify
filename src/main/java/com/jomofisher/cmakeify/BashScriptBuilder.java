@@ -642,16 +642,16 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
           targetVersion.length());
-      if (combinedManifest.equals(cdepFile)) {
-        System.out.printf("cdep-manifest.yml tracking: %s to %s\n", cdepFile, combinedManifest);
-        body("  echo cp %s %s", cdepFile, combinedManifest);
-        body("  cp %s %s", cdepFile, combinedManifest);
-        body("  " + ABORT_LAST_FAILED);
+      if (!combinedManifest.equals(cdepFile)) {
+        body("# cdep-manifest.yml tracking: %s to %s", cdepFile, combinedManifest);
+        body("echo cp %s %s", cdepFile, combinedManifest);
+        body("cp %s %s", cdepFile, combinedManifest);
+        body(ABORT_LAST_FAILED);
       } else {
-        System.out.printf("cdep-manifest.yml tracking: not copying because it has the same name as combined\n");
-        body("  echo not copying %s -> %s because it was already there", combinedManifest, cdepFile);
-        body("  ls %s", combinedManifest.getParent());
-        body("  " + ABORT_LAST_FAILED);
+        body("# cdep-manifest.yml tracking: not copying because it has the same name as combined");
+        body("echo not copying %s -> %s because it was already there", combinedManifest, cdepFile);
+        body("ls %s", combinedManifest.getParent());
+        body(ABORT_LAST_FAILED);
       }
       return this;
     }

@@ -70,6 +70,19 @@ public class TestCmakeify {
   }
 
   @Test
+  public void probeSmokeTestZeroVersion() throws IOException {
+    File yaml = new File("smoke-test/cmakeify.yml");
+    yaml.getParentFile().mkdirs();
+    main("-wf", yaml.getParent(),
+        "--host", "Linux",
+        "--group-id", "my-group-id",
+        "--artifact-id", "my-artifact-id",
+        "--target-version", "0.0.0");
+    File scriptFile = new File(".cmakeify/build.sh");
+    String script = Joiner.on("\n").join(Files.readLines(scriptFile, Charsets.UTF_8));
+  }
+
+  @Test
   public void complicatedSelfHost() throws IOException {
     File yaml = new File("test-files/complicatedSelfHost/cmakeify.yml");
     yaml.getParentFile().mkdirs();
