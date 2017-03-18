@@ -694,6 +694,11 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("if [ -f '%s' ]; then", combinedManifest);
         body("  echo Uploading %s", combinedManifest);
         upload(combinedManifest, githubRelease);
+        body("else");
+        // If the merged failed then we still have to create a combined manifest for test
+        // purposes but it won't be uploaded.
+        body("  cp %s %s", cdepFile, combinedManifest);
+        body("  " + ABORT_LAST_FAILED);
         body("fi");
         upload(cdepFile, githubRelease);
       }
