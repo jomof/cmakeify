@@ -701,8 +701,11 @@ public class BashScriptBuilder extends ScriptBuilder {
         body(ABORT_LAST_FAILED);
 
         // If the merge succeeded, that means we got all of the coordinates.
-        // We can upload.
+        // We can upload. Also need to fetch any partial dependencies so that
+        // downstream calls to ./cdep for tests will have assets all ready.
         body("if [ -f '%s' ]; then", combinedManifest);
+        body("  echo Fetching partial dependencies");
+        body("  ./cdep fetch %s", coordinates);
         body("  echo Uploading %s", combinedManifest);
         upload(combinedManifest, githubRelease);
         body("else");
