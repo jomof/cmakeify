@@ -35,7 +35,7 @@ matrix:
 #        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os linux
 
     - env: TARGET_OS=iOS
-      osx_image: xcode6.4
+      osx_image: xcode6.1
       os: osx
       script:
         - ./gradlew assemble check
