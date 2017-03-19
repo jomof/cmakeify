@@ -34,10 +34,12 @@ matrix:
 #        - ./gradlew assemble check
 #        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os linux
 
-    - env: TARGET_OS=iOS
-      os: osx
-      script:
-        - ./gradlew assemble check
-        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os iOS
+# Doesn't seem to be any OSX with JDK 7
+#    - env: TARGET_OS=iOS
+#      osx_image: xcode6.1
+#      os: osx
+#      script:
+#        - ./gradlew assemble check
+#        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os iOS
 
 
