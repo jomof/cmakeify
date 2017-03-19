@@ -53,7 +53,29 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   private BashScriptBuilder body(String format, Object... args) {
-    body.append(String.format(format + "\n", args));
+    String write = String.format(format + "\n", args);
+    if (write.contains(">")) {
+      throw new RuntimeException(write);
+    }
+    if (write.contains("<")) {
+      throw new RuntimeException(write);
+    }
+    if (write.contains("&")) {
+      throw new RuntimeException(write);
+    }
+    body.append(write);
+    return this;
+  }
+
+  private BashScriptBuilder bodyWithRedirect(String format, Object... args) {
+    String write = String.format(format + "\n", args);
+    if (!write.contains(">")) {
+      throw new RuntimeException(write);
+    }
+    if (write.contains("<")) {
+      throw new RuntimeException(write);
+    }
+    body.append(write);
     return this;
   }
 
@@ -117,8 +139,8 @@ public class BashScriptBuilder extends ScriptBuilder {
   @Override
   ScriptBuilder download(RemoteArchive remote) {
     ArchiveInfo archive = new ArchiveInfo(getHostArchive(remote));
-    return body(archive.downloadToFolder(DOWNLOADS_FOLDER))
-        .body(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
+    return bodyWithRedirect(archive.downloadToFolder(DOWNLOADS_FOLDER))
+        .bodyWithRedirect(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
   }
 
   private File getCloneRoot(String identifier) {
@@ -287,7 +309,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("if [ -d '%s' ]; then", stagingFolder);
     // Create a folder with something in it so there'e always something to zip
     body("  mkdir -p %s", redistFolder);
-    body("  echo Android %s %s %s %s %s %s > %s/cmakeify.txt",
+    bodyWithRedirect("  echo Android %s %s %s %s %s %s > %s/cmakeify.txt",
         cmakeVersion,
         flavor,
         ndkVersion,
@@ -505,7 +527,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  if [ -d '%s' ]; then", stagingFolder);
       // Create a folder with something in it so there'e always something to zip
       body("    mkdir -p %s", redistFolder);
-      body("    echo iOS %s %s  > %s/cmakeify.txt",
+      bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt",
           cmakeVersion,
           platform,
           redistFolder);
@@ -649,7 +671,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body(ABORT_LAST_FAILED);
       } else {
         body("# cdep-manifest.yml tracking: not copying because it has the same name as combined");
-        body("echo not copying %s -> %s because it was already there", combinedManifest, cdepFile);
+        body("echo not copying %s to %s because it was already there", combinedManifest, cdepFile);
         body("ls %s", combinedManifest.getParent());
         body(ABORT_LAST_FAILED);
       }
@@ -776,12 +798,12 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    git clone https://github.com/cdep-io/cdep-io.github.io.git");
     body("    pushd cdep-io.github.io");
     body("    mkdir -p %s/latest", badgeFolder);
-    body("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
-    body("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
+    bodyWithRedirect("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
+    bodyWithRedirect("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
     body("    " + ABORT_LAST_FAILED);
     body("    git add %s/latest/latest.svg", badgeFolder);
     body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
-    body(
+    bodyWithRedirect(
         "    git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io &2>/dev/null");
     body("    popd");
     body("  else");
