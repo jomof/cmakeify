@@ -706,6 +706,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("if [ -f '%s' ]; then", combinedManifest);
         body("  echo Fetching partial dependencies");
         body("  ./cdep fetch %s", coordinates);
+        body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
         upload(combinedManifest, githubRelease);
         body("else");
