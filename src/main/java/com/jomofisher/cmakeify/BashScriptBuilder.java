@@ -270,6 +270,7 @@ public class BashScriptBuilder extends ScriptBuilder {
           "%s \\\n" +
               "   -H%s \\\n" +
               "   -B%s \\\n" +
+              "   -DANDROID_NATIVE_API_LEVEL=android-%s \\\n" +
               "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
               "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
               "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
@@ -280,7 +281,7 @@ public class BashScriptBuilder extends ScriptBuilder {
               "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
               "   -DCMAKE_ANDROID_NDK=%s \\\n" +
               "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
-          cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
+          cmakeExe, workingFolder, abiBuildFolder, platform, compiler, platform,
           redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
           new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, androidCppFlags);
       body("  echo Executing %s", command);
