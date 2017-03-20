@@ -270,7 +270,7 @@ public class BashScriptBuilder extends ScriptBuilder {
           "%s \\\n" +
               "   -H%s \\\n" +
               "   -B%s \\\n" +
-              "   -DANDROID_NATIVE_API_LEVEL=android-%s \\\n" +
+              "   -DANDROID_NATIVE_API_LEVEL=%s \\\n" +
               "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
               "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
               "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
