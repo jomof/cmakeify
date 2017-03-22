@@ -1,23 +1,10 @@
 package com.jomofisher.cmakeify;
 
 import com.jomofisher.cmakeify.CMakeify.OSType;
-import com.jomofisher.cmakeify.model.ArchiveUrl;
-import com.jomofisher.cmakeify.model.HardNameDependency;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSArchitecture;
-import com.jomofisher.cmakeify.model.iOSPlatform;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import com.jomofisher.cmakeify.model.*;
+
+import java.io.*;
+import java.util.*;
 
 public class BashScriptBuilder extends ScriptBuilder {
 
@@ -66,7 +53,29 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   private BashScriptBuilder body(String format, Object... args) {
-    body.append(String.format(format + "\n", args));
+    String write = String.format(format + "\n", args);
+    if (write.contains(">")) {
+      throw new RuntimeException(write);
+    }
+    if (write.contains("<")) {
+      throw new RuntimeException(write);
+    }
+    if (write.contains("&")) {
+      throw new RuntimeException(write);
+    }
+    body.append(write);
+    return this;
+  }
+
+  private BashScriptBuilder bodyWithRedirect(String format, Object... args) {
+    String write = String.format(format + "\n", args);
+    if (!write.contains(">")) {
+      throw new RuntimeException(write);
+    }
+    if (write.contains("<")) {
+      throw new RuntimeException(write);
+    }
+    body.append(write);
     return this;
   }
 
@@ -130,8 +139,8 @@ public class BashScriptBuilder extends ScriptBuilder {
   @Override
   ScriptBuilder download(RemoteArchive remote) {
     ArchiveInfo archive = new ArchiveInfo(getHostArchive(remote));
-    return body(archive.downloadToFolder(DOWNLOADS_FOLDER))
-        .body(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
+    return bodyWithRedirect(archive.downloadToFolder(DOWNLOADS_FOLDER))
+        .bodyWithRedirect(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
   }
 
   private File getCloneRoot(String identifier) {
@@ -261,6 +270,7 @@ public class BashScriptBuilder extends ScriptBuilder {
           "%s \\\n" +
               "   -H%s \\\n" +
               "   -B%s \\\n" +
+              "   -DANDROID_NATIVE_API_LEVEL=%s \\\n" +
               "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
               "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
               "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
@@ -271,7 +281,7 @@ public class BashScriptBuilder extends ScriptBuilder {
               "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
               "   -DCMAKE_ANDROID_NDK=%s \\\n" +
               "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
-          cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
+          cmakeExe, workingFolder, abiBuildFolder, platform, compiler, platform,
           redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
           new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, androidCppFlags);
       body("  echo Executing %s", command);
@@ -300,7 +310,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("if [ -d '%s' ]; then", stagingFolder);
     // Create a folder with something in it so there'e always something to zip
     body("  mkdir -p %s", redistFolder);
-    body("  echo Android %s %s %s %s %s %s > %s/cmakeify.txt",
+    bodyWithRedirect("  echo Android %s %s %s %s %s %s > %s/cmakeify.txt",
         cmakeVersion,
         flavor,
         ndkVersion,
@@ -518,7 +528,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  if [ -d '%s' ]; then", stagingFolder);
       // Create a folder with something in it so there'e always something to zip
       body("    mkdir -p %s", redistFolder);
-      body("    echo iOS %s %s  > %s/cmakeify.txt",
+      bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt",
           cmakeVersion,
           platform,
           redistFolder);
@@ -651,9 +661,21 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder deployRedistFiles(RemoteArchive githubRelease, OS[] allTargets) {
+    File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
           targetVersion.length());
+      if (!combinedManifest.equals(cdepFile)) {
+        body("# cdep-manifest.yml tracking: %s to %s", cdepFile, combinedManifest);
+        body("echo cp %s %s", cdepFile, combinedManifest);
+        body("cp %s %s", cdepFile, combinedManifest);
+        body(ABORT_LAST_FAILED);
+      } else {
+        body("# cdep-manifest.yml tracking: not copying because it has the same name as combined");
+        body("echo not copying %s to %s because it was already there", combinedManifest, cdepFile);
+        body("ls %s", combinedManifest.getParent());
+        body(ABORT_LAST_FAILED);
+      }
       return this;
     }
     body("echo Not skipping upload because targetVersion='%s' %s", targetVersion,
@@ -668,7 +690,6 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     if (specificTargetOS != null) {
       assert !cdepFile.toString().endsWith("cdep-manifest.yml");
-      File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
       if (allTargets.length == 1) {
         // There is a specificTargetOS specified but it is the only one.
         // We can combine the file locally.
@@ -703,11 +724,21 @@ public class BashScriptBuilder extends ScriptBuilder {
         body(ABORT_LAST_FAILED);
 
         // If the merge succeeded, that means we got all of the coordinates.
-        // We can upload.
+        // We can upload. Also need to fetch any partial dependencies so that
+        // downstream calls to ./cdep for tests will have assets all ready.
         body("if [ -f '%s' ]; then", combinedManifest);
+        body("  echo Fetching partial dependencies");
+        body("  ./cdep fetch %s", coordinates);
+        body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
         upload(combinedManifest, githubRelease);
+        body("else");
+        // If the merged failed then we still have to create a combined manifest for test
+        // purposes but it won't be uploaded.
+        body("  cp %s %s", cdepFile, combinedManifest);
+        body("  " + ABORT_LAST_FAILED);
         body("fi");
+        upload(cdepFile, githubRelease);
       }
     } else {
       // There is not a specificTargetOS so there aren't multiple travis runs.
@@ -770,8 +801,8 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    " + ABORT_LAST_FAILED);
     body("    pushd cdep-io.github.io");
     body("    mkdir -p %s/latest", badgeFolder);
-    body("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
-    body("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
+    bodyWithRedirect("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
+    bodyWithRedirect("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
     body("    " + ABORT_LAST_FAILED);
     body("    echo git add %s/latest/latest.svg", badgeFolder);
     body("    git add %s/latest/latest.svg", badgeFolder);
