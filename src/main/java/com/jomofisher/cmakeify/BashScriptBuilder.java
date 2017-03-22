@@ -143,10 +143,6 @@ public class BashScriptBuilder extends ScriptBuilder {
         .bodyWithRedirect(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
   }
 
-  private File getCloneRoot(String identifier) {
-    return new File(new File(DOWNLOADS_FOLDER, "git-clones"), identifier).getAbsoluteFile();
-  }
-
   @Override
   File writeToShellScript() {
     BufferedWriter writer = null;
@@ -723,6 +719,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
         upload(combinedManifest, githubRelease);
+        if (uploadBadges) {
+          uploadBadges();
+        }
         body("else");
         // If the merged failed then we still have to create a combined manifest for test
         // purposes but it won't be uploaded.
@@ -736,7 +735,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       // Just upload cdep-manifest.yml.
       assert cdepFile.toString().endsWith("cdep-manifest.yml");
       upload(cdepFile, githubRelease);
-
+      if (uploadBadges) {
+        uploadBadges();
+      }
     }
 
     for (String zip : zips.keySet()) {
@@ -747,9 +748,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("fi");
     }
 
-    if (uploadBadges) {
-      uploadBadges();
-    }
+
     return this;
   }
 
