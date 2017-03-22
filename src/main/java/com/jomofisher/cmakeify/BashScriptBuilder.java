@@ -765,16 +765,23 @@ public class BashScriptBuilder extends ScriptBuilder {
         targetArtifactId);
     body("if [ -n \"$TRAVIS_TAG\" ]; then");
     body("  if [ -n \"$CDEP_BADGES_API_KEY\" ]; then");
+    body("    echo git clone https://github.com/cdep-io/cdep-io.github.io.git");
     body("    git clone https://github.com/cdep-io/cdep-io.github.io.git");
+    body("    " + ABORT_LAST_FAILED);
     body("    pushd cdep-io.github.io");
     body("    mkdir -p %s/latest", badgeFolder);
     body("    echo curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
     body("    curl %s > %s/latest/latest.svg ", badgeUrl, badgeFolder);
     body("    " + ABORT_LAST_FAILED);
+    body("    echo git add %s/latest/latest.svg", badgeFolder);
     body("    git add %s/latest/latest.svg", badgeFolder);
+    body("    " + ABORT_LAST_FAILED);
+    body("    echo git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
     body("    git -c user.name='cmakeify' -c user.email='cmakeify' commit -m init");
-    body(
-        "    git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io &2>/dev/null");
+    body("    " + ABORT_LAST_FAILED);
+    body("    echo git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io");
+    body("    git push -f -q https://cdep-io:$CDEP_BADGES_API_KEY@github.com/cdep-io/cdep-io.github.io");
+    body("    " + ABORT_LAST_FAILED);
     body("    popd");
     body("  else");
     body("    echo Add CDEP_BADGES_API_KEY to Travis settings to get badges!");
