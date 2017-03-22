@@ -148,18 +148,6 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
-  ScriptBuilder gitClone(String identifier, String repo) {
-    File folder = getCloneRoot(identifier);
-    body("rm -rf %s", folder.getAbsolutePath());
-    body("mkdir -p %s", folder.getAbsolutePath());
-    body("pushd %s", folder.getAbsolutePath());
-    body("git clone %s %s", repo, folder.getAbsolutePath());
-    body(ABORT_LAST_FAILED);
-    body("popd");
-    return this;
-  }
-
-  @Override
   File writeToShellScript() {
     BufferedWriter writer = null;
     File file = new File(".cmakeify/build.sh");
@@ -660,7 +648,10 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
-  ScriptBuilder deployRedistFiles(RemoteArchive githubRelease, OS[] allTargets) {
+  ScriptBuilder deployRedistFiles(
+      RemoteArchive githubRelease,
+      OS[] allTargets,
+      boolean uploadBadges) {
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
@@ -745,6 +736,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       // Just upload cdep-manifest.yml.
       assert cdepFile.toString().endsWith("cdep-manifest.yml");
       upload(cdepFile, githubRelease);
+
     }
 
     for (String zip : zips.keySet()) {
@@ -753,6 +745,10 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  echo Uploading %s", relativeZip);
       upload(new File(relativeZip), githubRelease);
       body("fi");
+    }
+
+    if (uploadBadges) {
+      uploadBadges();
     }
     return this;
   }
@@ -784,8 +780,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   }
 
-  @Override
-  ScriptBuilder uploadBadges() {
+  private ScriptBuilder uploadBadges() {
     // Record build information
     String badgeUrl = String.format("%s:%s:%s", targetGroupId, targetArtifactId, targetVersion);
     badgeUrl = badgeUrl.replace(":", "%3A");
