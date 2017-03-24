@@ -591,8 +591,13 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("    exit 600");
         body("  fi");
         body("  pushd %s", workingFolder);
-        body("  find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
-        body("  find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
+        body("  if [ -d '%s/%s/include' ]; then", workingFolder, include);
+        body("    find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
+        body("    find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
+        body("  else");
+        body("    find %s -name '*.h' | cpio -pdm %s/include", include, redistFolder);
+        body("    find %s -name '*.hpp' | cpio -pdm %s/include", include, redistFolder);
+        body("  fi");
         body("  popd");
         body("  " + ABORT_LAST_FAILED);
       }
