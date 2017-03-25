@@ -398,7 +398,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     cdep("    sha256: $SHASUM256");
     cdep("    size: $ARCHIVESIZE");
     body("else");
-    body("  echo CMAKEIFY ERROR: Didn't create %s", redistFolder);
+    body("  echo CMAKEIFY ERROR: Did not create %s", redistFolder);
     body("  exit 520");
     body("fi");
     return this;
