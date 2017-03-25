@@ -344,6 +344,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       String cmakeVersion,
       RemoteArchive cmakeRemote,
       Toolset toolset,
+      String lib,
       boolean multipleCMake,
       boolean multipleCompiler) {
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
@@ -393,6 +394,10 @@ public class BashScriptBuilder extends ScriptBuilder {
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
     body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
     body("  " + ABORT_LAST_FAILED);
+    cdep("  - lib: %s", lib);
+    cdep("    file: %s", zip.getName());
+    cdep("    sha256: $SHASUM256");
+    cdep("    size: $ARCHIVESIZE");
     body("fi");
     return this;
   }
@@ -592,7 +597,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  fi");
         body("  pushd %s", workingFolder);
         if (include.startsWith("include")) {
+          body("    echo find %s -name '*.h' {pipe} cpio -pdm %s", include, redistFolder);
           body("    find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
+          body("    echo find %s -name '*.hpp' {pipe} cpio -pdm %s", include, redistFolder);
           body("    find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
         } else {
           body("    find %s -name '*.h' | cpio -pdm %s/include", include, redistFolder);
