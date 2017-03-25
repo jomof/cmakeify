@@ -177,24 +177,25 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder cmakeAndroid(String cmakeVersion,
-      RemoteArchive cmakeRemote,
-      String androidCppFlags,
-      String flavor,
-      String flavorFlags,
-      String ndkVersion,
-      RemoteArchive ndkRemote,
-      String includes[],
-      String lib,
-      String compiler,
-      String runtime,
-      String platform,
-      String abis[],
-      boolean multipleFlavors,
-      boolean multipleCMake,
-      boolean multipleNDK,
-      boolean multipleCompiler,
-      boolean multipleRuntime,
-      boolean multiplePlatforms) {
+                             RemoteArchive cmakeRemote,
+                             String cmakeFlags,
+                             String androidCMakeFlags,
+                             String flavor,
+                             String flavorFlags,
+                             String ndkVersion,
+                             RemoteArchive ndkRemote,
+                             String includes[],
+                             String lib,
+                             String compiler,
+                             String runtime,
+                             String platform,
+                             String abis[],
+                             boolean multipleFlavors,
+                             boolean multipleCMake,
+                             boolean multipleNDK,
+                             boolean multipleCompiler,
+                             boolean multipleRuntime,
+                             boolean multiplePlatforms) {
     body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
         runtime);
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
@@ -263,10 +264,10 @@ public class BashScriptBuilder extends ScriptBuilder {
               "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
               "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
               "   -DCMAKE_ANDROID_NDK=%s \\\n" +
-              "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
+              "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s %s\n",
           cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
           redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
-          new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, androidCppFlags);
+          new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, cmakeFlags, androidCMakeFlags);
       body("  echo Executing %s", command);
       body("  " + command);
       body("  " + ABORT_LAST_FAILED);
@@ -342,6 +343,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   ScriptBuilder cmakeLinux(
       String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String cmakeFlags,
       Toolset toolset,
       String lib,
       boolean multipleCMake,
@@ -377,9 +379,9 @@ public class BashScriptBuilder extends ScriptBuilder {
             "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
             "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
             "   -DCMAKE_C_COMPILER=%s \\\n" +
-            "   -DCMAKE_CXX_COMPILER=%s",
+            "   -DCMAKE_CXX_COMPILER=%s %s",
         cmakeExe, workingFolder, buildFolder,
-        redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
+        redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx, cmakeFlags));
 
     body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
     body(ABORT_LAST_FAILED);
@@ -408,6 +410,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   ScriptBuilder cmakeiOS(
       String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String cmakeFlags,
       String flavor,
       String flavorFlags,
       String includes[],
@@ -492,9 +495,9 @@ public class BashScriptBuilder extends ScriptBuilder {
             "     -DCMAKE_OSX_ARCHITECTURES=%s \\\n" +
             "     -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
             "     -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
-            "     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s\\\n",
+            "     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
         cmakeExe, workingFolder, buildFolder, architecture,
-        redistFolder, stagingFolder, stagingFolder, flavorFlags);
+        redistFolder, stagingFolder, stagingFolder, cmakeFlags, flavorFlags);
 
     if (hostOS == OSType.MacOS) {
       body("  echo Executing %s", command);
@@ -554,7 +557,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform,
-      iOSArchitecture architecture) {
+                                                     iOSArchitecture architecture) {
     if (platform.equals(iOSPlatform.iPhoneOS)) {
       if (architecture.equals(iOSArchitecture.arm64)) {
         return true;

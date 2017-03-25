@@ -24,6 +24,7 @@ public class CMakeify {
   private OSType hostOS;
   private OS targetOS = null;
   private Set<Integer> argsUsed = new HashSet<>();
+  private List<String> cmakeFlags = new ArrayList<>();
 
   CMakeify(PrintStream out) {
     this.out = out;
@@ -113,6 +114,15 @@ public class CMakeify {
         this.targetOS
     );
 
+    // Combine the command-line level CMake flags
+    String cmakeFlags = "";
+    for (int i = 0; i < this.cmakeFlags.size(); ++i) {
+      if (i != 0) {
+        cmakeFlags += " ";
+      }
+      cmakeFlags += this.cmakeFlags.get(i);
+    }
+
     // Map of compilers.
     Set<OS> targetOS = new HashSet<>();
     if (this.targetOS == null) {
@@ -196,6 +206,7 @@ public class CMakeify {
                       script.cmakeAndroid(
                           cmakeVersion,
                           config.cmake.remotes.get(cmakeVersion),
+                          cmakeFlags,
                           config.android.ndk.cppFlags,
                           flavor,
                           flavors.get(flavor),
@@ -229,6 +240,7 @@ public class CMakeify {
               script.cmakeLinux(
                   cmakeVersion,
                   config.cmake.remotes.get(cmakeVersion),
+                  cmakeFlags,
                   toolset,
                   config.android.lib,
                   config.cmake.versions.length != 1,
@@ -252,6 +264,7 @@ public class CMakeify {
                     script.cmakeiOS(
                         cmakeVersion,
                         config.cmake.remotes.get(cmakeVersion),
+                        cmakeFlags,
                         flavor,
                         flavors.get(flavor),
                         config.includes,
@@ -333,10 +346,16 @@ public class CMakeify {
   }
 
   private void handleCMakeFlags(String[] args) throws IOException {
+    boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
+      if (takeNext) {
+        argsUsed.add(i);
+        takeNext = false;
+        cmakeFlags.add(args[i]);
+      }
       if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
         argsUsed.add(i);
-        throw new RuntimeException("--cmake-flags no longer supported");
+
       }
     }
   }
