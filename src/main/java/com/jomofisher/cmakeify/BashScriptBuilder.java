@@ -590,6 +590,7 @@ public class BashScriptBuilder extends ScriptBuilder {
             workingFolder, include);
         body("    exit 600");
         body("  fi");
+        body("  pushd %s", workingFolder);
         if (include.startsWith("include")) {
           body("    find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
           body("    find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
