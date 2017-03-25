@@ -729,6 +729,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         // downstream calls to ./cdep for tests will have assets all ready.
         body("if [ -f '%s' ]; then", combinedManifest);
         body("  echo Fetching partial dependencies");
+        body("  rm cdep.sha256");
         body("  echo ./cdep fetch %s", coordinates);
         body("  ./cdep fetch %s", coordinates);
         body("  " + ABORT_LAST_FAILED);
