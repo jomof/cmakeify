@@ -391,12 +391,15 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    exit 500");
     body("  fi");
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
-    body("  SHASUM256=$(shasum -a 256 %s | awk '{print $1}')", zip);
+    writeZipFileStatisticsToBody(zip);
     body("  " + ABORT_LAST_FAILED);
     cdep("  - lib: %s", lib);
     cdep("    file: %s", zip.getName());
     cdep("    sha256: $SHASUM256");
     cdep("    size: $ARCHIVESIZE");
+    body("else");
+    body("  echo CMAKEIFY ERROR: Didn't create %s", redistFolder);
+    body("  exit 520");
     body("fi");
     return this;
   }
