@@ -264,7 +264,7 @@ public class BashScriptBuilder extends ScriptBuilder {
               "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
               "   -DCMAKE_ANDROID_NDK=%s \\\n" +
               "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
-          cmakeExe, workingFolder, abiBuildFolder, platform, compiler, platform,
+          cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
           redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
           new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, androidCppFlags);
       body("  echo Executing %s", command);
