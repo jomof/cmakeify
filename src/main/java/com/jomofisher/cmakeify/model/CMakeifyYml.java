@@ -2,6 +2,7 @@ package com.jomofisher.cmakeify.model;
 
 public class CMakeifyYml {
   final public OS targets[];
+  final public String buildTarget;
   final public String includes[];
   final public CMake cmake;
   final public Android android;
@@ -14,6 +15,7 @@ public class CMakeifyYml {
 
   public CMakeifyYml() {
     targets = OS.values();
+    buildTarget = null;
     includes = new String[0];
     cmake = new CMake();
     android = new Android();
@@ -45,6 +47,10 @@ public class CMakeifyYml {
         sb.append(includes[j]);
       }
       sb.append("]\n");
+    }
+    if (buildTarget != null) {
+      sb.append("buildTarget:\n");
+      sb.append(buildTarget);
     }
     if (cmake != null) {
       sb.append("cmake:\n");

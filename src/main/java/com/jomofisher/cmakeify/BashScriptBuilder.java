@@ -178,6 +178,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   @Override
   ScriptBuilder cmakeAndroid(String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String target,
       String androidCppFlags,
       String flavor,
       String flavorFlags,
@@ -197,6 +198,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       boolean multiplePlatforms) {
     body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
         runtime);
+    if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
+      throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
+    }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
         getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = androidFolder;
@@ -271,7 +275,11 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  echo Executing %s", command);
       body("  " + command);
       body("  " + ABORT_LAST_FAILED);
-      body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
+      if (target != null && target.length() > 0) {
+        body(String.format("%s --build %s -- -j8", cmakeExe, abiBuildFolder));
+      } else {
+        body(String.format("%s --build %s --target %s -- -j8", cmakeExe, target, abiBuildFolder));
+      }
       body("  " + ABORT_LAST_FAILED);
       String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
       File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
@@ -343,9 +351,11 @@ public class BashScriptBuilder extends ScriptBuilder {
   ScriptBuilder cmakeLinux(
       String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String target,
       Toolset toolset,
       boolean multipleCMake,
       boolean multipleCompiler) {
+
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
         getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = new File(rootBuildFolder, "Linux");
@@ -381,7 +391,11 @@ public class BashScriptBuilder extends ScriptBuilder {
         cmakeExe, workingFolder, buildFolder,
         redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx));
 
-    body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
+    if (target != null && target.length() > 0) {
+      body(String.format("%s --build %s --target %s -- -j8", cmakeExe, target, buildFolder));
+    } else {
+      body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
+    }
     body(ABORT_LAST_FAILED);
     zips.put(zip.getAbsolutePath(), redistFolder.getPath());
     body("# Zip Linux redist if folder was created in %s", redistFolder);
@@ -401,6 +415,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   ScriptBuilder cmakeiOS(
       String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String target,
       String flavor,
       String flavorFlags,
       String includes[],
@@ -413,6 +428,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       boolean multiplePlatform,
       boolean multipleArchitecture,
       boolean multipleSdk) {
+    if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
+      throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
+    }
 
     if (!isSupportediOSPlatformArchitecture(platform, architecture)) {
       out.printf("Skipping iOS %s %s because it isn't supported by XCode\n", platform,
@@ -493,7 +511,11 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  echo Executing %s", command);
       body("  " + command);
 
-      body(String.format("  %s --build %s", cmakeExe, buildFolder));
+      if (target != null && target.length() > 0) {
+        body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
+      } else {
+        body(String.format("%s --build %s --target %s -- -j8", cmakeExe, target, buildFolder));
+      }
       body("  " + ABORT_LAST_FAILED);
 
       if (lib != null && lib.length() > 0) {
@@ -669,7 +691,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         targetVersion.length());
 
     // Merging manifests from multiple travis runs is a PITA.
-    // All runs need to upload cdep-manifest-[targetOS].yml.
+    // All runs need to upload cdep-manifest-[targets].yml.
     // The final run needs to figure out that it is the final run and also upload a merged
     // cdep-manifest.yml.
     // None of this needs to happen if specificTargetOS is null because that means there aren't

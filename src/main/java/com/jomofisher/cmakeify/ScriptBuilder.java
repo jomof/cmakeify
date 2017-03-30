@@ -24,6 +24,7 @@ abstract class ScriptBuilder {
   abstract ScriptBuilder cmakeAndroid(
       String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String target,
       String androidCppFlags,
       String flavor,
       String flavorFlags,
@@ -45,6 +46,7 @@ abstract class ScriptBuilder {
   abstract ScriptBuilder cmakeLinux(
       String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String target,
       Toolset toolset,
       boolean multipleCMake,
       boolean multipleGcc);
@@ -52,6 +54,7 @@ abstract class ScriptBuilder {
   abstract ScriptBuilder cmakeiOS(
       String cmakeVersion,
       RemoteArchive cmakeRemote,
+      String target,
       String flavor,
       String flavorFlags,
       String includes[],

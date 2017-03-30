@@ -204,6 +204,7 @@ public class CMakeify {
                       script.cmakeAndroid(
                           cmakeVersion,
                           config.cmake.remotes.get(cmakeVersion),
+                          config.buildTarget,
                           config.android.ndk.cppFlags,
                           flavor,
                           flavors.get(flavor),
@@ -237,6 +238,7 @@ public class CMakeify {
               script.cmakeLinux(
                   cmakeVersion,
                   config.cmake.remotes.get(cmakeVersion),
+                  config.buildTarget,
                   toolset,
                   config.cmake.versions.length != 1,
                   config.linux.compilers.length != 1);
@@ -259,6 +261,7 @@ public class CMakeify {
                     script.cmakeiOS(
                         cmakeVersion,
                         config.cmake.remotes.get(cmakeVersion),
+                        config.buildTarget,
                         flavor,
                         flavors.get(flavor),
                         config.includes,
