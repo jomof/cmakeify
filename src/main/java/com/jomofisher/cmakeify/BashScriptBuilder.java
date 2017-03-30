@@ -197,10 +197,13 @@ public class BashScriptBuilder extends ScriptBuilder {
                              boolean multipleCompiler,
                              boolean multipleRuntime,
                              boolean multiplePlatforms) {
-    body("echo Executing script for %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
-        runtime);
+    body("echo Executing script for %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
+        runtime, target);
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
+    }
+    if (lib == null || lib.length() == 0) {
+      lib = String.format("lib%s.a", target);
     }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
         getHostArchive(cmakeRemote).unpackroot);
@@ -276,9 +279,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  " + command);
       body("  " + ABORT_LAST_FAILED);
       if (target != null && target.length() > 0) {
-        body(String.format("%s --build %s -- -j8", cmakeExe, abiBuildFolder));
+        body(String.format("%s --build %s --target %s -- -j8", cmakeExe, abiBuildFolder, target));
       } else {
-        body(String.format("%s --build %s --target %s -- -j8", cmakeExe, target, abiBuildFolder));
+        body(String.format("%s --build %s -- -j8", cmakeExe, abiBuildFolder));
       }
       body("  " + ABORT_LAST_FAILED);
       String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
@@ -357,7 +360,12 @@ public class BashScriptBuilder extends ScriptBuilder {
       String lib,
       boolean multipleCMake,
       boolean multipleCompiler) {
-
+    if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
+      throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
+    }
+    if (lib == null || lib.length() == 0) {
+      lib = String.format("lib%s.a", target);
+    }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
         getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = new File(rootBuildFolder, "Linux");
@@ -394,7 +402,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx, cmakeFlags));
 
     if (target != null && target.length() > 0) {
-      body(String.format("%s --build %s --target %s -- -j8", cmakeExe, target, buildFolder));
+      body(String.format("%s --build %s --target %s -- -j8", cmakeExe, buildFolder, target));
     } else {
       body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
     }
@@ -440,6 +448,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       boolean multipleSdk) {
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
+    }
+    if (lib == null || lib.length() == 0) {
+      lib = String.format("lib%s.a", target);
     }
 
     if (!isSupportediOSPlatformArchitecture(platform, architecture)) {
@@ -522,9 +533,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  " + command);
 
       if (target != null && target.length() > 0) {
-        body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
+        body(String.format("%s --build %s --target %s -- -j8", cmakeExe, buildFolder, target));
       } else {
-        body(String.format("%s --build %s --target %s -- -j8", cmakeExe, target, buildFolder));
+        body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
       }
       body("  " + ABORT_LAST_FAILED);
 
