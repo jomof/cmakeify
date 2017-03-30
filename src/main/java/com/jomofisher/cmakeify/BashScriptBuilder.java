@@ -199,7 +199,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
-    if (target != null && target.length() > 0 && lib == null || lib.length() == 0) {
+    if (target != null && target.length() > 0 && lib == null && lib.length() == 0) {
       lib = String.format("lib%s.a", target);
     }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
