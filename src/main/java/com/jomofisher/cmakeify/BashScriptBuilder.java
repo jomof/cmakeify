@@ -26,9 +26,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   final private PrintStream out;
   final private OS specificTargetOS;
 
-
-  BashScriptBuilder(
-      PrintStream out,
+  BashScriptBuilder(PrintStream out,
       OSType hostOS,
       File workingFolder,
       String targetGroupId,
@@ -94,8 +92,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     try {
       File canonical = folder.getCanonicalFile();
       if (this.outputLocations.contains(canonical)) {
-        throw new RuntimeException(
-            String.format("Output location %s written twice", folder));
+        throw new RuntimeException(String.format("Output location %s written twice", folder));
       }
       this.outputLocations.add(folder);
       this.outputLocations.add(canonical);
@@ -139,8 +136,9 @@ public class BashScriptBuilder extends ScriptBuilder {
   @Override
   ScriptBuilder download(RemoteArchive remote) {
     ArchiveInfo archive = new ArchiveInfo(getHostArchive(remote));
-    return bodyWithRedirect(archive.downloadToFolder(DOWNLOADS_FOLDER))
-        .bodyWithRedirect(archive.uncompressToFolder(DOWNLOADS_FOLDER, TOOLS_FOLDER));
+    return bodyWithRedirect(archive.downloadToFolder(DOWNLOADS_FOLDER)).bodyWithRedirect(archive.uncompressToFolder(
+        DOWNLOADS_FOLDER,
+        TOOLS_FOLDER));
   }
 
   @Override
@@ -177,36 +175,34 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder cmakeAndroid(String cmakeVersion,
-                             RemoteArchive cmakeRemote,
-                             String target,
-                             String cmakeFlags,
-                             String androidCMakeFlags,
-                             String flavor,
-                             String flavorFlags,
-                             String ndkVersion,
-                             RemoteArchive ndkRemote,
-                             String includes[],
-                             String lib,
-                             String compiler,
-                             String runtime,
-                             String platform,
-                             String abis[],
-                             boolean multipleFlavors,
-                             boolean multipleCMake,
-                             boolean multipleNDK,
-                             boolean multipleCompiler,
-                             boolean multipleRuntime,
-                             boolean multiplePlatforms) {
-    body("echo Executing script for %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler,
-        runtime, target);
+      RemoteArchive cmakeRemote,
+      String target,
+      String cmakeFlags,
+      String androidCMakeFlags,
+      String flavor,
+      String flavorFlags,
+      String ndkVersion,
+      RemoteArchive ndkRemote,
+      String includes[],
+      String lib,
+      String compiler,
+      String runtime,
+      String platform,
+      String abis[],
+      boolean multipleFlavors,
+      boolean multipleCMake,
+      boolean multipleNDK,
+      boolean multipleCompiler,
+      boolean multipleRuntime,
+      boolean multiplePlatforms) {
+    body("echo Executing script for %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime, target);
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
-    if (lib == null || lib.length() == 0) {
+    if (target != null && target.length() > 0 && lib == null || lib.length() == 0) {
       lib = String.format("lib%s.a", target);
     }
-    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-        getHostArchive(cmakeRemote).unpackroot);
+    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = androidFolder;
     String zipName = targetArtifactId + "-android";
     if (multipleCMake) {
@@ -239,15 +235,16 @@ public class BashScriptBuilder extends ScriptBuilder {
     recordOutputLocation(zip);
 
     File buildFolder = new File(outputFolder, "cmake-generated-files");
-    String ndkFolder = String
-        .format("%s/%s", TOOLS_FOLDER, getHostArchive(ndkRemote).unpackroot);
+    String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, getHostArchive(ndkRemote).unpackroot);
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
     body("ABIS=");
     for (String abi : abis) {
       File abiBuildFolder = new File(buildFolder, abi);
       File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
-          new File(ndkFolder).getAbsolutePath(), platform, Abi.getByName(abi).getArchitecture()));
+          new File(ndkFolder).getAbsolutePath(),
+          platform,
+          Abi.getByName(abi).getArchitecture()));
       body("if [ -d '%s' ]; then", archFolder);
       body("  echo Creating make project in %s", abiBuildFolder);
       body("  if [[ \"$ABIS\" == \"\" ]]; then");
@@ -258,23 +255,26 @@ public class BashScriptBuilder extends ScriptBuilder {
 
       File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
       recordOutputLocation(stagingAbiFolder);
-      String command = String.format(
-          "%s \\\n" +
-              "   -H%s \\\n" +
-              "   -B%s \\\n" +
-              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
-              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
-              "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
-              "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
-              "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-              "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
-              "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
-              "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
-              "   -DCMAKE_ANDROID_NDK=%s \\\n" +
-              "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s %s\n",
-          cmakeExe, workingFolder, abiBuildFolder, compiler, platform,
-          redistFolder, stagingAbiFolder, stagingAbiFolder, runtime,
-          new File(ndkFolder).getAbsolutePath(), abi, flavorFlags, cmakeFlags, androidCMakeFlags);
+      String command = String.format("%s \\\n" + "   -H%s \\\n" + "   -B%s \\\n" + "   " +
+              "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s" + " \\\n" + "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" + "   " +
+              "-DCMAKE_SYSTEM_NAME=Android \\\n" + "   " + "-DCMAKE_SYSTEM_VERSION=%s \\\n" + "   " +
+              "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "   " + "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" + "   " +
+              "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" + "   " + "-DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" + "   " +
+              "-DCMAKE_ANDROID_NDK=%s \\\n" + "   -DCMAKE_ANDROID_ARCH_ABI=%s %s" + " %s %s\n",
+          cmakeExe,
+          workingFolder,
+          abiBuildFolder,
+          compiler,
+          platform,
+          redistFolder,
+          stagingAbiFolder,
+          stagingAbiFolder,
+          runtime,
+          new File(ndkFolder).getAbsolutePath(),
+          abi,
+          flavorFlags,
+          cmakeFlags,
+          androidCMakeFlags);
       body("  echo Executing %s", command);
       body("  " + command);
       body("  " + ABORT_LAST_FAILED);
@@ -351,8 +351,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
-  ScriptBuilder cmakeLinux(
-      String cmakeVersion,
+  ScriptBuilder cmakeLinux(String cmakeVersion,
       RemoteArchive cmakeRemote,
       String target,
       String cmakeFlags,
@@ -363,11 +362,10 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
-    if (lib == null || lib.length() == 0) {
+    if (target != null && target.length() > 0 && lib == null || lib.length() == 0) {
       lib = String.format("lib%s.a", target);
     }
-    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-        getHostArchive(cmakeRemote).unpackroot);
+    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = new File(rootBuildFolder, "Linux");
     String zipName = targetArtifactId + "-linux";
     if (multipleCMake) {
@@ -388,18 +386,18 @@ public class BashScriptBuilder extends ScriptBuilder {
     recordOutputLocation(outputFolder);
     recordOutputLocation(redistFolder);
 
-    body(String.format(
-        "%s \\\n" +
-            "   -H%s \\\n" +
-            "   -B%s \\\n" +
-            "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-            "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
-            "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
-            "   -DCMAKE_SYSTEM_NAME=Linux \\\n" +
-            "   -DCMAKE_C_COMPILER=%s \\\n" +
-            "   -DCMAKE_CXX_COMPILER=%s %s",
-        cmakeExe, workingFolder, buildFolder,
-        redistFolder, redistFolder, redistFolder, toolset.c, toolset.cxx, cmakeFlags));
+    body(String.format("%s \\\n" + "   -H%s \\\n" + "   -B%s \\\n" + "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+            "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" + "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" + "   " +
+            "-DCMAKE_SYSTEM_NAME=Linux \\\n" + "   -DCMAKE_C_COMPILER=%s \\\n" + "   -DCMAKE_CXX_COMPILER=%s %s",
+        cmakeExe,
+        workingFolder,
+        buildFolder,
+        redistFolder,
+        redistFolder,
+        redistFolder,
+        toolset.c,
+        toolset.cxx,
+        cmakeFlags));
 
     if (target != null && target.length() > 0) {
       body(String.format("%s --build %s --target %s -- -j8", cmakeExe, buildFolder, target));
@@ -429,8 +427,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
-  ScriptBuilder cmakeiOS(
-      String cmakeVersion,
+  ScriptBuilder cmakeiOS(String cmakeVersion,
       RemoteArchive cmakeRemote,
       String target,
       String cmakeFlags,
@@ -449,18 +446,16 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
-    if (lib == null || lib.length() == 0) {
+    if (target != null && target.length() > 0 && lib == null || lib.length() == 0) {
       lib = String.format("lib%s.a", target);
     }
 
     if (!isSupportediOSPlatformArchitecture(platform, architecture)) {
-      out.printf("Skipping iOS %s %s because it isn't supported by XCode\n", platform,
-          architecture);
+      out.printf("Skipping iOS %s %s because it isn't supported by XCode\n", platform, architecture);
       return this;
     }
 
-    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER,
-        getHostArchive(cmakeRemote).unpackroot);
+    String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = new File(rootBuildFolder, "iOS");
     String zipName = targetArtifactId + "-ios";
     if (multipleCMake) {
@@ -495,12 +490,10 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("CDEP_IOS_CLANG=$(xcrun -sdk iphoneos -find clang)");
       body("CDEP_IOS_AR=$(xcrun -sdk iphoneos -find ar)");
       body("CDEP_XCODE_DEVELOPER_DIR=$(xcode-select -print-path)");
-      body("CDEP_IOS_DEVELOPER_ROOT=${CDEP_XCODE_DEVELOPER_DIR}/Platforms/%s.platform/Developer",
-          platform);
+      body("CDEP_IOS_DEVELOPER_ROOT=${CDEP_XCODE_DEVELOPER_DIR}/Platforms/%s.platform/Developer", platform);
       body("CDEP_IOS_SDK_ROOT=${CDEP_IOS_DEVELOPER_ROOT}/SDKs/%s%s.sdk", platform, sdk);
       body("if [ ! -d \"${CDEP_IOS_SDK_ROOT}\" ]; then");
-      body("  echo Not building for non-existent SDK root ${CDEP_IOS_SDK_ROOT}. "
-          + "Listing available:");
+      body("  echo Not building for non-existent SDK root ${CDEP_IOS_SDK_ROOT}. " + "Listing available:");
       body("  ls ${CDEP_IOS_DEVELOPER_ROOT}/SDKs");
       body("else");
       body("  echo Building to %s", outputFolder);
@@ -511,22 +504,21 @@ public class BashScriptBuilder extends ScriptBuilder {
     recordOutputLocation(redistFolder);
     recordOutputLocation(stagingFolder);
 
-    String command = String.format(
-        "%s \\\n" +
-            "     -H%s \\\n" +
-            "     -B%s \\\n" +
-            "     -DCMAKE_C_COMPILER=${CDEP_IOS_CLANG} \\\n" +
-            "     -DCMAKE_CXX_COMPILER=${CDEP_IOS_CLANG} \\\n" +
-            "     -DCMAKE_C_COMPILER_WORKS=1 \\\n" +
-            "     -DCMAKE_CXX_COMPILER_WORKS=1 \\\n" +
-            "     -DCMAKE_AR=${CDEP_IOS_AR} \\\n" +
-            "     -DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" +
-            "     -DCMAKE_OSX_ARCHITECTURES=%s \\\n" +
-            "     -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-            "     -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
-            "     -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
-        cmakeExe, workingFolder, buildFolder, architecture,
-        redistFolder, stagingFolder, stagingFolder, cmakeFlags, flavorFlags);
+    String command = String.format("%s \\\n" + "     -H%s \\\n" + "     -B%s \\\n" + "     " +
+            "-DCMAKE_C_COMPILER=${CDEP_IOS_CLANG}" + " \\\n" + "     -DCMAKE_CXX_COMPILER=${CDEP_IOS_CLANG} \\\n" + "     " +
+            "-DCMAKE_C_COMPILER_WORKS=1 \\\n" + "     " + "-DCMAKE_CXX_COMPILER_WORKS=1 \\\n" + "     -DCMAKE_AR=${CDEP_IOS_AR}" +
+            " \\\n" + "     " + "-DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" + "     -DCMAKE_OSX_ARCHITECTURES=%s \\\n" + " " +
+            "    " + "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "     -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib " +
+            "\\\n" + "    " + " -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
+        cmakeExe,
+        workingFolder,
+        buildFolder,
+        architecture,
+        redistFolder,
+        stagingFolder,
+        stagingFolder,
+        cmakeFlags,
+        flavorFlags);
 
     if (hostOS == OSType.MacOS) {
       body("  echo Executing %s", command);
@@ -555,10 +547,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  if [ -d '%s' ]; then", stagingFolder);
       // Create a folder with something in it so there'e always something to zip
       body("    mkdir -p %s", redistFolder);
-      bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt",
-          cmakeVersion,
-          platform,
-          redistFolder);
+      bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt", cmakeVersion, platform, redistFolder);
       writeExtraIncludesToBody(includes, redistFolder);
       writeCreateZipFromRedistFolderToBody(zip, redistFolder);
       writeZipFileStatisticsToBody(zip);
@@ -589,8 +578,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     return this;
   }
 
-  private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform,
-                                                     iOSArchitecture architecture) {
+  private boolean isSupportediOSPlatformArchitecture(iOSPlatform platform, iOSArchitecture architecture) {
     if (platform.equals(iOSPlatform.iPhoneOS)) {
       if (architecture.equals(iOSArchitecture.arm64)) {
         return true;
@@ -629,8 +617,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (includes != null) {
       for (String include : includes) {
         body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
-        body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist",
-            workingFolder, include);
+        body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist", workingFolder, include);
         body("    exit 600");
         body("  fi");
         body("  pushd %s", workingFolder);
@@ -694,14 +681,10 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
-  ScriptBuilder deployRedistFiles(
-      RemoteArchive githubRelease,
-      OS[] allTargets,
-      boolean uploadBadges) {
+  ScriptBuilder deployRedistFiles(RemoteArchive githubRelease, OS[] allTargets, boolean uploadBadges) {
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
-      body("echo Skipping upload because targetVersion='%s' %s", targetVersion,
-          targetVersion.length());
+      body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       if (!combinedManifest.equals(cdepFile)) {
         body("# cdep-manifest.yml tracking: %s to %s", cdepFile, combinedManifest);
         body("echo cp %s %s", cdepFile, combinedManifest);
@@ -715,8 +698,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       }
       return this;
     }
-    body("echo Not skipping upload because targetVersion='%s' %s", targetVersion,
-        targetVersion.length());
+    body("echo Not skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
 
     // Merging manifests from multiple travis runs is a PITA.
     // All runs need to upload cdep-manifest-[targetOS].yml.
@@ -739,11 +721,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         String otherCoordinates = "";
         for (OS os : allTargets) {
           if (os != specificTargetOS) {
-            otherCoordinates += String.format("%s:%s/%s:%s ",
-                targetGroupId,
-                targetArtifactId,
-                os,
-                targetVersion);
+            otherCoordinates += String.format("%s:%s/%s:%s ", targetGroupId, targetArtifactId, os, targetVersion);
           }
         }
 
@@ -751,13 +729,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         String coordinates = otherCoordinates + cdepFile.toString();
 
         // Merge any existing manifest with the currently generated one.
-        body("echo ./cdep merge %s %s",
-            coordinates,
-            combinedManifest);
+        body("echo ./cdep merge %s %s", coordinates, combinedManifest);
 
-        body("./cdep merge %s %s",
-            coordinates,
-            combinedManifest);
+        body("./cdep merge %s %s", coordinates, combinedManifest);
         body(ABORT_LAST_FAILED);
 
         // If the merge succeeded, that means we got all of the coordinates.
@@ -799,33 +773,26 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("fi");
     }
 
-
     return this;
   }
 
   private void upload(File file, RemoteArchive githubRelease) {
     String user = targetGroupId.substring(targetGroupId.lastIndexOf(".") + 1);
 
-    body(
-        "  echo %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
+    body("  echo %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
         TOOLS_FOLDER,
         getHostArchive(githubRelease).unpackroot,
         user,
         targetArtifactId,
         targetVersion,
-        file.getName(),
-        file.getAbsolutePath()
-    );
-    body(
-        "  %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
+        file.getName(), file.getAbsolutePath());
+    body("  %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
         TOOLS_FOLDER,
         getHostArchive(githubRelease).unpackroot,
         user,
         targetArtifactId,
         targetVersion,
-        file.getName(),
-        file.getAbsolutePath()
-    );
+        file.getName(), file.getAbsolutePath());
     body(ABORT_LAST_FAILED);
 
   }
@@ -836,9 +803,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     badgeUrl = badgeUrl.replace(":", "%3A");
     badgeUrl = badgeUrl.replace("-", "--");
     badgeUrl = String.format("https://img.shields.io/badge/cdep-%s-brightgreen.svg", badgeUrl);
-    String badgeFolder = String.format("%s/%s",
-        targetGroupId,
-        targetArtifactId);
+    String badgeFolder = String.format("%s/%s", targetGroupId, targetArtifactId);
     body("if [ -n \"$TRAVIS_TAG\" ]; then");
     body("  if [ -n \"$CDEP_BADGES_API_KEY\" ]; then");
     body("    echo git clone https://github.com/cdep-io/cdep-io.github.io.git");
