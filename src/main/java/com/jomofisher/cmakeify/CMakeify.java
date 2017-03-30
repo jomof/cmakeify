@@ -355,7 +355,6 @@ public class CMakeify {
       }
       if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
         argsUsed.add(i);
-
       }
     }
   }
