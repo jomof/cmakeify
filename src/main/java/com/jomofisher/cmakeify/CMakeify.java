@@ -1,25 +1,17 @@
 package com.jomofisher.cmakeify;
 
-import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
-import static com.jomofisher.cmakeify.model.OS.linux;
+import com.jomofisher.cmakeify.model.*;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
-import com.jomofisher.cmakeify.model.CMakeifyYml;
-import com.jomofisher.cmakeify.model.OS;
-import com.jomofisher.cmakeify.model.RemoteArchive;
-import com.jomofisher.cmakeify.model.Toolset;
-import com.jomofisher.cmakeify.model.iOSArchitecture;
-import com.jomofisher.cmakeify.model.iOSPlatform;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
+import java.util.*;
+
+import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
+import static com.jomofisher.cmakeify.model.OS.linux;
 
 public class CMakeify {
 
@@ -32,6 +24,7 @@ public class CMakeify {
   private OSType hostOS;
   private OS targetOS = null;
   private Set<Integer> argsUsed = new HashSet<>();
+  private List<String> cmakeFlags = new ArrayList<>();
 
   CMakeify(PrintStream out) {
     this.out = out;
@@ -121,6 +114,15 @@ public class CMakeify {
         this.targetOS
     );
 
+    // Combine the command-line level CMake flags
+    String cmakeFlags = "";
+    for (int i = 0; i < this.cmakeFlags.size(); ++i) {
+      if (i != 0) {
+        cmakeFlags += " ";
+      }
+      cmakeFlags += this.cmakeFlags.get(i);
+    }
+
     // Map of compilers.
     Set<OS> targetOS = new HashSet<>();
     if (this.targetOS == null) {
@@ -205,6 +207,7 @@ public class CMakeify {
                           cmakeVersion,
                           config.cmake.remotes.get(cmakeVersion),
                           config.buildTarget,
+                          cmakeFlags,
                           config.android.ndk.cppFlags,
                           flavor,
                           flavors.get(flavor),
@@ -239,7 +242,9 @@ public class CMakeify {
                   cmakeVersion,
                   config.cmake.remotes.get(cmakeVersion),
                   config.buildTarget,
+                  cmakeFlags,
                   toolset,
+                  config.android.lib,
                   config.cmake.versions.length != 1,
                   config.linux.compilers.length != 1);
             }
@@ -262,6 +267,7 @@ public class CMakeify {
                         cmakeVersion,
                         config.cmake.remotes.get(cmakeVersion),
                         config.buildTarget,
+                        cmakeFlags,
                         flavor,
                         flavors.get(flavor),
                         config.includes,
@@ -343,10 +349,16 @@ public class CMakeify {
   }
 
   private void handleCMakeFlags(String[] args) throws IOException {
+    boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
+      if (takeNext) {
+        argsUsed.add(i);
+        takeNext = false;
+        cmakeFlags.add(args[i]);
+      }
       if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
         argsUsed.add(i);
-        throw new RuntimeException("--cmake-flags no longer supported");
+        takeNext = true;
       }
     }
   }
