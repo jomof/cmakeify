@@ -525,8 +525,10 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("  " + command);
 
       if (target != null && target.length() > 0) {
+        body(String.format("echo %s --build %s --target %s -- -j8", cmakeExe, buildFolder, target));
         body(String.format("%s --build %s --target %s -- -j8", cmakeExe, buildFolder, target));
       } else {
+        body(String.format("echo %s --build %s -- -j8", cmakeExe, buildFolder));
         body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
       }
       body("  " + ABORT_LAST_FAILED);
