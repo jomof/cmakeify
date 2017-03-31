@@ -10,7 +10,6 @@ public class Ndk {
     final public String platforms[];
     final public String abis[];
     final public Map<String, RemoteArchive> remotes;
-    final public String cppFlags;
     Ndk() {
         compilers = new String[] { "clang" };
         runtimes = new String[]{"c++"};
@@ -20,7 +19,6 @@ public class Ndk {
         remotes = new HashMap<>();
         remotes.put("r13b", archiveUrlOf("r13b"));
         remotes.put("r14-beta1", archiveUrlOf("r14-beta1"));
-        cppFlags = "";
     }
 
     private static RemoteArchive archiveUrlOf(String ndk) {

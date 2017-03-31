@@ -22,7 +22,6 @@ abstract class ScriptBuilder {
       RemoteArchive cmakeRemote,
       String target,
       String cmakeFlags,
-      String androidCppFlags,
       String flavor,
       String flavorFlags,
       String ndkVersion,

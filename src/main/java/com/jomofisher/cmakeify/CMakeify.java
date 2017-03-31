@@ -114,15 +114,6 @@ public class CMakeify {
         this.targetOS
     );
 
-    // Combine the command-line level CMake flags
-    String cmakeFlags = "";
-    for (int i = 0; i < this.cmakeFlags.size(); ++i) {
-      if (i != 0) {
-        cmakeFlags += " ";
-      }
-      cmakeFlags += this.cmakeFlags.get(i);
-    }
-
     // Map of compilers.
     Set<OS> targetOS = new HashSet<>();
     if (this.targetOS == null) {
@@ -206,9 +197,7 @@ public class CMakeify {
                       script.cmakeAndroid(
                           cmakeVersion,
                           config.cmake.remotes.get(cmakeVersion),
-                          config.buildTarget,
-                          cmakeFlags,
-                          config.android.ndk.cppFlags,
+                          config.buildTarget, config.cmakeFlags,
                           flavor,
                           flavors.get(flavor),
                           ndk,
@@ -241,8 +230,7 @@ public class CMakeify {
               script.cmakeLinux(
                   cmakeVersion,
                   config.cmake.remotes.get(cmakeVersion),
-                  config.buildTarget,
-                  cmakeFlags,
+                  config.buildTarget, config.cmakeFlags,
                   toolset,
                   config.android.lib,
                   config.cmake.versions.length != 1,
@@ -266,8 +254,7 @@ public class CMakeify {
                     script.cmakeiOS(
                         cmakeVersion,
                         config.cmake.remotes.get(cmakeVersion),
-                        config.buildTarget,
-                        cmakeFlags,
+                        config.buildTarget, config.cmakeFlags,
                         flavor,
                         flavors.get(flavor),
                         config.includes,
@@ -357,8 +344,7 @@ public class CMakeify {
         cmakeFlags.add(args[i]);
       }
       if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
-        argsUsed.add(i);
-        takeNext = true;
+        throw new RuntimeException("--cmake-flags not supported");
       }
     }
   }

@@ -178,7 +178,6 @@ public class BashScriptBuilder extends ScriptBuilder {
       RemoteArchive cmakeRemote,
       String target,
       String cmakeFlags,
-      String androidCMakeFlags,
       String flavor,
       String flavorFlags,
       String ndkVersion,
@@ -255,11 +254,11 @@ public class BashScriptBuilder extends ScriptBuilder {
 
       File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
       recordOutputLocation(stagingAbiFolder);
-      String command = String.format("%s \\\n" + "   -H%s \\\n" + "   -B%s \\\n" + "   " +
-              "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s" + " \\\n" + "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" + "   " +
-              "-DCMAKE_SYSTEM_NAME=Android \\\n" + "   " + "-DCMAKE_SYSTEM_VERSION=%s \\\n" + "   " +
-              "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "   " + "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" + "   " + "" + "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" + "   " + "-DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" + "   " +
-              "-DCMAKE_ANDROID_NDK=%s \\\n" + "   -DCMAKE_ANDROID_ARCH_ABI=%s %s" + " %s %s\n",
+      String command = String.format("%s \\\n   -H%s \\\n   -B%s \\\n   " + "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n   " +
+              "-DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n   " + "-DCMAKE_SYSTEM_NAME=Android \\\n   -DCMAKE_SYSTEM_VERSION=%s " +
+              "\\\n   " + "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n   " +
+              "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n   " +
+              "-DCMAKE_ANDROID_NDK=%s \\\n   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
           cmakeExe,
           workingFolder,
           abiBuildFolder,
@@ -271,9 +270,7 @@ public class BashScriptBuilder extends ScriptBuilder {
           runtime,
           new File(ndkFolder).getAbsolutePath(),
           abi,
-          flavorFlags,
-          cmakeFlags,
-          androidCMakeFlags);
+          flavorFlags, cmakeFlags);
       body("  echo Executing %s", command);
       body("  " + command);
       body("  " + ABORT_LAST_FAILED);
