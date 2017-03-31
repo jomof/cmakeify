@@ -143,11 +143,9 @@ public class TestCmakeify {
     File yaml = new File("test-files/testScriptMacOS/cmakeify.yml");
     yaml.getParentFile().mkdirs();
     Files.write("targets: [android, iOS]\n" +
-            "includes: [extra-includes]\n" +
+            "includes: [extra-includes]\n" + "buildTarget: bob\n" +
             "iOS:\n" +
-            "  flavors:\n" +
-            "    myflags: -DOSX -DBOOST_ROOT=bob\n" +
-            "  lib: libbob.a\n",
+            "  flavors:\n" + "    myflags: -DOSX -DBOOST_ROOT=bob\n",
         yaml, StandardCharsets.UTF_8);
     main("-wf", yaml.getParent(),
         "--host", "MacOS",
@@ -168,7 +166,7 @@ public class TestCmakeify {
     assertThat(script).doesNotContain("--parent"); // mkdir --parents flag doesn't work on OSX
     assertThat(script).doesNotContain("didn't");
     String dump = main("-wf", yaml.getParent(), "--dump");
-    assertThat(dump).contains("  lib:");
+    assertThat(dump).contains("buildTarget:");
     assertThat(dump).contains("runtimes:");
     System.out.printf(dump);
   }

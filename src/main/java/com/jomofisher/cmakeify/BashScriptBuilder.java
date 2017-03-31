@@ -199,7 +199,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
-    if (target != null && target.length() > 0 && lib == null && lib.length() == 0) {
+    if (target != null && target.length() > 0 && (lib == null || lib.length() == 0)) {
       lib = String.format("lib%s.a", target);
     }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
@@ -258,8 +258,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       String command = String.format("%s \\\n" + "   -H%s \\\n" + "   -B%s \\\n" + "   " +
               "-DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s" + " \\\n" + "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" + "   " +
               "-DCMAKE_SYSTEM_NAME=Android \\\n" + "   " + "-DCMAKE_SYSTEM_VERSION=%s \\\n" + "   " +
-              "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "   " + "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" + "   " +
-              "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" + "   " + "-DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" + "   " +
+              "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "   " + "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" + "   " + "" + "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" + "   " + "-DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" + "   " +
               "-DCMAKE_ANDROID_NDK=%s \\\n" + "   -DCMAKE_ANDROID_ARCH_ABI=%s %s" + " %s %s\n",
           cmakeExe,
           workingFolder,
@@ -362,7 +361,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
-    if (target != null && target.length() > 0 && lib == null && lib.length() == 0) {
+    if (target != null && target.length() > 0 && (lib == null || lib.length() == 0)) {
       lib = String.format("lib%s.a", target);
     }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
@@ -446,7 +445,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
-    if (target != null && target.length() > 0 && lib == null && lib.length() == 0) {
+    if (target != null && target.length() > 0 && (lib == null || lib.length() == 0)) {
       lib = String.format("lib%s.a", target);
     }
 
@@ -505,11 +504,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     recordOutputLocation(stagingFolder);
 
     String command = String.format("%s \\\n" + "     -H%s \\\n" + "     -B%s \\\n" + "     " +
-            "-DCMAKE_C_COMPILER=${CDEP_IOS_CLANG}" + " \\\n" + "     -DCMAKE_CXX_COMPILER=${CDEP_IOS_CLANG} \\\n" + "     " +
-            "-DCMAKE_C_COMPILER_WORKS=1 \\\n" + "     " + "-DCMAKE_CXX_COMPILER_WORKS=1 \\\n" + "     -DCMAKE_AR=${CDEP_IOS_AR}" +
-            " \\\n" + "     " + "-DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" + "     -DCMAKE_OSX_ARCHITECTURES=%s \\\n" + " " +
-            "    " + "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "     -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib " +
-            "\\\n" + "    " + " -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
+            "-DCMAKE_C_COMPILER=${CDEP_IOS_CLANG}" + " \\\n" + "     -DCMAKE_CXX_COMPILER=${CDEP_IOS_CLANG} \\\n" + "     " + "-DCMAKE_C_COMPILER_WORKS=1 \\\n" + "     " + "-DCMAKE_CXX_COMPILER_WORKS=1 \\\n" + "     " + "-DCMAKE_AR=${CDEP_IOS_AR}" + " \\\n" + "     " + "-DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" + "     " + "-DCMAKE_OSX_ARCHITECTURES=%s \\\n" + " " + "    " + "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "     " + "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib " + "\\\n" + "    " + " -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
         cmakeExe,
         workingFolder,
         buildFolder,
@@ -786,15 +781,13 @@ public class BashScriptBuilder extends ScriptBuilder {
         getHostArchive(githubRelease).unpackroot,
         user,
         targetArtifactId,
-        targetVersion,
-        file.getName(), file.getAbsolutePath());
+        targetVersion, file.getName(), file.getAbsolutePath());
     body("  %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
         TOOLS_FOLDER,
         getHostArchive(githubRelease).unpackroot,
         user,
         targetArtifactId,
-        targetVersion,
-        file.getName(), file.getAbsolutePath());
+        targetVersion, file.getName(), file.getAbsolutePath());
     body(ABORT_LAST_FAILED);
 
   }
