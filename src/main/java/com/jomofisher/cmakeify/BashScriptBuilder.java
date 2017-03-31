@@ -201,6 +201,9 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && (lib == null || lib.length() == 0)) {
       lib = String.format("lib%s.a", target);
     }
+    if (cmakeFlags == null) {
+      cmakeFlags = "";
+    }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = androidFolder;
     String zipName = targetArtifactId + "-android";
@@ -361,6 +364,9 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && (lib == null || lib.length() == 0)) {
       lib = String.format("lib%s.a", target);
     }
+    if (cmakeFlags == null) {
+      cmakeFlags = "";
+    }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = new File(rootBuildFolder, "Linux");
     String zipName = targetArtifactId + "-linux";
@@ -445,7 +451,9 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (target != null && target.length() > 0 && (lib == null || lib.length() == 0)) {
       lib = String.format("lib%s.a", target);
     }
-
+    if (cmakeFlags == null) {
+      cmakeFlags = "";
+    }
     if (!isSupportediOSPlatformArchitecture(platform, architecture)) {
       out.printf("Skipping iOS %s %s because it isn't supported by XCode\n", platform, architecture);
       return this;
