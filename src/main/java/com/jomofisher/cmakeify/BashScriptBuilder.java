@@ -257,11 +257,19 @@ public class BashScriptBuilder extends ScriptBuilder {
 
       File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
       recordOutputLocation(stagingAbiFolder);
-      String command = String.format("%s \\\n   -H%s \\\n   -B%s \\\n   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n   " +
-              "-DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n   -DCMAKE_SYSTEM_NAME=Android \\\n   -DCMAKE_SYSTEM_VERSION=%s " +
-              "\\\n   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n   " +
-              "-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n   " +
-              "-DCMAKE_ANDROID_NDK=%s \\\n   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
+      String command = String.format("%s \\\n" +
+              "   -H%s \\\n" +
+              "   -B%s \\\n" +
+              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
+              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n'" +
+              "   -DCMAKE_SYSTEM_NAME=Android \\\n'" +
+              "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
+              "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+              "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
+              "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s  \\\n" +
+              "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
+              "   -DCMAKE_ANDROID_NDK=%s \\\n" +
+              "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
           cmakeExe,
           workingFolder,
           abiBuildFolder,
@@ -388,9 +396,15 @@ public class BashScriptBuilder extends ScriptBuilder {
     recordOutputLocation(outputFolder);
     recordOutputLocation(redistFolder);
 
-    body(String.format("%s \\\n" + "   -H%s \\\n" + "   -B%s \\\n" + "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-            "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" + "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" + "   " +
-            "-DCMAKE_SYSTEM_NAME=Linux \\\n" + "   -DCMAKE_C_COMPILER=%s \\\n" + "   -DCMAKE_CXX_COMPILER=%s %s",
+    body(String.format("%s \\\n" +
+            "  -H%s \\\n" +
+            "  -B%s \\\n" +
+            "  -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+            "  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
+            "  -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
+            "  -DCMAKE_SYSTEM_NAME=Linux \\\n" +
+            "  -DCMAKE_C_COMPILER=%s \\\n" +
+            "  -DCMAKE_CXX_COMPILER=%s %s",
         cmakeExe,
         workingFolder,
         buildFolder,
@@ -497,7 +511,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("CDEP_IOS_DEVELOPER_ROOT=${CDEP_XCODE_DEVELOPER_DIR}/Platforms/%s.platform/Developer", platform);
       body("CDEP_IOS_SDK_ROOT=${CDEP_IOS_DEVELOPER_ROOT}/SDKs/%s%s.sdk", platform, sdk);
       body("if [ ! -d \"${CDEP_IOS_SDK_ROOT}\" ]; then");
-      body("  echo Not building for non-existent SDK root ${CDEP_IOS_SDK_ROOT}. " + "Listing available:");
+      body("  echo Not building for non-existent SDK root ${CDEP_IOS_SDK_ROOT}. Listing available:");
       body("  ls ${CDEP_IOS_DEVELOPER_ROOT}/SDKs");
       body("else");
       body("  echo Building to %s", outputFolder);
@@ -508,8 +522,19 @@ public class BashScriptBuilder extends ScriptBuilder {
     recordOutputLocation(redistFolder);
     recordOutputLocation(stagingFolder);
 
-    String command = String.format("%s \\\n" + "     -H%s \\\n" + "     -B%s \\\n" + "     " +
-            "-DCMAKE_C_COMPILER=${CDEP_IOS_CLANG}" + " \\\n" + "     -DCMAKE_CXX_COMPILER=${CDEP_IOS_CLANG} \\\n" + "     " + "-DCMAKE_C_COMPILER_WORKS=1 \\\n" + "     " + "-DCMAKE_CXX_COMPILER_WORKS=1 \\\n" + "     " + "-DCMAKE_AR=${CDEP_IOS_AR}" + " \\\n" + "     " + "-DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" + "     " + "-DCMAKE_OSX_ARCHITECTURES=%s \\\n" + " " + "    " + "-DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" + "     " + "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib " + "\\\n" + "    " + " -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
+    String command = String.format("%s \\\n" +
+            "    -H%s \\\n" +
+            "    -B%s \\\n" +
+            "    -DCMAKE_C_COMPILER=${CDEP_IOS_CLANG}\\\n" +
+            "    -DCMAKE_CXX_COMPILER=${CDEP_IOS_CLANG} \\\n" +
+            "    -DCMAKE_C_COMPILER_WORKS=1 \\\n" +
+            "    -DCMAKE_CXX_COMPILER_WORKS=1 \\\n" +
+            "    -DCMAKE_AR=${CDEP_IOS_AR}\\\n" +
+            "    -DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" +
+            "    -DCMAKE_OSX_ARCHITECTURES=%s \\\n" +
+            "    -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+            "    -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
+            "    -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
         cmakeExe,
         workingFolder,
         buildFolder,
