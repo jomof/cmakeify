@@ -285,14 +285,15 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("  " + command);
     body("  " + ABORT_LAST_FAILED);
     if (target != null && target.length() > 0) {
-      body(String.format("%s --build %s --target %s -- -j8", cmakeExe, abiBuildFolder, target));
+      body(String.format("  %s --build %s --target %s -- -j8", cmakeExe, abiBuildFolder, target));
     } else {
-      body(String.format("%s --build %s -- -j8", cmakeExe, abiBuildFolder));
+      body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
     }
     body("  " + ABORT_LAST_FAILED);
     String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
     File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
     recordOutputLocation(redistAbiFolder);
+
     if (lib != null && lib.length() > 0) {
       body("  if [ -f '%s' ]; then", stagingLib);
       body("    mkdir -p %s", redistAbiFolder);
@@ -302,6 +303,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
       body("    exit 100");
       body("  fi");
+    } else {
+      throw new RuntimeException("Android build did not specify lib");
     }
     body("else");
     body("  echo Build skipped ABI %s because arch folder didnt exist: %s", abi, archFolder);
@@ -322,7 +325,6 @@ public class BashScriptBuilder extends ScriptBuilder {
     writeExtraIncludesToBody(includes, redistFolder);
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
     writeZipFileStatisticsToBody(zip);
-    body("fi");
     cdep("  - lib: %s", lib);
     cdep("    file: %s", zip.getName());
     cdep("    sha256: $SHASUM256");
@@ -340,6 +342,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (multipleCMake) {
       cdep("    builder: cmake-%s", cmakeVersion);
     }
+    body("fi");
 
     return this;
   }
