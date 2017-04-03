@@ -183,37 +183,40 @@ public class CMakeify {
               for (String platform : config.android.ndk.platforms) {
                 for (String compiler : config.android.ndk.compilers) {
                   for (String runtime : config.android.ndk.runtimes) {
-                    Map<String, String> flavors = config.android.flavors;
-                    if (flavors == null) {
-                      flavors = new HashMap<>();
-                    }
-                    if (flavors.size() == 0) {
-                      flavors.put("default-flavor", "");
-                    }
-                    for (String flavor : flavors.keySet()) {
-                      out.printf(
-                          "Building script for Android %s %s %s %s %s\n",
-                          flavor, ndk, platform, compiler, runtime);
-                      script.cmakeAndroid(
-                          cmakeVersion,
-                          config.cmake.remotes.get(cmakeVersion),
-                          config.buildTarget, config.cmakeFlags,
-                          flavor,
-                          flavors.get(flavor),
-                          ndk,
-                          remote,
-                          config.includes,
-                          config.android.lib,
-                          compiler,
-                          runtime,
-                          platform,
-                          config.android.ndk.abis,
-                          flavors.size() != 1,
-                          config.cmake.versions.length != 1,
-                          config.android.ndk.versions.length != 1,
-                          config.android.ndk.compilers.length != 1,
-                          config.android.ndk.runtimes.length != 1,
-                          config.android.ndk.platforms.length != 1);
+                    for (String abi : config.android.ndk.abis) {
+                      Map<String, String> flavors = config.android.flavors;
+                      if (flavors == null) {
+                        flavors = new HashMap<>();
+                      }
+                      if (flavors.size() == 0) {
+                        flavors.put("default-flavor", "");
+                      }
+                      for (String flavor : flavors.keySet()) {
+                        out.printf(
+                            "Building script for Android %s %s %s %s %s %s\n",
+                            flavor, ndk, platform, compiler, runtime, abi);
+                        script.cmakeAndroid(
+                            cmakeVersion,
+                            config.cmake.remotes.get(cmakeVersion),
+                            config.buildTarget, config.cmakeFlags,
+                            flavor,
+                            flavors.get(flavor),
+                            ndk,
+                            remote,
+                            config.includes,
+                            config.android.lib,
+                            compiler,
+                            runtime,
+                            platform,
+                            abi,
+                            flavors.size() != 1,
+                            config.cmake.versions.length != 1,
+                            config.android.ndk.versions.length != 1,
+                            config.android.ndk.compilers.length != 1,
+                            config.android.ndk.runtimes.length != 1,
+                            config.android.ndk.platforms.length != 1,
+                            config.android.ndk.abis.length != 1);
+                      }
                     }
                   }
                 }

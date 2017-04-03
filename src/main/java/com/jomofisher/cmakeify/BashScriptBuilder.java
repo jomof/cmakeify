@@ -187,14 +187,15 @@ public class BashScriptBuilder extends ScriptBuilder {
       String compiler,
       String runtime,
       String platform,
-      String abis[],
+      String abi,
       boolean multipleFlavors,
       boolean multipleCMake,
       boolean multipleNDK,
       boolean multipleCompiler,
       boolean multipleRuntime,
-      boolean multiplePlatforms) {
-    body("echo Executing script for %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime, target);
+      boolean multiplePlatforms,
+      boolean multipleAbi) {
+    body("echo Executing script for %s %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime, target, abi);
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
@@ -232,6 +233,10 @@ public class BashScriptBuilder extends ScriptBuilder {
       outputFolder = new File(outputFolder, "flavor-" + flavor);
       zipName += "-" + flavor;
     }
+    if (multipleAbi) {
+      outputFolder = new File(outputFolder, "abi-" + abi);
+      zipName += "-" + abi;
+    }
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
     recordOutputLocation(zip);
@@ -240,76 +245,69 @@ public class BashScriptBuilder extends ScriptBuilder {
     String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, getHostArchive(ndkRemote).unpackroot);
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
-    body("ABIS=");
-    for (String abi : abis) {
-      File abiBuildFolder = new File(buildFolder, abi);
-      File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
-          new File(ndkFolder).getAbsolutePath(),
-          platform,
-          Abi.getByName(abi).getArchitecture()));
-      body("if [ -d '%s' ]; then", archFolder);
-      body("  echo Creating make project in %s", abiBuildFolder);
-      body("  if [[ \"$ABIS\" == \"\" ]]; then");
-      body("    ABIS=%s", abi);
-      body("  else");
-      body("    ABIS=\"${ABIS}, %s\"", abi);
-      body("  fi");
+    File abiBuildFolder = new File(buildFolder, abi);
+    File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
+        new File(ndkFolder).getAbsolutePath(),
+        platform,
+        Abi.getByName(abi).getArchitecture()));
+    body("if [ -d '%s' ]; then", archFolder);
+    body("  echo Creating make project in %s", abiBuildFolder);
 
-      File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
-      recordOutputLocation(stagingAbiFolder);
-      String command = String.format("%s \\\n" +
-              "   -H%s \\\n" +
-              "   -B%s \\\n" +
-              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
-              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
-              "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
-              "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
-              "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
-              "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
-              "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s \\\n" +
-              "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
-              "   -DCMAKE_ANDROID_NDK=%s \\\n" +
-              "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
-          cmakeExe,
-          workingFolder,
-          abiBuildFolder,
-          compiler,
-          platform,
-          redistFolder,
-          stagingAbiFolder,
-          stagingAbiFolder,
-          runtime,
-          new File(ndkFolder).getAbsolutePath(),
-          abi,
-          flavorFlags,
-          cmakeFlags);
-      body("  echo Executing %s", command);
-      body("  " + command);
-      body("  " + ABORT_LAST_FAILED);
-      if (target != null && target.length() > 0) {
-        body(String.format("%s --build %s --target %s -- -j8", cmakeExe, abiBuildFolder, target));
-      } else {
-        body(String.format("%s --build %s -- -j8", cmakeExe, abiBuildFolder));
-      }
-      body("  " + ABORT_LAST_FAILED);
-      String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
-      File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
-      recordOutputLocation(redistAbiFolder);
-      if (lib != null && lib.length() > 0) {
-        body("  if [ -f '%s' ]; then", stagingLib);
-        body("    mkdir -p %s", redistAbiFolder);
-        body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
-        body("    " + ABORT_LAST_FAILED);
-        body("  else");
-        body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
-        body("    exit 100");
-        body("  fi");
-      }
-      body("else");
-      body("  echo Build skipped ABI %s because arch folder didnt exist: %s", abi, archFolder);
-      body("fi");
-      zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+    File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
+    recordOutputLocation(stagingAbiFolder);
+    String command = String.format("%s \\\n" +
+            "   -H%s \\\n" +
+            "   -B%s \\\n" +
+            "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
+            "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
+            "   -DCMAKE_SYSTEM_NAME=Android \\\n" +
+            "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
+            "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+            "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
+            "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s \\\n" +
+            "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
+            "   -DCMAKE_ANDROID_NDK=%s \\\n" +
+            "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
+        cmakeExe,
+        workingFolder,
+        abiBuildFolder,
+        compiler,
+        platform,
+        redistFolder,
+        stagingAbiFolder,
+        stagingAbiFolder,
+        runtime,
+        new File(ndkFolder).getAbsolutePath(),
+        abi,
+        flavorFlags,
+        cmakeFlags);
+    body("  echo Executing %s", command);
+    body("  " + command);
+    body("  " + ABORT_LAST_FAILED);
+    if (target != null && target.length() > 0) {
+      body(String.format("%s --build %s --target %s -- -j8", cmakeExe, abiBuildFolder, target));
+    } else {
+      body(String.format("%s --build %s -- -j8", cmakeExe, abiBuildFolder));
     }
+    body("  " + ABORT_LAST_FAILED);
+    String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
+    File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
+    recordOutputLocation(redistAbiFolder);
+    if (lib != null && lib.length() > 0) {
+      body("  if [ -f '%s' ]; then", stagingLib);
+      body("    mkdir -p %s", redistAbiFolder);
+      body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
+      body("    " + ABORT_LAST_FAILED);
+      body("  else");
+      body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
+      body("    exit 100");
+      body("  fi");
+    }
+    body("else");
+    body("  echo Build skipped ABI %s because arch folder didnt exist: %s", abi, archFolder);
+    body("fi");
+    zips.put(zip.getAbsolutePath(), redistFolder.getPath());
+
     body("if [ -d '%s' ]; then", stagingFolder);
     // Create a folder with something in it so there'e always something to zip
     body("  mkdir -p %s", redistFolder);
@@ -340,7 +338,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     cdep("    runtime: %s", runtime);
     cdep("    platform: %s", platform);
     cdep("    ndk: %s", ndkVersion);
-    cdep("    abis: [ ${ABIS} ]");
+    cdep("    abi: %s", abi);
     if (multipleCompiler) {
       cdep("    compiler: %s", compiler);
     }

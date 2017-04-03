@@ -31,13 +31,14 @@ abstract class ScriptBuilder {
       String compiler,
       String runtime,
       String platform,
-      String abi[],
+      String abi,
       boolean multipleFlavors,
       boolean multipleCMake,
       boolean multipleNDK,
       boolean multipleCompiler,
       boolean multipleRuntime,
-      boolean multiplePlatforms);
+      boolean multiplePlatforms,
+      boolean multipleAbi);
 
   abstract ScriptBuilder cmakeLinux(
       String cmakeVersion,
