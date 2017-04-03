@@ -261,7 +261,7 @@ public class BashScriptBuilder extends ScriptBuilder {
               "   -H%s \\\n" +
               "   -B%s \\\n" +
               "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
-              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n'" +
+              "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_DEBUG=1 \\\n" +
               "   -DCMAKE_SYSTEM_NAME=Android \\\n'" +
               "   -DCMAKE_SYSTEM_VERSION=%s \\\n" +
               "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
