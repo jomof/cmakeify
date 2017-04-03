@@ -322,11 +322,6 @@ public class BashScriptBuilder extends ScriptBuilder {
     writeExtraIncludesToBody(includes, redistFolder);
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
     writeZipFileStatisticsToBody(zip);
-    if (lib == null || lib.length() > 0) {
-      body("else");
-      body("  echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
-      body("  exit 200");
-    }
     body("fi");
     cdep("  - lib: %s", lib);
     cdep("    file: %s", zip.getName());
