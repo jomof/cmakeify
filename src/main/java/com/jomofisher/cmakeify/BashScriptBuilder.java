@@ -196,6 +196,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       boolean multiplePlatforms,
       boolean multipleAbi) {
     body("echo Executing script for %s %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime, target, abi);
+    if (lib != null && lib.length() > 0) {
+      throw new RuntimeException("lib is no longer supported, use target");
+    }
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
     }
@@ -304,7 +307,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("    exit 100");
       body("  fi");
     } else {
-      throw new RuntimeException("Android build did not specify lib");
+      body("  echo cmakeify.yml did not specify lib or target. No output library expected.");
     }
     body("else");
     body("  echo Build skipped ABI %s because arch folder didnt exist: %s", abi, archFolder);
