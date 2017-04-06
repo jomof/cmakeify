@@ -717,8 +717,13 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   @Override
-  ScriptBuilder deployRedistFiles(RemoteArchive githubRelease, OS[] allTargets, boolean uploadBadges) {
+  ScriptBuilder deployRedistFiles(
+      RemoteArchive githubRelease,
+      OS[] allTargets,
+      boolean uploadBadges) {
+
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
+    File headers = new File(cdepFile.getParentFile(), "headers.yml");
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       if (!combinedManifest.equals(cdepFile)) {
@@ -752,6 +757,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         body(ABORT_LAST_FAILED);
         upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
+        upload(headers, githubRelease);
+        body(ABORT_LAST_FAILED);
       } else {
         // Accumulate a list of all targets to merge except for this one
         String otherCoordinates = "";
@@ -780,6 +787,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
         upload(combinedManifest, githubRelease);
+        body(ABORT_LAST_FAILED);
+        upload(headers, githubRelease);
+        body(ABORT_LAST_FAILED);
         if (uploadBadges) {
           uploadBadges();
         }
@@ -790,12 +800,17 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  " + ABORT_LAST_FAILED);
         body("fi");
         upload(cdepFile, githubRelease);
+        body(ABORT_LAST_FAILED);
+
       }
     } else {
       // There is not a specificTargetOS so there aren't multiple travis runs.
       // Just upload cdep-manifest.yml.
       assert cdepFile.toString().endsWith("cdep-manifest.yml");
       upload(cdepFile, githubRelease);
+      body(ABORT_LAST_FAILED);
+      upload(headers, githubRelease);
+      body(ABORT_LAST_FAILED);
       if (uploadBadges) {
         uploadBadges();
       }
