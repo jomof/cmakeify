@@ -341,7 +341,6 @@ public class BashScriptBuilder extends ScriptBuilder {
     cdep("    runtime: %s", runtime);
     cdep("    platform: %s", platform);
     cdep("    ndk: %s", ndkVersion);
-    cdep("    include:");
     cdep("    abi: %s", abi);
     if (multipleCompiler) {
       cdep("    compiler: %s", compiler);
