@@ -20,12 +20,12 @@ deploy:
 language: java
 matrix: 
   include: 
-    - env: TARGET_OS=android
+    - env: TARGET_OS=android_and_linux
       jdk: oraclejdk7
       os: linux
       script:
         - ./gradlew assemble check
-        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0} --target-os android
+        - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0}
  
 #    - env: TARGET_OS=linux
 #      jdk: oraclejdk7
