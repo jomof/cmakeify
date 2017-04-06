@@ -111,10 +111,10 @@ public class TestCmakeify {
     yaml.getParentFile().mkdirs();
     Files.write("targets: [android]\n" +
             "includes: [extra-includes]\n" +
+            "buildTarget: bob\n" +
             "android:\n" +
             "  flavors:\n" +
             "    myflags: -DANDROID -DBOOST_ROOT=bob\n" +
-            "  lib: libbob.a\n" +
             "  ndk:\n" +
             "    platforms: [21, 22]\n",
         yaml, StandardCharsets.UTF_8);
@@ -133,7 +133,6 @@ public class TestCmakeify {
     assertThat(script).contains("-DANDROID");
     assertThat(script).doesNotContain("didn't");
     String dump = main("-wf", yaml.getParent(), "--dump");
-    assertThat(dump).contains("  lib:");
     assertThat(dump).contains("runtimes:");
     System.out.printf(dump);
   }
@@ -176,8 +175,8 @@ public class TestCmakeify {
     File yaml = new File("test-files/testScript/cmakeify.yml");
     yaml.getParentFile().mkdirs();
     Files.write("targets: [android]\n" +
+            "buildTarget: sqlite\n" +
             "android:\n" +
-            "  lib: libsqlite.a\n" +
             "  ndk:\n" +
             "    runtimes: [c++, gnustl, stlport]\n" +
             "    platforms: [12, 21]\n" +

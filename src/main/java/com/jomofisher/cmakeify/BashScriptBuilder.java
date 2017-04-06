@@ -197,7 +197,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       boolean multipleAbi) {
     body("echo Executing script for %s %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime, target, abi);
     if (lib != null && lib.length() > 0) {
-      throw new RuntimeException("lib is no longer supported, use target");
+      throw new RuntimeException("lib is no longer supported, use buildTarget");
     }
     if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
       throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
