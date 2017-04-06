@@ -755,6 +755,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         // We can combine the file locally.
         body("cp %s %s", cdepFile, combinedManifest);
         body(ABORT_LAST_FAILED);
+        body("./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
+        body(ABORT_LAST_FAILED);
         upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
         upload(headers, githubRelease);
@@ -786,6 +788,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  ./cdep fetch %s", coordinates);
         body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
+        body("  ./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
+        body(ABORT_LAST_FAILED);
         upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
         upload(headers, githubRelease);
@@ -807,6 +811,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       // There is not a specificTargetOS so there aren't multiple travis runs.
       // Just upload cdep-manifest.yml.
       assert cdepFile.toString().endsWith("cdep-manifest.yml");
+      body("./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
+      body(ABORT_LAST_FAILED);
       upload(cdepFile, githubRelease);
       body(ABORT_LAST_FAILED);
       upload(headers, githubRelease);
