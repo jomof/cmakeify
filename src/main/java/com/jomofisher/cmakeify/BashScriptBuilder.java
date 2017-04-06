@@ -242,6 +242,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+    File headers = new File(zipsFolder, "headers.zip").getAbsoluteFile();
     recordOutputLocation(zip);
 
     File buildFolder = new File(outputFolder, "cmake-generated-files");
@@ -328,6 +329,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         redistFolder);
     writeExtraIncludesToBody(includes, headerFolder);
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+    writeCreateZipFromRedistFolderToBody(headers, headerFolder);
     writeZipFileStatisticsToBody(zip);
     cdep("  - lib: %s", lib);
     cdep("    file: %s", zip.getName());
@@ -389,6 +391,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+    File headers = new File(zipsFolder, "headers.zip").getAbsoluteFile();
     File buildFolder = new File(outputFolder, "cmake-generated-files");
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
@@ -431,6 +434,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    exit 500");
     body("  fi");
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+    writeCreateZipFromRedistFolderToBody(headers, headerFolder);
     writeZipFileStatisticsToBody(zip);
     body("  " + ABORT_LAST_FAILED);
     cdep("  - lib: %s", lib);
@@ -501,6 +505,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
+    File headers = new File(zipsFolder, "headers.zip").getAbsoluteFile();
     File buildFolder = new File(outputFolder, "cmake-generated-files");
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
@@ -580,6 +585,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt", cmakeVersion, platform, redistFolder);
       writeExtraIncludesToBody(includes, headerFolder);
       writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+      writeCreateZipFromRedistFolderToBody(headers, headerFolder);
       writeZipFileStatisticsToBody(zip);
 
       if (lib == null || lib.length() > 0) {
@@ -628,8 +634,8 @@ public class BashScriptBuilder extends ScriptBuilder {
     throw new RuntimeException(platform.toString());
   }
 
-  private void writeCreateZipFromRedistFolderToBody(File zip, File redistFolder) {
-    body("  pushd %s", redistFolder);
+  private void writeCreateZipFromRedistFolderToBody(File zip, File folder) {
+    body("  pushd %s", folder);
     body("  " + ABORT_LAST_FAILED);
     body("  zip %s . -r", zip);
     body("  " + ABORT_LAST_FAILED);
