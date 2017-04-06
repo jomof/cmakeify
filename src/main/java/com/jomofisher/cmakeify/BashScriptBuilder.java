@@ -247,6 +247,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     File buildFolder = new File(outputFolder, "cmake-generated-files");
     String ndkFolder = String.format("%s/%s", TOOLS_FOLDER, getHostArchive(ndkRemote).unpackroot);
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+    File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
     File abiBuildFolder = new File(buildFolder, abi);
     File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
@@ -276,7 +277,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         abiBuildFolder,
         compiler,
         platform,
-        redistFolder,
+        headerFolder,
         stagingAbiFolder,
         stagingAbiFolder,
         runtime,
@@ -325,7 +326,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         compiler,
         runtime,
         redistFolder);
-    writeExtraIncludesToBody(includes, redistFolder);
+    writeExtraIncludesToBody(includes, headerFolder);
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
     writeZipFileStatisticsToBody(zip);
     cdep("  - lib: %s", lib);
@@ -389,6 +390,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
     File buildFolder = new File(outputFolder, "cmake-generated-files");
+    File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     body("echo Building to %s", outputFolder);
     body("mkdir -p %s/include", redistFolder);
@@ -408,7 +410,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         cmakeExe,
         workingFolder,
         buildFolder,
-        redistFolder,
+        headerFolder,
         redistFolder,
         redistFolder,
         toolset.c,
@@ -500,6 +502,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
     File buildFolder = new File(outputFolder, "cmake-generated-files");
+    File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
     if (hostOS != OSType.MacOS) {
@@ -539,7 +542,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         workingFolder,
         buildFolder,
         architecture,
-        redistFolder,
+        headerFolder,
         stagingFolder,
         stagingFolder,
         cmakeFlags,
@@ -575,7 +578,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       // Create a folder with something in it so there'e always something to zip
       body("    mkdir -p %s", redistFolder);
       bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt", cmakeVersion, platform, redistFolder);
-      writeExtraIncludesToBody(includes, redistFolder);
+      writeExtraIncludesToBody(includes, headerFolder);
       writeCreateZipFromRedistFolderToBody(zip, redistFolder);
       writeZipFileStatisticsToBody(zip);
 
