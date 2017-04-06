@@ -723,7 +723,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       boolean uploadBadges) {
 
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
-    File headers = new File(cdepFile.getParentFile(), "headers.yml");
+    File headers = new File(cdepFile.getParentFile(), "headers.zip");
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       if (!combinedManifest.equals(cdepFile)) {
@@ -799,9 +799,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  cp %s %s", cdepFile, combinedManifest);
         body("  " + ABORT_LAST_FAILED);
         body("fi");
-        upload(cdepFile, githubRelease);
-        body(ABORT_LAST_FAILED);
 
+        // Upload the uncombined manifest
+        upload(cdepFile, githubRelease);
       }
     } else {
       // There is not a specificTargetOS so there aren't multiple travis runs.
