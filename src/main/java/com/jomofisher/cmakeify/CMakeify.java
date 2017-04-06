@@ -40,8 +40,14 @@ public class CMakeify {
     }
   }
 
-  public static void main(String[] args) throws IOException {
-    new CMakeify(System.out).go(args);
+  public static int main(String[] args) throws IOException {
+    try {
+      new CMakeify(System.out).go(args);
+    } catch (Exception e) {
+      e.printStackTrace();
+      return Integer.MIN_VALUE;
+    }
+    return 0;
   }
 
   void go(String[] args) throws IOException {
