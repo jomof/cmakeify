@@ -329,7 +329,9 @@ public class BashScriptBuilder extends ScriptBuilder {
         redistFolder);
     writeExtraIncludesToBody(includes, headerFolder);
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+    body("  if [ -d '%s' ]; then", headerFolder);
     writeCreateZipFromRedistFolderToBody(headers, headerFolder);
+    body("  fi", headerFolder);
     writeZipFileStatisticsToBody(zip);
     cdep("  - lib: %s", lib);
     cdep("    file: %s", zip.getName());
@@ -434,7 +436,9 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    exit 500");
     body("  fi");
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+    body("  if [ -d '%s' ]; then", headerFolder);
     writeCreateZipFromRedistFolderToBody(headers, headerFolder);
+    body("  fi", headerFolder);
     writeZipFileStatisticsToBody(zip);
     body("  " + ABORT_LAST_FAILED);
     cdep("  - lib: %s", lib);
@@ -585,7 +589,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt", cmakeVersion, platform, redistFolder);
       writeExtraIncludesToBody(includes, headerFolder);
       writeCreateZipFromRedistFolderToBody(zip, redistFolder);
+      body("  if [ -d '%s' ]; then", headerFolder);
       writeCreateZipFromRedistFolderToBody(headers, headerFolder);
+      body("  fi", headerFolder);
       writeZipFileStatisticsToBody(zip);
 
       if (lib == null || lib.length() > 0) {
@@ -755,12 +761,15 @@ public class BashScriptBuilder extends ScriptBuilder {
         // We can combine the file locally.
         body("cp %s %s", cdepFile, combinedManifest);
         body(ABORT_LAST_FAILED);
+        body("if [ -f '%s' ]; then", headers);
         body("./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
-        body(ABORT_LAST_FAILED);
-        upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
         upload(headers, githubRelease);
         body(ABORT_LAST_FAILED);
+        body("fi");
+        upload(combinedManifest, githubRelease);
+        body(ABORT_LAST_FAILED);
+
       } else {
         // Accumulate a list of all targets to merge except for this one
         String otherCoordinates = "";
@@ -788,11 +797,13 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  ./cdep fetch %s", coordinates);
         body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
-        body("  ./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
-        body(ABORT_LAST_FAILED);
-        upload(combinedManifest, githubRelease);
+        body("if [ -f '%s' ]; then", headers);
+        body("./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
         body(ABORT_LAST_FAILED);
         upload(headers, githubRelease);
+        body(ABORT_LAST_FAILED);
+        body("fi");
+        upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
         if (uploadBadges) {
           uploadBadges();
@@ -811,11 +822,13 @@ public class BashScriptBuilder extends ScriptBuilder {
       // There is not a specificTargetOS so there aren't multiple travis runs.
       // Just upload cdep-manifest.yml.
       assert cdepFile.toString().endsWith("cdep-manifest.yml");
-      body("./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
-      body(ABORT_LAST_FAILED);
-      upload(cdepFile, githubRelease);
+      body("if [ -f '%s' ]; then", headers);
+      body("./cdep merge headers %s %s %s", cdepFile, headers, cdepFile);
       body(ABORT_LAST_FAILED);
       upload(headers, githubRelease);
+      body(ABORT_LAST_FAILED);
+      body("fi");
+      upload(cdepFile, githubRelease);
       body(ABORT_LAST_FAILED);
       if (uploadBadges) {
         uploadBadges();
