@@ -8,7 +8,7 @@ import java.util.*;
 
 public class BashScriptBuilder extends ScriptBuilder {
 
-  final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit $rc; fi";
+  final private static String ABORT_LAST_FAILED = "rc=$?; if [[ $rc != 0 ]]; then exit -$rc; fi";
   final private static String TOOLS_FOLDER = ".cmakeify/tools";
   final private static String DOWNLOADS_FOLDER = ".cmakeify/downloads";
   final private StringBuilder body = new StringBuilder();
@@ -167,7 +167,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     for (String compiler : compilers) {
       body("if [[ -z \"$(which %s)\" ]]; then", compiler);
       body("  echo CMAKEIFY ERROR: Missing %s. Please install.", compiler);
-      body("  exit 110");
+      body("  exit -110");
       body("fi");
     }
     return this;
@@ -306,7 +306,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("    " + ABORT_LAST_FAILED);
       body("  else");
       body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
-      body("    exit 100");
+      body("    exit -100");
       body("  fi");
     } else {
       body("  echo cmakeify.yml did not specify lib or target. No output library expected.");
@@ -433,7 +433,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("if [ -d '%s' ]; then", redistFolder);
     body("  if [ -f '%s' ]; then", zip);
     body("    echo CMAKEIFY ERROR: Linux zip %s would be overwritten", zip);
-    body("    exit 500");
+    body("    exit -500");
     body("  fi");
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
     body("  if [ -d '%s' ]; then", headerFolder);
@@ -447,7 +447,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     cdep("    size: $ARCHIVESIZE");
     body("else");
     body("  echo CMAKEIFY ERROR: Did not create %s", redistFolder);
-    body("  exit 520");
+    body("  exit -520");
     body("fi");
     return this;
   }
@@ -578,7 +578,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("    " + ABORT_LAST_FAILED);
         body("  else");
         body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
-        body("    exit 100");
+        body("    exit -100");
         body("  fi");
       }
 
@@ -597,7 +597,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       if (lib == null || lib.length() > 0) {
         body("  else");
         body("    echo CMAKEIFY ERROR: Build did not produce an output in %s", stagingFolder);
-        body("    exit 200");
+        body("    exit -200");
       }
       body("  fi");
 
@@ -649,7 +649,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    echo Zip %s was created", zip);
     body("  else");
     body("    echo CMAKEIFY ERROR: Zip %s was not created", zip);
-    body("    exit 402");
+    body("    exit -402");
     body("  fi");
     body("  popd");
     body("  " + ABORT_LAST_FAILED);
@@ -660,7 +660,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       for (String include : includes) {
         body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
         body("    echo CMAKEIFY ERROR: Extra include folder '%s/%s' does not exist", workingFolder, include);
-        body("    exit 600");
+        body("    exit -600");
         body("  fi");
         body("  pushd %s", workingFolder);
         if (include.startsWith("include")) {
@@ -761,12 +761,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         // We can combine the file locally.
         body("cp %s %s", cdepFile, combinedManifest);
         body(ABORT_LAST_FAILED);
-        body("if [ -f '%s' ]; then", headers);
-        body("./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
-        body(ABORT_LAST_FAILED);
-        upload(headers, githubRelease);
-        body(ABORT_LAST_FAILED);
-        body("fi");
+        mergeAndUploadHeadersZipIfPresent(githubRelease, combinedManifest, headers);
         upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
 
@@ -797,12 +792,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  ./cdep fetch %s", coordinates);
         body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
-        body("if [ -f '%s' ]; then", headers);
-        body("./cdep merge headers %s %s %s", combinedManifest, headers, combinedManifest);
-        body(ABORT_LAST_FAILED);
-        upload(headers, githubRelease);
-        body(ABORT_LAST_FAILED);
-        body("fi");
+        mergeAndUploadHeadersZipIfPresent(githubRelease, combinedManifest, headers);
         upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
         if (uploadBadges) {
@@ -822,12 +812,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       // There is not a specificTargetOS so there aren't multiple travis runs.
       // Just upload cdep-manifest.yml.
       assert cdepFile.toString().endsWith("cdep-manifest.yml");
-      body("if [ -f '%s' ]; then", headers);
-      body("./cdep merge headers %s %s %s", cdepFile, headers, cdepFile);
-      body(ABORT_LAST_FAILED);
-      upload(headers, githubRelease);
-      body(ABORT_LAST_FAILED);
-      body("fi");
+      mergeAndUploadHeadersZipIfPresent(githubRelease, cdepFile, headers);
       upload(cdepFile, githubRelease);
       body(ABORT_LAST_FAILED);
       if (uploadBadges) {
@@ -844,6 +829,21 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
 
     return this;
+  }
+
+  private void mergeAndUploadHeadersZipIfPresent(
+      RemoteArchive githubRelease,
+      File cdepManifestYml,
+      File headers) {
+    body("if [ -f '%s' ]; then", headers);
+    body("./cdep merge headers %s %s include %s", cdepManifestYml, headers, cdepManifestYml);
+    body(ABORT_LAST_FAILED);
+    upload(headers, githubRelease);
+    body(ABORT_LAST_FAILED);
+    body("else");
+    body("  echo CMAKEIFY ERROR: Missing %s, could not merge or upload", headers);
+    body("  exit -110");
+    body("fi");
   }
 
   private void upload(File file, RemoteArchive githubRelease) {
