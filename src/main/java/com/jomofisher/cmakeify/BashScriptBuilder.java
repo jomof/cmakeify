@@ -836,6 +836,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       File cdepManifestYml,
       File headers) {
     body("if [ -f '%s' ]; then", headers);
+    body("echo ./cdep merge headers %s %s include %s", cdepManifestYml, headers, cdepManifestYml);
     body("./cdep merge headers %s %s include %s", cdepManifestYml, headers, cdepManifestYml);
     body(ABORT_LAST_FAILED);
     upload(headers, githubRelease);
