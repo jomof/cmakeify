@@ -104,7 +104,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder createEmptyBuildFolder(HardNameDependency dependencies[]) {
-    body("cdep=$(readlink -f cdep)");
+    body("cdep=$(pwd)/cdep");
     body("echo Using cdep at ${cdep}");
     body("rm -rf %s", rootBuildFolder);
     body("mkdir -p %s", zipsFolder);
