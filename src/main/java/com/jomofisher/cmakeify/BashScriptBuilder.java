@@ -730,16 +730,18 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     File headers = new File(cdepFile.getParentFile(), "headers.zip");
+    body("./cdep merge headers %s %s include %s", cdepFile, headers, cdepFile);
+    body(ABORT_LAST_FAILED);
+
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       if (!combinedManifest.equals(cdepFile)) {
         body("# cdep-manifest.yml tracking: %s to %s", cdepFile, combinedManifest);
-        body("echo ./cdep merge headers %s %s include %s", cdepFile, headers, combinedManifest);
-        body("./cdep merge headers %s %s include %s", cdepFile, headers, combinedManifest);
+        body("cp %s %s", cdepFile, headers, combinedManifest);
         body(ABORT_LAST_FAILED);
       } else {
         body("# cdep-manifest.yml tracking: not copying because it has the same name as combined");
-        body("echo not copying %s to %s because it was already there", combinedManifest, cdepFile);
+        body("echo not copying %s to %s because it was already there. Still merge head", combinedManifest, cdepFile);
         body("ls %s", combinedManifest.getParent());
         body(ABORT_LAST_FAILED);
       }
@@ -761,7 +763,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         // We can combine the file locally.
         body("cp %s %s", cdepFile, combinedManifest);
         body(ABORT_LAST_FAILED);
-        mergeAndUploadHeadersZipIfPresent(githubRelease, combinedManifest, headers);
+        upload(headers, githubRelease);
+        body(ABORT_LAST_FAILED);
         upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
 
@@ -792,7 +795,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  ./cdep fetch %s", coordinates);
         body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
-        mergeAndUploadHeadersZipIfPresent(githubRelease, combinedManifest, headers);
+        upload(headers, githubRelease);
+        body(ABORT_LAST_FAILED);
         upload(combinedManifest, githubRelease);
         body(ABORT_LAST_FAILED);
         if (uploadBadges) {
@@ -814,7 +818,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       // There is not a specificTargetOS so there aren't multiple travis runs.
       // Just upload cdep-manifest.yml.
       assert cdepFile.toString().endsWith("cdep-manifest.yml");
-      mergeAndUploadHeadersZipIfPresent(githubRelease, cdepFile, headers);
+      upload(headers, githubRelease);
+      body(ABORT_LAST_FAILED);
       upload(cdepFile, githubRelease);
       body(ABORT_LAST_FAILED);
       if (uploadBadges) {
@@ -831,22 +836,6 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
 
     return this;
-  }
-
-  private void mergeAndUploadHeadersZipIfPresent(
-      RemoteArchive githubRelease,
-      File cdepManifestYml,
-      File headers) {
-    body("if [ -f '%s' ]; then", headers);
-    body("echo ./cdep merge headers %s %s include %s", cdepManifestYml, headers, cdepManifestYml);
-    body("./cdep merge headers %s %s include %s", cdepManifestYml, headers, cdepManifestYml);
-    body(ABORT_LAST_FAILED);
-    upload(headers, githubRelease);
-    body(ABORT_LAST_FAILED);
-    body("else");
-    body("  echo CMAKEIFY ERROR: Missing %s, could not merge or upload", headers);
-    body("  exit -110");
-    body("fi");
   }
 
   private void upload(File file, RemoteArchive githubRelease) {
