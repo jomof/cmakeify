@@ -109,6 +109,13 @@ public class CMakeify {
   }
 
   private void handleGenerateScript() {
+    // Some preliminary checks
+    File cdepFile = new File("./cdep");
+    if (!cdepFile.isFile()) {
+      throw new RuntimeException(String.format("Expected cdep to be present at %s", cdepFile.getAbsolutePath()));
+    }
+
+
     ScriptBuilder script = new BashScriptBuilder(
         out,
         hostOS,
