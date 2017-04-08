@@ -35,7 +35,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       OS specificTargetOS) {
     this.out = out;
     this.hostOS = hostOS;
-    this.workingFolder = workingFolder;
+    this.workingFolder = workingFolder.getAbsoluteFile();
     this.rootBuildFolder = new File(workingFolder, "build");
     this.zipsFolder = new File(rootBuildFolder, "zips");
     if (specificTargetOS == null) {
