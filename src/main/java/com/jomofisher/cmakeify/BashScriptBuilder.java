@@ -730,6 +730,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     File headers = new File(cdepFile.getParentFile(), "headers.zip");
+    body("echo ./cdep merge headers %s %s include %s", cdepFile, headers, cdepFile);
     body("./cdep merge headers %s %s include %s", cdepFile, headers, cdepFile);
     body(ABORT_LAST_FAILED);
 
