@@ -25,6 +25,7 @@ matrix:
       os: linux
       script:
         - ./gradlew assemble check
+        - pushd smoke-test && ../cdep wrapper && popd
         - ./travis_cmakeify -wf smoke-test --group-id com.github.jomof --artifact-id cmakeify --target-version ${TRAVIS_TAG:-0.0.0}
  
 #    - env: TARGET_OS=linux
