@@ -737,7 +737,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       if (!combinedManifest.equals(cdepFile)) {
         body("# cdep-manifest.yml tracking: %s to %s", cdepFile, combinedManifest);
-        body("cp %s %s", cdepFile, headers, combinedManifest);
+        body("cp %s %s", cdepFile, combinedManifest);
         body(ABORT_LAST_FAILED);
       } else {
         body("# cdep-manifest.yml tracking: not copying because it has the same name as combined");
