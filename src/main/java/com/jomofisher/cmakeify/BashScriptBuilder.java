@@ -734,8 +734,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       if (!combinedManifest.equals(cdepFile)) {
         body("# cdep-manifest.yml tracking: %s to %s", cdepFile, combinedManifest);
-        body("echo cp %s %s", cdepFile, combinedManifest);
-        body("cp %s %s", cdepFile, combinedManifest);
+        body("echo ./cdep merge headers %s %s include %s", cdepFile, headers, combinedManifest);
+        body("./cdep merge headers %s %s include %s", cdepFile, headers, combinedManifest);
         body(ABORT_LAST_FAILED);
       } else {
         body("# cdep-manifest.yml tracking: not copying because it has the same name as combined");
@@ -800,8 +800,10 @@ public class BashScriptBuilder extends ScriptBuilder {
         }
         body("else");
         // If the merged failed then we still have to create a combined manifest for test
-        // purposes but it won't be uploaded.
-        body("  cp %s %s", cdepFile, combinedManifest);
+        // purposes but it won't be uploaded. Do the header merge at the same time as the
+        // copy.
+        body("  echo ./cdep merge headers %s %s include %s", cdepFile, headers, combinedManifest);
+        body("  ./cdep merge headers %s %s include %s", cdepFile, headers, combinedManifest);
         body("  " + ABORT_LAST_FAILED);
         body("fi");
 
