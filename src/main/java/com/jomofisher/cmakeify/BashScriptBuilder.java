@@ -356,11 +356,10 @@ public class BashScriptBuilder extends ScriptBuilder {
   private void writeCreateHeaderZip(File headers, File headerFolder) {
     body("  if [ -d '%s' ]; then", headerFolder);
     writeCreateZipFromRedistFolderToBody(headers, headerFolder);
-    body("else");
-    body("  echo CMAKEIFY ERROR: Header folder %s was not found", headerFolder);
-    body("  exit -699");
-    body("fi");
-    body("  fi", headerFolder);
+    body("  else");
+    body("    echo CMAKEIFY ERROR: Header folder %s was not found", headerFolder);
+    body("    exit -699");
+    body("  fi");
   }
 
   private void writeZipFileStatisticsToBody(File zip) {
