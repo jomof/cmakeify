@@ -329,9 +329,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         redistFolder);
     writeExtraIncludesToBody(includes, headerFolder);
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
-    body("  if [ -d '%s' ]; then", headerFolder);
-    writeCreateZipFromRedistFolderToBody(headers, headerFolder);
-    body("  fi", headerFolder);
+    writeCreateHeaderZip(headers, headerFolder);
     writeZipFileStatisticsToBody(zip);
     cdep("  - lib: %s", lib);
     cdep("    file: %s", zip.getName());
@@ -353,6 +351,16 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("fi");
 
     return this;
+  }
+
+  private void writeCreateHeaderZip(File headers, File headerFolder) {
+    body("  if [ -d '%s' ]; then", headerFolder);
+    writeCreateZipFromRedistFolderToBody(headers, headerFolder);
+    body("else");
+    body("  echo CMAKEIFY ERROR: Header folder %s was not found", headerFolder);
+    body("  exit -699");
+    body("fi");
+    body("  fi", headerFolder);
   }
 
   private void writeZipFileStatisticsToBody(File zip) {
@@ -436,9 +444,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    exit -500");
     body("  fi");
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
-    body("  if [ -d '%s' ]; then", headerFolder);
-    writeCreateZipFromRedistFolderToBody(headers, headerFolder);
-    body("  fi", headerFolder);
+    writeCreateHeaderZip(headers, headerFolder);
     writeZipFileStatisticsToBody(zip);
     body("  " + ABORT_LAST_FAILED);
     cdep("  - lib: %s", lib);
@@ -589,9 +595,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       bodyWithRedirect("    echo iOS %s %s  > %s/cmakeify.txt", cmakeVersion, platform, redistFolder);
       writeExtraIncludesToBody(includes, headerFolder);
       writeCreateZipFromRedistFolderToBody(zip, redistFolder);
-      body("  if [ -d '%s' ]; then", headerFolder);
-      writeCreateZipFromRedistFolderToBody(headers, headerFolder);
-      body("  fi", headerFolder);
+      writeCreateHeaderZip(headers, headerFolder);
       writeZipFileStatisticsToBody(zip);
 
       if (lib == null || lib.length() > 0) {
@@ -655,7 +659,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("  " + ABORT_LAST_FAILED);
   }
 
-  private void writeExtraIncludesToBody(String[] includes, File redistFolder) {
+  private void writeExtraIncludesToBody(String[] includes, File includesRedistFolder) {
     if (includes != null) {
       for (String include : includes) {
         body("  if [ ! -d '%s/%s' ]; then", workingFolder, include);
@@ -664,13 +668,13 @@ public class BashScriptBuilder extends ScriptBuilder {
         body("  fi");
         body("  pushd %s", workingFolder);
         if (include.startsWith("include")) {
-          body("    echo find %s -name '*.h' {pipe} cpio -pdm %s", include, redistFolder);
-          body("    find %s -name '*.h' | cpio -pdm %s", include, redistFolder);
-          body("    echo find %s -name '*.hpp' {pipe} cpio -pdm %s", include, redistFolder);
-          body("    find %s -name '*.hpp' | cpio -pdm %s", include, redistFolder);
+          body("    echo find %s -name '*.h' {pipe} cpio -pdm %s", include, includesRedistFolder);
+          body("    find %s -name '*.h' | cpio -pdm %s", include, includesRedistFolder);
+          body("    echo find %s -name '*.hpp' {pipe} cpio -pdm %s", include, includesRedistFolder);
+          body("    find %s -name '*.hpp' | cpio -pdm %s", include, includesRedistFolder);
         } else {
-          body("    find %s -name '*.h' | cpio -pdm %s/include", include, redistFolder);
-          body("    find %s -name '*.hpp' | cpio -pdm %s/include", include, redistFolder);
+          body("    find %s -name '*.h' | cpio -pdm %s/include", include, includesRedistFolder);
+          body("    find %s -name '*.hpp' | cpio -pdm %s/include", include, includesRedistFolder);
         }
         body("  popd");
         body("  " + ABORT_LAST_FAILED);
