@@ -35,7 +35,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       OS specificTargetOS) {
     this.out = out;
     this.hostOS = hostOS;
-    this.workingFolder = workingFolder.getAbsoluteFile();
+    this.workingFolder = workingFolder;
     this.rootBuildFolder = new File(workingFolder, "build");
     this.zipsFolder = new File(rootBuildFolder, "zips");
     if (specificTargetOS == null) {
@@ -104,7 +104,8 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder createEmptyBuildFolder(HardNameDependency dependencies[]) {
-
+    body("cdep=$(readlink -f cdep)");
+    body("echo Using cdep at ${cdep}");
     body("rm -rf %s", rootBuildFolder);
     body("mkdir -p %s", zipsFolder);
     body("mkdir -p %s/", TOOLS_FOLDER);
@@ -734,8 +735,8 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     File headers = new File(cdepFile.getParentFile(), "headers.zip");
-    body("echo %s/cdep merge headers %s %s include %s", workingFolder, cdepFile, headers, cdepFile);
-    body("%s/cdep merge headers %s %s include %s", workingFolder, cdepFile, headers, cdepFile);
+    body("echo ${cdep} merge headers %s %s include %s", cdepFile, headers, cdepFile);
+    body("${cdep} merge headers %s %s include %s", cdepFile, headers, cdepFile);
     body(ABORT_LAST_FAILED);
 
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
@@ -786,8 +787,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         String coordinates = otherCoordinates + cdepFile.toString();
 
         // Merge any existing manifest with the currently generated one.
-        body("echo %s/cdep merge %s %s", workingFolder, coordinates, combinedManifest);
-        body("%s/cdep merge %s %s", workingFolder, coordinates, combinedManifest);
+        body("echo ${cdep} merge %s %s", coordinates, combinedManifest);
+        body("${cdep} merge %s %s", coordinates, combinedManifest);
         body(ABORT_LAST_FAILED);
 
         // If the merge succeeded, that means we got all of the coordinates.
@@ -795,8 +796,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         // downstream calls to ./cdep for tests will have assets all ready.
         body("if [ -f '%s' ]; then", combinedManifest);
         body("  echo Fetching partial dependencies");
-        body("  echo %s/cdep fetch %s", workingFolder, coordinates);
-        body("  %s/cdep fetch %s", workingFolder, coordinates);
+        body("  echo ${cdep} fetch %s", coordinates);
+        body("  ${cdep} fetch %s", coordinates);
         body("  " + ABORT_LAST_FAILED);
         body("  echo Uploading %s", combinedManifest);
         upload(headers, githubRelease);
@@ -810,8 +811,8 @@ public class BashScriptBuilder extends ScriptBuilder {
         // If the merged failed then we still have to create a combined manifest for test
         // purposes but it won't be uploaded. Do the header merge at the same time as the
         // copy.
-        body("  echo %s/cdep merge headers %s %s include %s", workingFolder, cdepFile, headers, combinedManifest);
-        body("  %s/cdep merge headers %s %s include %s", workingFolder, cdepFile, headers, combinedManifest);
+        body("  echo ${cdep} merge headers %s %s include %s", cdepFile, headers, combinedManifest);
+        body("  ${cdep} merge headers %s %s include %s", cdepFile, headers, combinedManifest);
         body("  " + ABORT_LAST_FAILED);
         body("fi");
 
