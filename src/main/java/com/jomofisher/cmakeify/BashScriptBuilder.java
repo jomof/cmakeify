@@ -99,7 +99,6 @@ public class BashScriptBuilder extends ScriptBuilder {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override
@@ -377,6 +376,7 @@ public class BashScriptBuilder extends ScriptBuilder {
       String target,
       String cmakeFlags,
       Toolset toolset,
+      String includes[],
       String lib,
       boolean multipleCMake,
       boolean multipleCompiler) {

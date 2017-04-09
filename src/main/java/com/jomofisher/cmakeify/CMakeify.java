@@ -241,6 +241,7 @@ public class CMakeify {
                   config.cmake.remotes.get(cmakeVersion),
                   config.buildTarget, config.cmakeFlags,
                   toolset,
+                  config.includes,
                   config.android.lib,
                   config.cmake.versions.length != 1,
                   config.linux.compilers.length != 1);

@@ -46,6 +46,7 @@ abstract class ScriptBuilder {
       String target,
       String cmakeFlags,
       Toolset toolset,
+      String includes[],
       String lib,
       boolean multipleCMake,
       boolean multipleGcc);
