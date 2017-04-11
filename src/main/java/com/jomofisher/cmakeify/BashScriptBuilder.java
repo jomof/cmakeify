@@ -444,6 +444,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("    echo CMAKEIFY ERROR: Linux zip %s would be overwritten", zip);
     body("    exit -500");
     body("  fi");
+    writeExtraIncludesToBody(includes, headerFolder);
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
     writeCreateHeaderZip(headers, headerFolder);
     writeZipFileStatisticsToBody(zip);
