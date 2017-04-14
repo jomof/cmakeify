@@ -38,16 +38,21 @@ public class BashScriptBuilder extends ScriptBuilder {
     this.workingFolder = workingFolder;
     this.rootBuildFolder = new File(workingFolder, "build");
     this.zipsFolder = new File(rootBuildFolder, "zips");
-    if (specificTargetOS == null) {
-      this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
-    } else {
-      this.cdepFile = new File(zipsFolder, String.format("cdep-manifest-%s.yml", specificTargetOS));
-    }
     this.androidFolder = new File(rootBuildFolder, "Android");
     this.targetGroupId = targetGroupId;
     this.targetArtifactId = targetArtifactId;
     this.targetVersion = targetVersion;
     this.specificTargetOS = specificTargetOS;
+    if (generateCDep()) {
+      if (specificTargetOS == null) {
+        this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
+      } else {
+        this.cdepFile = new File(zipsFolder, String.format("cdep-manifest-%s.yml", specificTargetOS));
+      }
+    } else {
+      this.cdepFile = null;
+    }
+
   }
 
   private BashScriptBuilder body(String format, Object... args) {
@@ -77,7 +82,15 @@ public class BashScriptBuilder extends ScriptBuilder {
     return this;
   }
 
+  private boolean generateCDep() {
+    return (this.targetGroupId != null);
+  }
+
   private BashScriptBuilder cdep(String format, Object... args) {
+    if (!generateCDep()) {
+      return this;
+    }
+
     String embed = String.format(format, args);
     body.append(String.format("printf \"%%s\\r\\n\" \"%s\" >> %s \n", embed, cdepFile));
     return this;
@@ -709,6 +722,9 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder buildRedistFiles(File workingFolder, String[] includes, String example) {
+    if (!generateCDep()) {
+      return this;
+    }
     if (example != null && example.length() > 0) {
       cdep("example: |");
       String lines[] = example.split("\\r?\\n");
@@ -733,6 +749,9 @@ public class BashScriptBuilder extends ScriptBuilder {
       RemoteArchive githubRelease,
       OS[] allTargets,
       boolean uploadBadges) {
+    if (!generateCDep()) {
+      return this;
+    }
 
     File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
     File headers = new File(cdepFile.getParentFile(), "headers.zip");
