@@ -83,7 +83,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   }
 
   private boolean generateCDep() {
-    return (this.targetGroupId != null);
+    return (this.targetGroupId != null && this.targetGroupId.length() > 0);
   }
 
   private BashScriptBuilder cdep(String format, Object... args) {
@@ -116,8 +116,10 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder createEmptyBuildFolder(HardNameDependency dependencies[]) {
-    body("cdep=$(pwd)/cdep");
-    body("echo Using cdep at ${cdep}");
+    if (generateCDep()) {
+      body("cdep=$(pwd)/cdep");
+      body("echo Using cdep at ${cdep}");
+    }
     body("rm -rf %s", rootBuildFolder);
     body("mkdir -p %s", zipsFolder);
     body("mkdir -p %s/", TOOLS_FOLDER);
