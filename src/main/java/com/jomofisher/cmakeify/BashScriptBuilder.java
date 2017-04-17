@@ -16,9 +16,10 @@ public class BashScriptBuilder extends ScriptBuilder {
   final private OSType hostOS;
   final private File workingFolder;
   final private File rootBuildFolder;
+  final private File rootInstallFolder;
   final private File zipsFolder;
   final private File cdepFile;
-  final private File androidFolder;
+  final private File androidBuildFolder;
   final private String targetGroupId;
   final private String targetArtifactId;
   final private String targetVersion;
@@ -39,8 +40,9 @@ public class BashScriptBuilder extends ScriptBuilder {
     this.hostOS = hostOS;
     this.workingFolder = workingFolder;
     this.rootBuildFolder = new File(workingFolder, "build");
+    this.rootInstallFolder = new File(workingFolder, "install").getAbsoluteFile();
     this.zipsFolder = new File(rootBuildFolder, "zips");
-    this.androidFolder = new File(rootBuildFolder, "Android");
+    this.androidBuildFolder = new File(rootBuildFolder, "Android");
     this.targetGroupId = targetGroupId;
     this.targetArtifactId = targetArtifactId;
     this.targetVersion = targetVersion;
@@ -228,31 +230,38 @@ public class BashScriptBuilder extends ScriptBuilder {
       cmakeFlags = "";
     }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
-    File outputFolder = androidFolder;
+    File outputFolder = androidBuildFolder;
+    File installFolder = new File(rootInstallFolder, "Android");
     String zipName = targetArtifactId + "-android";
     if (multipleCMake) {
       outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
+      installFolder = new File(installFolder, "cmake-" + cmakeVersion);
       zipName += "-cmake-" + cmakeVersion;
     }
     if (multipleNDK) {
       outputFolder = new File(outputFolder, ndkVersion);
+      installFolder = new File(installFolder, ndkVersion);
       zipName += "-" + ndkVersion;
     }
     if (multipleCompiler) {
       outputFolder = new File(outputFolder, compiler);
+      installFolder = new File(installFolder, compiler);
       zipName += "-" + compiler;
     }
     if (multipleRuntime) {
       String fixedRuntime = runtime.replace('+', 'x');
       outputFolder = new File(outputFolder, fixedRuntime);
+      installFolder = new File(installFolder, fixedRuntime);
       zipName += "-" + fixedRuntime;
     }
     if (multiplePlatforms) {
       outputFolder = new File(outputFolder, "android-" + platform);
+      installFolder = new File(installFolder, "android-" + platform);
       zipName += "-platform-" + platform;
     }
     if (multipleFlavors) {
       outputFolder = new File(outputFolder, "flavor-" + flavor);
+      installFolder = new File(installFolder, "flavor-" + flavor);
       zipName += "-" + flavor;
     }
     if (multipleAbi) {
@@ -269,7 +278,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
-    File installFolder = new File(outputFolder, "install").getAbsoluteFile();
+
     File abiInstallFolder = new File(installFolder, abi).getAbsoluteFile();
     File abiBuildFolder = new File(buildFolder, abi);
     File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
@@ -422,13 +431,16 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = new File(rootBuildFolder, "Linux");
+    File installFolder = new File(rootInstallFolder, "Linux");
     String zipName = targetArtifactId + "-linux";
     if (multipleCMake) {
       outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
+      installFolder = new File(installFolder, "cmake-" + cmakeVersion);
       zipName += "-cmake-" + cmakeVersion;
     }
     if (multipleCompiler) {
       outputFolder = new File(outputFolder, toolset.c);
+      installFolder = new File(installFolder, toolset.c);
       zipName += "-" + toolset.c;
     }
     zipName += ".zip";
@@ -437,7 +449,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     File buildFolder = new File(outputFolder, "cmake-generated-files");
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
-    File installFolder = new File(outputFolder, "install").getAbsoluteFile();
+
     body("echo Building to %s", outputFolder);
     body("mkdir -p %s/include", redistFolder);
     recordOutputLocation(zip);
@@ -532,25 +544,31 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     String cmakeExe = String.format("%s/%s/bin/cmake", TOOLS_FOLDER, getHostArchive(cmakeRemote).unpackroot);
     File outputFolder = new File(rootBuildFolder, "iOS");
+    File installFolder = new File(rootInstallFolder, "iOS");
     String zipName = targetArtifactId + "-ios";
     if (multipleCMake) {
       outputFolder = new File(outputFolder, "cmake-" + cmakeVersion);
+      installFolder = new File(installFolder, "cmake-" + cmakeVersion);
       zipName += "-cmake-" + cmakeVersion;
     }
     if (multipleFlavor) {
       outputFolder = new File(outputFolder, "flavor-" + flavor);
+      installFolder = new File(installFolder, "flavor-" + flavor);
       zipName += "-" + flavor;
     }
     if (multiplePlatform) {
       outputFolder = new File(outputFolder, "platform-" + platform.toString());
+      installFolder = new File(installFolder, "platform-" + platform.toString());
       zipName += "-platform-" + platform.toString();
     }
     if (multipleArchitecture) {
       outputFolder = new File(outputFolder, "architecture-" + architecture.toString());
+      installFolder = new File(installFolder, "architecture-" + architecture.toString());
       zipName += "-architecture-" + architecture.toString();
     }
     if (multipleSdk) {
       outputFolder = new File(outputFolder, "sdk-" + sdk);
+      installFolder = new File(installFolder, "sdk-" + sdk);
       zipName += "-sdk-" + sdk;
     }
 
@@ -561,7 +579,6 @@ public class BashScriptBuilder extends ScriptBuilder {
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
-    File installFolder = new File(outputFolder, "install").getAbsoluteFile();
     if (hostOS != OSType.MacOS) {
       body("echo No XCode available. NOT building to %s", outputFolder);
     } else {
