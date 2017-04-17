@@ -373,8 +373,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("  if [ -d '%s' ]; then", headerFolder);
     writeCreateZipFromRedistFolderToBody(headers, headerFolder);
     body("  else");
-    body("    echo CMAKEIFY ERROR: Header folder %s was not found", headerFolder);
-    body("    exit -699");
+    body("    echo CMAKEIFY WARNING: Header folder %s was not found", headerFolder);
     body("  fi");
   }
 
