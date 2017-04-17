@@ -3,12 +3,13 @@ package com.jomofisher.cmakeify.model;
 public class CMakeifyYml {
   final public OS targets[];
   final public String buildTarget;
+  final public Boolean install;
   final public String cmakeFlags;
   final public String includes[];
   final public CMake cmake;
   final public Android android;
   final public Linux linux;
-  final public com.jomofisher.cmakeify.model.iOS iOS;
+  final public iOS iOS;
   final public String example;
   final public boolean badges;
   final public CDep cdep;
@@ -17,6 +18,7 @@ public class CMakeifyYml {
   public CMakeifyYml() {
     targets = OS.values();
     buildTarget = null;
+    install = null;
     cmakeFlags = null;
     includes = new String[0];
     cmake = new CMake();
@@ -53,6 +55,10 @@ public class CMakeifyYml {
     if (buildTarget != null) {
       sb.append("buildTarget: \n");
       sb.append(buildTarget);
+    }
+    if (install != null) {
+      sb.append("install: \n");
+      sb.append(install ? "yes" : "no");
     }
     if (cmakeFlags != null) {
       sb.append("cmakeFlags: \n");

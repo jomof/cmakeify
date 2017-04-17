@@ -117,7 +117,8 @@ public class CMakeify {
         targetGroupId,
         targetArtifactId,
         targetVersion,
-        this.targetOS
+        this.targetOS,
+        config.install == null ? false : config.install
     );
 
     // Map of compilers.
@@ -239,7 +240,8 @@ public class CMakeify {
               script.cmakeLinux(
                   cmakeVersion,
                   config.cmake.remotes.get(cmakeVersion),
-                  config.buildTarget, config.cmakeFlags,
+                  config.buildTarget,
+                  config.cmakeFlags,
                   toolset,
                   config.includes,
                   config.android.lib,

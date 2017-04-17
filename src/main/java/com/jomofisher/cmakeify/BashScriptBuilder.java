@@ -25,6 +25,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   final private Set<File> outputLocations = new HashSet<>();
   final private PrintStream out;
   final private OS specificTargetOS;
+  final private boolean install;
 
   BashScriptBuilder(PrintStream out,
       OSType hostOS,
@@ -32,7 +33,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       String targetGroupId,
       String targetArtifactId,
       String targetVersion,
-      OS specificTargetOS) {
+      OS specificTargetOS,
+      boolean install) {
     this.out = out;
     this.hostOS = hostOS;
     this.workingFolder = workingFolder;
@@ -43,6 +45,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     this.targetArtifactId = targetArtifactId;
     this.targetVersion = targetVersion;
     this.specificTargetOS = specificTargetOS;
+    this.install = install;
     if (generateCDep()) {
       if (specificTargetOS == null) {
         this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
@@ -266,6 +269,8 @@ public class BashScriptBuilder extends ScriptBuilder {
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
+    File installFolder = new File(outputFolder, "install").getAbsoluteFile();
+    File abiInstallFolder = new File(installFolder, abi).getAbsoluteFile();
     File abiBuildFolder = new File(buildFolder, abi);
     File archFolder = new File(String.format("%s/platforms/android-%s/arch-%s",
         new File(ndkFolder).getAbsolutePath(),
@@ -276,7 +281,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     File stagingAbiFolder = new File(String.format("%s/lib/%s", stagingFolder, abi));
     recordOutputLocation(stagingAbiFolder);
-    String command = String.format("%s \\\n" +
+    String command = String.format("%s --install \\\n" +
             "   -H%s \\\n" +
             "   -B%s \\\n" +
             "   -DCMAKE_ANDROID_NDK_TOOLCHAIN_VERSION=%s \\\n" +
@@ -286,6 +291,7 @@ public class BashScriptBuilder extends ScriptBuilder {
             "   -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
             "   -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s \\\n" +
             "   -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s \\\n" +
+            "   -DCMAKE_INSTALL_PREFIX:PATH=%s \\\n" +
             "   -DCMAKE_ANDROID_STL_TYPE=%s_static \\\n" +
             "   -DCMAKE_ANDROID_NDK=%s \\\n" +
             "   -DCMAKE_ANDROID_ARCH_ABI=%s %s %s\n",
@@ -297,6 +303,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         headerFolder,
         stagingAbiFolder,
         stagingAbiFolder,
+        abiInstallFolder,
         runtime,
         new File(ndkFolder).getAbsolutePath(),
         abi,
@@ -310,7 +317,12 @@ public class BashScriptBuilder extends ScriptBuilder {
     } else {
       body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
     }
+    if (install) {
+      body(String.format("  echo %s --build %s --target install -- -j8", cmakeExe, abiBuildFolder));
+      body(String.format("  %s --build %s --target install -- -j8", cmakeExe, abiBuildFolder));
+    }
     body("  " + ABORT_LAST_FAILED);
+
     String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
     File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
     recordOutputLocation(redistAbiFolder);
@@ -373,7 +385,12 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("  if [ -d '%s' ]; then", headerFolder);
     writeCreateZipFromRedistFolderToBody(headers, headerFolder);
     body("  else");
-    body("    echo CMAKEIFY WARNING: Header folder %s was not found", headerFolder);
+    if (install) {
+      body("    echo CMAKEIFY WARNING: Header folder %s was not found", headerFolder);
+    } else {
+      body("    echo CMAKEIFY ERROR: Header folder %s was not found", headerFolder);
+      body("    exit -699");
+    }
     body("  fi");
   }
 
@@ -420,20 +437,23 @@ public class BashScriptBuilder extends ScriptBuilder {
     File buildFolder = new File(outputFolder, "cmake-generated-files");
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
+    File installFolder = new File(outputFolder, "install").getAbsoluteFile();
     body("echo Building to %s", outputFolder);
     body("mkdir -p %s/include", redistFolder);
     recordOutputLocation(zip);
     recordOutputLocation(outputFolder);
     recordOutputLocation(redistFolder);
 
-    body(String.format("%s \\\n" +
+    body(String.format("%s --install \\\n" +
             "  -H%s \\\n" +
             "  -B%s \\\n" +
             "  -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
             "  -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
             "  -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib \\\n" +
             "  -DCMAKE_SYSTEM_NAME=Linux \\\n" +
+            "  -DCMAKE_SYSTEM_NAME=Linux \\\n" +
             "  -DCMAKE_C_COMPILER=%s \\\n" +
+            "  -DCMAKE_INSTALL_PREFIX:PATH=%s \\\n" +
             "  -DCMAKE_CXX_COMPILER=%s %s",
         cmakeExe,
         workingFolder,
@@ -442,6 +462,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         redistFolder,
         redistFolder,
         toolset.c,
+        installFolder,
         toolset.cxx,
         cmakeFlags));
 
@@ -451,6 +472,10 @@ public class BashScriptBuilder extends ScriptBuilder {
       body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
     }
     body(ABORT_LAST_FAILED);
+    if (install) {
+      body(String.format("%s --build %s --target install", cmakeExe, buildFolder));
+      body("  " + ABORT_LAST_FAILED);
+    }
     zips.put(zip.getAbsolutePath(), redistFolder.getPath());
     body("# Zip Linux redist if folder was created in %s", redistFolder);
     body("if [ -d '%s' ]; then", redistFolder);
@@ -536,6 +561,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
     File stagingFolder = new File(outputFolder, "staging").getAbsoluteFile();
+    File installFolder = new File(outputFolder, "install").getAbsoluteFile();
     if (hostOS != OSType.MacOS) {
       body("echo No XCode available. NOT building to %s", outputFolder);
     } else {
@@ -567,14 +593,16 @@ public class BashScriptBuilder extends ScriptBuilder {
             "    -DCMAKE_OSX_SYSROOT=${CDEP_IOS_SDK_ROOT} \\\n" +
             "    -DCMAKE_OSX_ARCHITECTURES=%s \\\n" +
             "    -DCMAKEIFY_REDIST_INCLUDE_DIRECTORY=%s/include \\\n" +
+              "  -DCMAKE_INSTALL_PREFIX:PATH=%s \\\n" +
             "    -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=%s/lib \\\n" +
             "    -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=%s/lib %s %s \\\n",
         cmakeExe,
         workingFolder,
         buildFolder,
         architecture,
-        headerFolder,
+        installFolder,
         stagingFolder,
+        headerFolder,
         stagingFolder,
         cmakeFlags,
         flavorFlags);
@@ -591,6 +619,10 @@ public class BashScriptBuilder extends ScriptBuilder {
         body(String.format("%s --build %s -- -j8", cmakeExe, buildFolder));
       }
       body("  " + ABORT_LAST_FAILED);
+      if (install) {
+        body(String.format("%s --build %s --target install", cmakeExe, buildFolder));
+        body("  " + ABORT_LAST_FAILED);
+      }
 
       if (lib != null && lib.length() > 0) {
         String stagingLib = String.format("%s/lib/%s", stagingFolder, lib);
