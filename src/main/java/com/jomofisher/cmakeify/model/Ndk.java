@@ -19,6 +19,8 @@ public class Ndk {
         remotes = new HashMap<>();
         remotes.put("r13b", archiveUrlOf("r13b"));
         remotes.put("r14-beta1", archiveUrlOf("r14-beta1"));
+        remotes.put("r14b", archiveUrlOf("r14b"));
+        remotes.put("r15-beta2", archiveUrlOf("r15-beta2"));
     }
 
     private static RemoteArchive archiveUrlOf(String ndk) {
