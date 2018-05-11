@@ -26,6 +26,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     final private String repo;
     final private String targetVersion;
     final private String fileSuffix;
+    final private String filePrefix;
     final private Set<File> outputLocations = new HashSet<>();
     final private PrintStream out;
     final private OS specificTargetOS;
@@ -53,10 +54,12 @@ public class BashScriptBuilder extends ScriptBuilder {
         this.specificTargetOS = specificTargetOS;
         if (targetArtifactId.contains("/")) {
             this.repo = targetArtifactId.split("/")[0];
-            this.fileSuffix = "-" + repo;
+            this.fileSuffix = "-" + targetArtifactId.split("/")[1];
+            this.filePrefix = targetArtifactIdFolderName + "-";
         } else {
             this.repo = targetArtifactId;
             this.fileSuffix = "";
+            this.filePrefix = "";
         }
         this.install = install;
         if (generateCDep()) {
@@ -275,7 +278,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         }
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-        File headers = new File(zipsFolder, "headers" + fileSuffix + ".zip").getAbsoluteFile();
+        File headers = new File(zipsFolder, filePrefix + "headers.zip").getAbsoluteFile();
         recordOutputLocation(zip);
 
         File buildFolder = new File(outputFolder, "cmake-generated-files");
@@ -461,7 +464,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         }
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-        File headers = new File(zipsFolder, "headers" + fileSuffix + ".zip").getAbsoluteFile();
+        File headers = new File(zipsFolder, filePrefix + "headers.zip").getAbsoluteFile();
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
@@ -590,7 +593,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
         zipName += ".zip";
         File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-        File headers = new File(zipsFolder, "headers" + fileSuffix + ".zip").getAbsoluteFile();
+        File headers = new File(zipsFolder, filePrefix + "headers.zip").getAbsoluteFile();
         File buildFolder = new File(outputFolder, "cmake-generated-files");
         File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
         File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
@@ -820,7 +823,7 @@ public class BashScriptBuilder extends ScriptBuilder {
         }
 
         File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest" + fileSuffix + ".yml");
-        File headers = new File(cdepFile.getParentFile(), "headers" + fileSuffix + ".zip");
+        File headers = new File(cdepFile.getParentFile(), filePrefix + "headers.zip");
         body("echo ${cdep} merge headers %s %s include %s", cdepFile, headers, cdepFile);
         body("${cdep} merge headers %s %s include %s", cdepFile, headers, cdepFile);
         body(ABORT_LAST_FAILED);
