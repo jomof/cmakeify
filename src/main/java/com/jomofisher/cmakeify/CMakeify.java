@@ -11,11 +11,12 @@ import java.io.PrintStream;
 import java.util.*;
 
 import static com.jomofisher.cmakeify.CMakeify.OSType.MacOS;
+import static com.jomofisher.cmakeify.CMakeifyYmlUtils.buildTargets;
 import static com.jomofisher.cmakeify.model.OS.linux;
 
 public class CMakeify {
 
-  private PrintStream out = System.out;
+    private PrintStream out;
   private File workingFolder = new File(".");
   private CMakeifyYml config = null;
   private String targetGroupId = "";
@@ -24,23 +25,22 @@ public class CMakeify {
   private OSType hostOS;
   private OS targetOS = null;
   private Set<Integer> argsUsed = new HashSet<>();
-  private List<String> cmakeFlags = new ArrayList<>();
 
-  CMakeify(PrintStream out) {
+    CMakeify(PrintStream out) {
     this.out = out;
     String OS = System.getProperty("os.name", "generic").toLowerCase(Locale.ENGLISH);
-    if ((OS.indexOf("mac") >= 0) || (OS.indexOf("darwin") >= 0)) {
+        if ((OS.contains("mac")) || (OS.contains("darwin"))) {
       hostOS = MacOS;
-    } else if (OS.indexOf("win") >= 0) {
+        } else if (OS.contains("win")) {
       hostOS = OSType.Windows;
-    } else if (OS.indexOf("nux") >= 0) {
+        } else if (OS.contains("nux")) {
       hostOS = OSType.Linux;
     } else {
       hostOS = OSType.Other;
     }
   }
 
-  public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
     try {
       new CMakeify(System.out).go(args);
     } catch (Exception e) {
@@ -59,7 +59,7 @@ public class CMakeify {
     handleArtifactId(args);
     handleTargetVersion(args);
     handleTargetOS(args);
-    if (!handleReadConfig(args)) {
+      if (!handleReadConfig()) {
       checkAllArgsUsed(args);
       return;
     }
@@ -124,9 +124,7 @@ public class CMakeify {
     // Map of compilers.
     Set<OS> targetOS = new HashSet<>();
     if (this.targetOS == null) {
-      for (int i = 0; i < config.targets.length; ++i) {
-        targetOS.add(config.targets[i]);
-      }
+        Collections.addAll(targetOS, config.targets);
     } else {
       targetOS.add(this.targetOS);
     }
@@ -205,13 +203,13 @@ public class CMakeify {
                         script.cmakeAndroid(
                             cmakeVersion,
                             config.cmake.remotes.get(cmakeVersion),
-                            config.buildTarget, config.cmakeFlags,
+                                buildTargets(config),
+                                config.cmakeFlags,
                             flavor,
                             flavors.get(flavor),
                             ndk,
                             remote,
                             config.includes,
-                            config.android.lib,
                             compiler,
                             runtime,
                             platform,
@@ -303,7 +301,7 @@ public class CMakeify {
     return true;
   }
 
-  private boolean handleReadConfig(String[] args) throws IOException {
+    private boolean handleReadConfig() throws IOException {
     File config = new File(workingFolder, "cmakeify.yml");
     if (!config.exists()) {
       out.printf("Expected a configuration file at %s\n", config.getCanonicalFile());
@@ -319,7 +317,7 @@ public class CMakeify {
     return true;
   }
 
-  private void handleWorkingFolder(String[] args) throws IOException {
+    private void handleWorkingFolder(String[] args) {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
@@ -333,7 +331,7 @@ public class CMakeify {
     }
   }
 
-  private void handleTargetOS(String[] args) throws IOException {
+    private void handleTargetOS(String[] args) {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
@@ -347,21 +345,15 @@ public class CMakeify {
     }
   }
 
-  private void handleCMakeFlags(String[] args) throws IOException {
-    boolean takeNext = false;
-    for (int i = 0; i < args.length; ++i) {
-      if (takeNext) {
-        argsUsed.add(i);
-        takeNext = false;
-        cmakeFlags.add(args[i]);
-      }
-      if (args[i].equals("--cmake-flags") || args[i].equals("-cf")) {
-        throw new RuntimeException("--cmake-flags not supported");
-      }
-    }
+    private void handleCMakeFlags(String[] args) {
+        for (String arg : args) {
+            if (arg.equals("--cmake-flags") || arg.equals("-cf")) {
+                throw new RuntimeException("--cmake-flags not supported");
+            }
+        }
   }
 
-  private void handleGroupId(String[] args) throws IOException {
+    private void handleGroupId(String[] args) {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
@@ -375,7 +367,7 @@ public class CMakeify {
     }
   }
 
-  private void handleArtifactId(String[] args) throws IOException {
+    private void handleArtifactId(String[] args) {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {
@@ -389,7 +381,7 @@ public class CMakeify {
     }
   }
 
-  private void handleTargetVersion(String[] args) throws IOException {
+    private void handleTargetVersion(String[] args) {
     boolean takeNext = false;
     for (int i = 0; i < args.length; ++i) {
       if (takeNext) {

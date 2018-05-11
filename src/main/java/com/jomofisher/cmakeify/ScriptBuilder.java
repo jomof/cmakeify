@@ -4,6 +4,7 @@ import com.jomofisher.cmakeify.model.*;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 abstract class ScriptBuilder {
 
@@ -18,27 +19,26 @@ abstract class ScriptBuilder {
   abstract ScriptBuilder checkForCompilers(Collection<String> compilers);
 
   abstract ScriptBuilder cmakeAndroid(
-      String cmakeVersion,
-      RemoteArchive cmakeRemote,
-      String target,
-      String cmakeFlags,
-      String flavor,
-      String flavorFlags,
-      String ndkVersion,
-      RemoteArchive ndkRemote,
-      String includes[],
-      String lib,
-      String compiler,
-      String runtime,
-      String platform,
-      String abi,
-      boolean multipleFlavors,
-      boolean multipleCMake,
-      boolean multipleNDK,
-      boolean multipleCompiler,
-      boolean multipleRuntime,
-      boolean multiplePlatforms,
-      boolean multipleAbi);
+          String cmakeVersion,
+          RemoteArchive cmakeRemote,
+          List<String> targets,
+          String cmakeFlags,
+          String flavor,
+          String flavorFlags,
+          String ndkVersion,
+          RemoteArchive ndkRemote,
+          String includes[],
+          String compiler,
+          String runtime,
+          String platform,
+          String abi,
+          boolean multipleFlavors,
+          boolean multipleCMake,
+          boolean multipleNDK,
+          boolean multipleCompiler,
+          boolean multipleRuntime,
+          boolean multiplePlatforms,
+          boolean multipleAbi);
 
   abstract ScriptBuilder cmakeLinux(
       String cmakeVersion,

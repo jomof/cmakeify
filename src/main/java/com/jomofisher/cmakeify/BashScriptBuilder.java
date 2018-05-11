@@ -196,35 +196,29 @@ public class BashScriptBuilder extends ScriptBuilder {
 
   @Override
   ScriptBuilder cmakeAndroid(String cmakeVersion,
-      RemoteArchive cmakeRemote,
-      String target,
-      String cmakeFlags,
-      String flavor,
-      String flavorFlags,
-      String ndkVersion,
-      RemoteArchive ndkRemote,
-      String includes[],
-      String lib,
-      String compiler,
-      String runtime,
-      String platform,
-      String abi,
-      boolean multipleFlavors,
-      boolean multipleCMake,
-      boolean multipleNDK,
-      boolean multipleCompiler,
-      boolean multipleRuntime,
-      boolean multiplePlatforms,
-      boolean multipleAbi) {
-    body("echo Executing script for %s %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime, target, abi);
-    if (lib != null && lib.length() > 0) {
-      throw new RuntimeException("lib is no longer supported, use buildTarget");
-    }
-    if (target != null && target.length() > 0 && lib != null && lib.length() > 0) {
-      throw new RuntimeException("cmakify.yml has both lib and target, only one is allowed");
-    }
-    if (target != null && target.length() > 0 && (lib == null || lib.length() == 0)) {
-      lib = String.format("lib%s.a", target);
+                             RemoteArchive cmakeRemote,
+                             List<String> targets,
+                             String cmakeFlags,
+                             String flavor,
+                             String flavorFlags,
+                             String ndkVersion,
+                             RemoteArchive ndkRemote,
+                             String includes[],
+                             String compiler,
+                             String runtime,
+                             String platform,
+                             String abi,
+                             boolean multipleFlavors,
+                             boolean multipleCMake,
+                             boolean multipleNDK,
+                             boolean multipleCompiler,
+                             boolean multipleRuntime,
+                             boolean multiplePlatforms,
+                             boolean multipleAbi) {
+      body("echo Executing script for %s %s %s %s %s %s %s", flavor, ndkVersion, platform, compiler, runtime, targets, abi);
+      List<String> libs = new ArrayList<>();
+      for (String target : targets) {
+          libs.add(String.format("lib%s.a", target));
     }
     if (cmakeFlags == null) {
       cmakeFlags = "";
@@ -321,8 +315,10 @@ public class BashScriptBuilder extends ScriptBuilder {
     body("  echo Executing %s", command);
     body("  " + command);
     body("  " + ABORT_LAST_FAILED);
-    if (target != null && target.length() > 0) {
-      body(String.format("  %s --build %s --target %s -- -j8", cmakeExe, abiBuildFolder, target));
+      if (targets.size() > 0) {
+          for (String target : targets) {
+              body(String.format("  %s --build %s --target %s -- -j8", cmakeExe, abiBuildFolder, target));
+          }
     } else {
       body(String.format("  %s --build %s -- -j8", cmakeExe, abiBuildFolder));
     }
@@ -332,21 +328,23 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     body("  " + ABORT_LAST_FAILED);
 
-    String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
     File redistAbiFolder = new File(String.format("%s/lib/%s", redistFolder, abi));
     recordOutputLocation(redistAbiFolder);
 
-    if (lib != null && lib.length() > 0) {
-      body("  if [ -f '%s' ]; then", stagingLib);
-      body("    mkdir -p %s", redistAbiFolder);
-      body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
-      body("    " + ABORT_LAST_FAILED);
-      body("  else");
-      body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
-      body("    exit -100");
-      body("  fi");
-    } else {
-      body("  echo cmakeify.yml did not specify lib or target. No output library expected.");
+      for (String lib : libs) {
+          if (lib != null && lib.length() > 0) {
+              String stagingLib = String.format("%s/%s", stagingAbiFolder, lib);
+              body("  if [ -f '%s' ]; then", stagingLib);
+              body("    mkdir -p %s", redistAbiFolder);
+              body("    cp %s %s/%s", stagingLib, redistAbiFolder, lib);
+              body("    " + ABORT_LAST_FAILED);
+              body("  else");
+              body("    echo CMAKEIFY ERROR: CMake build did not produce %s", stagingLib);
+              body("    exit -100");
+              body("  fi");
+          } else {
+              body("  echo cmakeify.yml did not specify lib or target. No output library expected.");
+          }
     }
     body("else");
     body("  echo Build skipped ABI %s because arch folder didnt exist: %s", abi, archFolder);
@@ -368,7 +366,14 @@ public class BashScriptBuilder extends ScriptBuilder {
     writeCreateZipFromRedistFolderToBody(zip, redistFolder);
     writeCreateHeaderZip(headers, headerFolder);
     writeZipFileStatisticsToBody(zip);
-    cdep("  - lib: %s", lib);
+      StringBuilder libStrings = new StringBuilder();
+      for (int i = 0; i < libs.size(); ++i) {
+          if (i != 0) {
+              libStrings.append(",");
+          }
+          libStrings.append(libs.get(i));
+      }
+      cdep("  - libs: [%s]", libStrings.toString());
     cdep("    file: %s", zip.getName());
     cdep("    sha256: $SHASUM256");
     cdep("    size: $ARCHIVESIZE");

@@ -175,7 +175,7 @@ public class TestCmakeify {
     File yaml = new File("test-files/testScript/cmakeify.yml");
     yaml.getParentFile().mkdirs();
     Files.write("targets: [android]\n" +
-            "buildTarget: sqlite\n" +
+                    "buildTargets: [sqlite]\n" +
             "android:\n" +
             "  ndk:\n" +
             "    runtimes: [c++, gnustl, stlport]\n" +

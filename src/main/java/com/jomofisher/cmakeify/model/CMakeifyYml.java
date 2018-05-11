@@ -3,6 +3,7 @@ package com.jomofisher.cmakeify.model;
 public class CMakeifyYml {
   final public OS targets[];
   final public String buildTarget;
+  final public String buildTargets[];
   final public Boolean install;
   final public String cmakeFlags;
   final public String includes[];
@@ -18,6 +19,7 @@ public class CMakeifyYml {
   public CMakeifyYml() {
     targets = OS.values();
     buildTarget = null;
+    buildTargets = new String[0];
     install = null;
     cmakeFlags = null;
     includes = new String[0];
@@ -55,6 +57,16 @@ public class CMakeifyYml {
     if (buildTarget != null) {
       sb.append("buildTarget: \n");
       sb.append(buildTarget);
+    }
+    if (buildTargets != null && buildTargets.length > 0) {
+      sb.append("buildTargets: [");
+      for (int j = 0; j < buildTargets.length; ++j) {
+        if (j != 0) {
+          sb.append(", ");
+        }
+        sb.append(buildTargets[j]);
+      }
+      sb.append("]\n");
     }
     if (install != null) {
       sb.append("install: \n");
