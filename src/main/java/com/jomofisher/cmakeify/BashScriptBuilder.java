@@ -23,6 +23,7 @@ public class BashScriptBuilder extends ScriptBuilder {
   final private String targetGroupId;
   final private String targetArtifactId;
   final private String targetVersion;
+    final private String fileSuffix;
   final private Set<File> outputLocations = new HashSet<>();
   final private PrintStream out;
   final private OS specificTargetOS;
@@ -48,9 +49,14 @@ public class BashScriptBuilder extends ScriptBuilder {
     this.targetVersion = targetVersion;
     this.specificTargetOS = specificTargetOS;
     this.install = install;
+      if (targetVersion.contains("/")) {
+          this.fileSuffix = "-" + targetVersion.split("/")[0];
+      } else {
+          this.fileSuffix = "";
+      }
     if (generateCDep()) {
       if (specificTargetOS == null) {
-        this.cdepFile = new File(zipsFolder, "cdep-manifest.yml");
+          this.cdepFile = new File(zipsFolder, "cdep-manifest" + fileSuffix + ".yml");
       } else {
         this.cdepFile = new File(zipsFolder, String.format("cdep-manifest-%s.yml", specificTargetOS));
       }
@@ -264,7 +270,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-    File headers = new File(zipsFolder, "headers.zip").getAbsoluteFile();
+      File headers = new File(zipsFolder, "headers" + fileSuffix + ".zip").getAbsoluteFile();
     recordOutputLocation(zip);
 
     File buildFolder = new File(outputFolder, "cmake-generated-files");
@@ -450,7 +456,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-    File headers = new File(zipsFolder, "headers.zip").getAbsoluteFile();
+      File headers = new File(zipsFolder, "headers" + fileSuffix + ".zip").getAbsoluteFile();
     File buildFolder = new File(outputFolder, "cmake-generated-files");
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
@@ -579,7 +585,7 @@ public class BashScriptBuilder extends ScriptBuilder {
 
     zipName += ".zip";
     File zip = new File(zipsFolder, zipName).getAbsoluteFile();
-    File headers = new File(zipsFolder, "headers.zip").getAbsoluteFile();
+      File headers = new File(zipsFolder, "headers" + fileSuffix + ".zip").getAbsoluteFile();
     File buildFolder = new File(outputFolder, "cmake-generated-files");
     File headerFolder = new File(outputFolder, "header").getAbsoluteFile();
     File redistFolder = new File(outputFolder, "redist").getAbsoluteFile();
@@ -789,7 +795,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     }
     body("cat %s", cdepFile);
 
-    body("echo - %s", new File(cdepFile.getParentFile(), "cdep-manifest.yml"));
+      body("echo - %s", new File(cdepFile.getParentFile(), "cdep-manifest" + fileSuffix + ".yml"));
     for (String zip : zips.keySet()) {
       String relativeZip = new File(".").toURI().relativize(new File(zip).toURI()).getPath();
       body("if [ -f '%s' ]; then", relativeZip);
@@ -808,8 +814,8 @@ public class BashScriptBuilder extends ScriptBuilder {
       return this;
     }
 
-    File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest.yml");
-    File headers = new File(cdepFile.getParentFile(), "headers.zip");
+      File combinedManifest = new File(cdepFile.getParentFile(), "cdep-manifest" + fileSuffix + ".yml");
+      File headers = new File(cdepFile.getParentFile(), "headers" + fileSuffix + ".zip");
     body("echo ${cdep} merge headers %s %s include %s", cdepFile, headers, cdepFile);
     body("${cdep} merge headers %s %s include %s", cdepFile, headers, cdepFile);
     body(ABORT_LAST_FAILED);
@@ -817,11 +823,11 @@ public class BashScriptBuilder extends ScriptBuilder {
     if (targetVersion == null || targetVersion.length() == 0 || targetVersion.equals("0.0.0")) {
       body("echo Skipping upload because targetVersion='%s' %s", targetVersion, targetVersion.length());
       if (!combinedManifest.equals(cdepFile)) {
-        body("# cdep-manifest.yml tracking: %s to %s", cdepFile, combinedManifest);
+          body("# cdep-manifest" + fileSuffix + ".yml tracking: %s to %s", cdepFile, combinedManifest);
         body("cp %s %s", cdepFile, combinedManifest);
         body(ABORT_LAST_FAILED);
       } else {
-        body("# cdep-manifest.yml tracking: not copying because it has the same name as combined");
+          body("# cdep-manifest" + fileSuffix + ".yml tracking: not copying because it has the same name as combined");
         body("echo not copying %s to %s because it was already there. Still merge head", combinedManifest, cdepFile);
         body("ls %s", combinedManifest.getParent());
         body(ABORT_LAST_FAILED);
