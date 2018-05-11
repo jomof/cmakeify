@@ -21,7 +21,6 @@ language: java
 matrix: 
   include: 
     - env: TARGET_OS=android_and_linux
-      jdk: oraclejdk7
       script:
         - ./gradlew assemble check
         - pushd smoke-test && ../cdep wrapper && popd
