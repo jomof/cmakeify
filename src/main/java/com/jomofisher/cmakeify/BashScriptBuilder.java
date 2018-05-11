@@ -23,6 +23,7 @@ public class BashScriptBuilder extends ScriptBuilder {
     final private String targetGroupId;
     final private String targetArtifactId;
     final private String targetArtifactIdFolderName;
+    final private String repo;
     final private String targetVersion;
     final private String fileSuffix;
     final private Set<File> outputLocations = new HashSet<>();
@@ -50,12 +51,14 @@ public class BashScriptBuilder extends ScriptBuilder {
         this.targetArtifactIdFolderName = targetArtifactId.replace("/", "-");
         this.targetVersion = targetVersion;
         this.specificTargetOS = specificTargetOS;
-        this.install = install;
         if (targetArtifactId.contains("/")) {
-            this.fileSuffix = "-" + targetArtifactId.split("/")[0];
+            this.repo = targetArtifactId.split("/")[0];
+            this.fileSuffix = "-" + repo;
         } else {
+            this.repo = targetArtifactId;
             this.fileSuffix = "";
         }
+        this.install = install;
         if (generateCDep()) {
             if (specificTargetOS == null) {
                 this.cdepFile = new File(zipsFolder, "cdep-manifest" + fileSuffix + ".yml");
@@ -933,13 +936,13 @@ public class BashScriptBuilder extends ScriptBuilder {
                 TOOLS_FOLDER,
                 getHostArchive(githubRelease).unpackroot,
                 user,
-                targetArtifactId,
+                repo,
                 targetVersion, file.getName(), file.getAbsolutePath());
         body("  %s/%s/github-release upload --user %s --repo %s --tag %s --name %s --file %s",
                 TOOLS_FOLDER,
                 getHostArchive(githubRelease).unpackroot,
                 user,
-                targetArtifactId,
+                repo,
                 targetVersion, file.getName(), file.getAbsolutePath());
         body(ABORT_LAST_FAILED);
 
