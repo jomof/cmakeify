@@ -8,7 +8,7 @@
 
 ## Download jars and dependencies
 CMAKEIFY_DOWNLOADS=.cmakeify/jars
-CMAKEIFY_VERSION=0.6.3
+CMAKEIFY_VERSION=0.6.7
 CMAKEIFY_JAR=$CMAKEIFY_DOWNLOADS/cmakeify-$CMAKEIFY_VERSION.jar
 
 if [ ! -d $CMAKEIFY_DOWNLOADS ]; then
